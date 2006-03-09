@@ -1,0 +1,48 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ */
+
+#include "i18n.h"
+
+const tI18nPhrase Phrases[] = {
+  { "Extended recordings menu",
+    "Erweitertes Aufzeichnungs-Menü",
+  },
+  { "Button$Open",
+    "Öffnen",
+  },
+  { "Button$Cancel",
+    "Abbrechen",
+  },
+  { "Button$Play",
+    "Wiedergabe",
+  },
+  { "Button$Rewind",
+    "Anfang",
+  },
+  { "Button$Create",
+    "Anlegen",
+  },
+  { "Button$Select",
+    "Auswählen",
+  },
+  { "Button$Edit",
+    "Editieren",
+  },
+  { "Button$Rename",
+    "Umbenennen",
+  },
+  { "Button$Move",
+    "Verschieben",
+  },
+  { "Button$Delete",
+    "Löschen",
+  },
+  { "New folder",
+    "Neues Verzeichnis",
+  },
+  { "Rename recording",
+    "Aufzeichnung umbenennen",
+  },
+  { NULL }
+  };

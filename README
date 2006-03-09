@@ -1,0 +1,11 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
+
+Project's homepage: http://martins-kabuff.de/extrecmenu.html
+
+See the file COPYING for license information.
+
+Description:
+This plugin provides a recordings menu enhanced with the possibility to
+rename or move recordings.
