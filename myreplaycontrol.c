@@ -1,10 +1,10 @@
-#include "extrecmenu.h"
+#include "myreplaycontrol.h"
 
 char *myReplayControl::fileName = NULL;
 char *myReplayControl::title = NULL;
 
 myReplayControl::myReplayControl(void)
-:cDvbPlayerControl(fileName)
+:myDvbPlayerControl(fileName)
 {
   displayReplay = NULL;
   visible = modeOnly = shown = displayFrames = false;
@@ -318,9 +318,9 @@ void myReplayControl::EditTest(void)
 
 cOsdObject *myReplayControl::GetInfo(void)
 {
-//  cRecording *Recording = Recordings.GetByName(myReplayControl::LastReplayed());
-//  if (Recording)
-//     return new myMenuRecording(Recording, false);
+  cRecording *Recording = Recordings.GetByName(myReplayControl::LastReplayed());
+  if (Recording)
+     return new myMenuRecordingInfo(Recording, false);
   return NULL;
 }
 

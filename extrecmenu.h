@@ -1,16 +1,10 @@
 #include <vdr/plugin.h>
 #include <vdr/menu.h>
-#include <vdr/interface.h>
-#include <vdr/status.h>
 #include <vdr/skins.h>
-#include <vdr/dvbplayer.h>
-#include <vdr/cutter.h>
 #include <vdr/videodir.h>
 #include "i18n.h"
 
-#define MODETIMEOUT 3 // seconds
-
-static const char *VERSION        = "0.1";
+static const char *VERSION        = "0.2";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -71,6 +65,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Delete();
   eOSState Rename();
   eOSState MoveRec();
+  eOSState Info();
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();
@@ -108,41 +103,3 @@ class myMenuMoveRecording:public cOsdMenu
   myMenuMoveRecording::~myMenuMoveRecording();
   virtual eOSState ProcessKey(eKeys Key);
 };
-
-// --- myReplayControls -------------------------------------------------------
-class myReplayControl : public cDvbPlayerControl {
-private:
-  cSkinDisplayReplay *displayReplay;
-  cMarks marks;
-  bool visible, modeOnly, shown, displayFrames;
-  int lastCurrent, lastTotal;
-  bool lastPlay, lastForward;
-  int lastSpeed;
-  time_t timeoutShow;
-  bool timeSearchActive, timeSearchHide;
-  int timeSearchTime, timeSearchPos;
-  void TimeSearchDisplay(void);
-  void TimeSearchProcess(eKeys Key);
-  void TimeSearch(void);
-  void ShowTimed(int Seconds = 0);
-  static char *fileName;
-  static char *title;
-  void ShowMode(void);
-  bool ShowProgress(bool Initial);
-  void MarkToggle(void);
-  void MarkJump(bool Forward);
-  void MarkMove(bool Forward);
-  void EditCut(void);
-  void EditTest(void);
-public:
-  myReplayControl(void);
-  virtual ~myReplayControl();
-  virtual cOsdObject *GetInfo(void);
-  virtual eOSState ProcessKey(eKeys Key);
-  virtual void Show(void);
-  virtual void Hide(void);
-  bool Visible(void) { return visible; }
-  static void SetRecording(const char *FileName, const char *Title);
-  static const char *LastReplayed(void);
-  static void ClearLastReplayed(const char *FileName);
-  };

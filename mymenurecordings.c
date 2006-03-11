@@ -1,8 +1,9 @@
-#include "extrecmenu.h"
+#include "mymenurecordings.h"
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
+ char isnew=Recording->IsNew()?'*':' ';
  name=NULL;
  filename=Recording->FileName();
 
@@ -34,10 +35,17 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
   if(Level==level)
   {
    s=strrchr(Recording->Name(),'~');
-   if(s)
-    title=strdup(s+1);
-   else
-    title=strdup(Recording->Name());
+   
+   struct tm tm_tmp;
+   localtime_r(&Recording->start,&tm_tmp);
+   asprintf(&title,"%02d.%02d.%02d\t%02d:%02d%c\t%s",
+            tm_tmp.tm_mday,
+            tm_tmp.tm_mon+1,
+            tm_tmp.tm_year%100,
+            tm_tmp.tm_hour,
+            tm_tmp.tm_min,
+            isnew,
+            s?s+1:Recording->Name());
   }
   else 
    if(Level>level)
@@ -55,13 +63,14 @@ myMenuRecordingsItem::~myMenuRecordingsItem()
 }
 
 // --- myMenuRecordings -------------------------------------------------------
-myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr(DESCRIPTION))
+myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr(DESCRIPTION),8,6)
 {
  edit=false;
  level=Level;
  helpkeys=-1;
  base=Base?strdup(Base):NULL;
-
+ 
+ Display();
  Set();
  SetHelpKeys();
 }
@@ -136,7 +145,7 @@ void myMenuRecordings::SetHelpKeys()
      case 0: SetHelp(NULL);break;
      case 1: SetHelp(tr("Button$Open"));break;
      case 2: 
-     case 3: SetHelp(tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"));break;
+     case 3: SetHelp(tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),tr("Button$Info"));break;
     }
    }
    helpkeys=newhelpkeys;
@@ -294,6 +303,21 @@ eOSState myMenuRecordings::MoveRec()
  return osContinue;
 }
 
+eOSState myMenuRecordings::Info(void)
+{
+ if(HasSubMenu()||Count()==0)
+  return osContinue;
+
+ myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+ if(item&&!item->IsDirectory())
+ {
+  cRecording *recording=GetRecording(item);
+  if(recording&&recording->Info()->Title())
+   return AddSubMenu(new myMenuRecordingInfo(recording,true));
+ }
+ return osContinue;
+}
+
 eOSState myMenuRecordings::ProcessKey(eKeys Key)
 {
  eOSState state;
@@ -338,10 +362,10 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                    }
                    break;
                   }
+    case kBlue: return Info();
     default: break;
    }
   }
-
   // refresh the list after submenu has closed
   if(hadsubmenu&&!HasSubMenu())
    Set();
