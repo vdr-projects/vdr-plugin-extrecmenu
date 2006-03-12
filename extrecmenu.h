@@ -4,7 +4,7 @@
 #include <vdr/videodir.h>
 #include "i18n.h"
 
-static const char *VERSION        = "0.2";
+static const char *VERSION        = "0.3";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -39,6 +39,7 @@ class myMenuRecordingsItem:public cOsdItem
 {
  private:
   int level,isdirectory;
+  int totalentries,newentries;
   char *title;
   char *name;
   const char *filename;
@@ -48,6 +49,7 @@ class myMenuRecordingsItem:public cOsdItem
   const char *FileName(){return filename;}
   const char *Name(){return name;}
   bool IsDirectory(){return name!=NULL;}
+  void IncrementCounter(bool IsNew);
 };
 
 // --- myMenuRecordings -------------------------------------------------------
@@ -56,6 +58,7 @@ class myMenuRecordings:public cOsdMenu
  private:
   bool edit;
   int level,helpkeys;
+  int recordingsstate;
   char *base;
   bool Open();
   void SetHelpKeys();
@@ -69,7 +72,7 @@ class myMenuRecordings:public cOsdMenu
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();
-  void Set();
+  void Set(bool Refresh=false);
   virtual eOSState ProcessKey(eKeys Key);
 };
 

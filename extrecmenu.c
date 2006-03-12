@@ -1,4 +1,5 @@
 #include "extrecmenu.h"
+#include "mymenusetup.h"
 
 cPluginExtrecmenu::cPluginExtrecmenu(void)
 {
@@ -55,13 +56,22 @@ cOsdObject *cPluginExtrecmenu::MainMenuAction(void)
 cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
 {
   // Return a setup menu in case the plugin supports one.
-  return NULL;
+  return new myMenuSetup();
 }
 
 bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
 {
-  // Parse your own setup parameters and store their values.
-  return false;
+ if(!strcasecmp(Name,"ShowRecDate"))
+  mysetup.ShowRecDate=atoi(Value);
+ else
+  if(!strcasecmp(Name,"ShowRecTime"))
+   mysetup.ShowRecTime=atoi(Value);
+  else
+   if(!strcasecmp(Name,"ShowRecLength"))
+    mysetup.ShowRecLength=atoi(Value);
+   else
+    return false;
+ return true;
 }
 
 bool cPluginExtrecmenu::Service(const char *Id, void *Data)

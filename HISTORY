@@ -1,13 +1,18 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-12: Version 0.3
+- details for directories are shown now (# of entries, # of new entries)
+- option to shown the length of a recording
+- option to hide recording date, time and/or length
+
 2006-03-11: Version 0.2
 - implemented own dvbplayercontrol-class so that people who haved patch their
   vdr with the jumpplay-patch can compile the plugin
 - 'Info' while replaying opens recording info
-- option 'Info' added to recordings list to schow the description of a
+- option 'Info' added to recordings list to show the description of a
   recording
-- details (date and time) of recordings are shown now
+- details (date and time) for recordings are shown now
 
 2006-03-09: Version 0.1
 - Initial revision.

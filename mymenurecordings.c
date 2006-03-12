@@ -1,8 +1,11 @@
 #include "mymenurecordings.h"
+#include "mymenusetup.h"
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
+ totalentries=newentries=0;
+
  char isnew=Recording->IsNew()?'*':' ';
  name=NULL;
  filename=Recording->FileName();
@@ -17,7 +20,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  }
 
  // create the title of this item
- if(Level<level)
+ if(Level<level) // directory entries
  {
   s=Recording->Name();
   while(Level)
@@ -25,30 +28,61 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    s=strchr(Recording->Name(),'~')+1;
    Level--;
   }
-  title=strdup(s);
+  asprintf(&title,"\t\t%s",s);
   char *p=strchr(title,'~');
   if(p)
    *p=0;
-  name=strdup(title);
+  name=strdup(title+2);
  }
  else
-  if(Level==level)
+  if(Level==level) // recording entries
   {
    s=strrchr(Recording->Name(),'~');
    
-   struct tm tm_tmp;
-   localtime_r(&Recording->start,&tm_tmp);
-   asprintf(&title,"%02d.%02d.%02d\t%02d:%02d%c\t%s",
-            tm_tmp.tm_mday,
-            tm_tmp.tm_mon+1,
-            tm_tmp.tm_year%100,
-            tm_tmp.tm_hour,
-            tm_tmp.tm_min,
-            isnew,
-            s?s+1:Recording->Name());
+   // date and time of recording
+   struct tm t;
+   localtime_r(&Recording->start,&t);
+
+   // recording length
+   struct tIndex{int offset;uchar type;uchar number;short reserved;};
+   char RecLength[21],RecDate[9],RecTime[6],RecDelimiter[2]={'\t',0};
+   int last=-1;
+   char *indexfilename;
+   
+   asprintf(&indexfilename,"%s/index.vdr",filename);
+   int delta=0;
+   if(!access(indexfilename,R_OK))
+   {
+    struct stat buf;
+    if(!stat(indexfilename,&buf))
+    {
+     delta=buf.st_size%sizeof(tIndex);
+     if(delta)
+      delta=sizeof(tIndex)-delta;
+     last=(buf.st_size+delta)/sizeof(tIndex)+1;
+     char hour[2],min[3];
+     snprintf(RecLength,sizeof(RecLength),"%s",*IndexToHMSF(last,true));
+     snprintf(hour,sizeof(hour),"%c",RecLength[0]);
+     snprintf(min,sizeof(min),"%c%c",RecLength[2],RecLength[3]);
+     snprintf(RecLength,sizeof(RecLength),"%d'",(atoi(hour)*60)+atoi(min));
+    }
+   }   
+   free(indexfilename);
+
+   snprintf(RecDate,sizeof(RecDate),"%02d.%02d.%02d",t.tm_mday,t.tm_mon,t.tm_year%100);
+   snprintf(RecTime,sizeof(RecTime),"%02d:%02d",t.tm_hour,t.tm_min);
+   asprintf(&title,"%s%s%s%s%s%s%c%s",
+                   (mysetup.ShowRecDate?RecDate:""),
+                   (mysetup.ShowRecDate?RecDelimiter:""),
+                   (mysetup.ShowRecTime?RecTime:""),
+                   (mysetup.ShowRecTime?RecDelimiter:""),
+                   (mysetup.ShowRecLength?RecLength:""),
+                   (mysetup.ShowRecLength?RecDelimiter:""),
+                   isnew,
+                   s?s+1:Recording->Name());
   }
   else 
-   if(Level>level)
+   if(Level>level) // any other
    {
     title="";
    }
@@ -62,16 +96,29 @@ myMenuRecordingsItem::~myMenuRecordingsItem()
  free(name);
 }
 
+void myMenuRecordingsItem::IncrementCounter(bool IsNew)
+{
+ totalentries++;
+ if(IsNew)
+  newentries++;
+ 
+ char *buffer=NULL;
+ asprintf(&buffer,"%d\t%d\t%s",totalentries,newentries,name);
+ SetText(buffer,false);
+}
+
 // --- myMenuRecordings -------------------------------------------------------
-myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr(DESCRIPTION),8,6)
+myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr(DESCRIPTION),8,6,4)
 {
  edit=false;
  level=Level;
  helpkeys=-1;
  base=Base?strdup(Base):NULL;
  
- Display();
+ Recordings.StateChanged(recordingsstate);
+ 
  Set();
+ Display();
  SetHelpKeys();
 }
 
@@ -80,48 +127,61 @@ myMenuRecordings::~myMenuRecordings()
  free(base);
 }
 
-void myMenuRecordings::Set()
+void myMenuRecordings::Set(bool Refresh)
 {
- char *lastitemtext=NULL;
-
  cThreadLock RecordingsLock(&Recordings);
  Clear();
  Recordings.Sort();
  
+ char *lastitemtext=NULL;
+ myMenuRecordingsItem *lastitem=NULL;
  // add first the directories
  for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
  {
   if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
   {
    myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(item->IsDirectory()&&*item->Text()&&(!lastitemtext||strcmp(lastitemtext,item->Text())))
+   if(*item->Text()&&(!lastitem||strcmp(item->Text(),lastitemtext)))
    {
-    Add(item);
+    if(item->IsDirectory())
+     Add(item);
+
+    lastitem=item;
     free(lastitemtext);
-    lastitemtext=strdup(item->Text());
+    lastitemtext=strdup(lastitem->Text());
    }
    else
     delete item;
+   
+   if(lastitem)
+   {
+    if(lastitem->IsDirectory())
+     lastitem->IncrementCounter(recording->IsNew()); // counts the number of entries in a directory
+   }
   }
  }
+ lastitem=NULL;
  // and now the recordings
  for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
  {
   if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
   {
    myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(!item->IsDirectory()&&*item->Text()&&(!lastitemtext||strcmp(lastitemtext,item->Text())))
+   if(*item->Text()&&(!lastitem||strcmp(lastitemtext,item->Text())))
    {
-    Add(item);
+    if(!item->IsDirectory())
+     Add(item);
+    lastitem=item;
     free(lastitemtext);
-    lastitemtext=strdup(item->Text());
+    lastitemtext=strdup(lastitem->Text());
    }
    else
     delete item;
   }
  }
  free(lastitemtext);
- Display();
+ if(Refresh)
+  Display();
 }
 
 void myMenuRecordings::SetHelpKeys()
@@ -153,6 +213,7 @@ void myMenuRecordings::SetHelpKeys()
  }
 }
 
+// returns the corresponding recording to an item
 cRecording *myMenuRecordings::GetRecording(myMenuRecordingsItem *Item)
 {
  cRecording *recording=Recordings.GetByName(Item->FileName());
@@ -161,6 +222,7 @@ cRecording *myMenuRecordings::GetRecording(myMenuRecordingsItem *Item)
  return recording;
 }
 
+// opens a subdirectory
 bool myMenuRecordings::Open()
 {
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
@@ -180,6 +242,7 @@ bool myMenuRecordings::Open()
  return false;
 }
 
+// plays a recording
 eOSState myMenuRecordings::Play()
 {
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
@@ -202,6 +265,7 @@ eOSState myMenuRecordings::Play()
  return osContinue;
 }
 
+// plays a recording from the beginning
 eOSState myMenuRecordings::Rewind()
 {
  if(HasSubMenu()||Count()==0)
@@ -218,6 +282,7 @@ eOSState myMenuRecordings::Rewind()
  return osContinue;
 }
 
+// delete a recording
 eOSState myMenuRecordings::Delete()
 {
  if(HasSubMenu()||Count()==0)
@@ -270,6 +335,7 @@ eOSState myMenuRecordings::Delete()
  return osContinue;
 }
 
+// renames a recording
 eOSState myMenuRecordings::Rename()
 {
  if(HasSubMenu()||Count()==0)
@@ -285,6 +351,7 @@ eOSState myMenuRecordings::Rename()
  return osContinue;
 }
 
+// moves a recording
 eOSState myMenuRecordings::MoveRec()
 {
  if(HasSubMenu()||Count()==0)
@@ -303,6 +370,7 @@ eOSState myMenuRecordings::MoveRec()
  return osContinue;
 }
 
+// opens an info screen to a recording
 eOSState myMenuRecordings::Info(void)
 {
  if(HasSubMenu()||Count()==0)
@@ -344,7 +412,6 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
  }
  else
  {
-  bool hadsubmenu=HasSubMenu();
   state=cOsdMenu::ProcessKey(Key);
   if(state==osUnknown)
   {
@@ -363,13 +430,11 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                    break;
                   }
     case kBlue: return Info();
+    case kNone: if(Recordings.StateChanged(recordingsstate))
+                 Set(true);
     default: break;
    }
   }
-  // refresh the list after submenu has closed
-  if(hadsubmenu&&!HasSubMenu())
-   Set();
-
   // go back if list is empty
   if(!Count())
    state=osBack;

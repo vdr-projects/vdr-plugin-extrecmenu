@@ -47,5 +47,14 @@ const tI18nPhrase Phrases[] = {
   { "Rename recording",
     "Aufzeichnung umbenennen",
   },
+  { "Show recording date",
+    "Zeige Aufnahmedatum",
+  },
+  { "Show recording time",
+    "Zeige Aufnahmezeit",
+  },
+  { "Show recording length",
+    "Zeige Aufnahmelänge",
+  },
   { NULL }
   };
