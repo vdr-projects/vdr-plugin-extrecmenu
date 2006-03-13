@@ -1,3 +1,4 @@
+#include <vdr/status.h>
 #include "myreplaycontrol.h"
 
 myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording,bool WithButtons):cOsdMenu(tr("Recording info"))

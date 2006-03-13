@@ -56,5 +56,8 @@ const tI18nPhrase Phrases[] = {
   { "Show recording length",
     "Zeige Aufnahmelänge",
   },
+  { "Hide main menu entry",
+    "Hauptmenüeintrag ausblenden",
+  },
   { NULL }
   };

@@ -1,6 +1,12 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-13: Version 0.4
+- add option to hide main menu entry
+- set tabs depending on the shown recordings details - looks more fancy and
+  there is more space for the recording names
+- fixed a possible memory leak
+
 2006-03-12: Version 0.3
 - details for directories are shown now (# of entries, # of new entries)
 - option to shown the length of a recording

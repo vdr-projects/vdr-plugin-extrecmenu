@@ -1,3 +1,6 @@
+#include <vdr/interface.h>
+#include <vdr/status.h>
+#include <vdr/cutter.h>
 #include "myreplaycontrol.h"
 
 char *myReplayControl::fileName = NULL;

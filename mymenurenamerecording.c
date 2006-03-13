@@ -1,4 +1,6 @@
-#include "extrecmenu.h"
+#include <vdr/videodir.h>
+#include <vdr/menu.h>
+#include "mymenurecordings.h"
 
 myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,myMenuRecordings *MenuRecordings):cOsdMenu(tr("Rename recording"),12)
 {
@@ -50,7 +52,7 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
      // update recordings list
      Recordings.Update(true);
      // update menu
-     menurecordings->Set();
+     menurecordings->Set(true);
      return osBack;
     }
     else

@@ -1,5 +1,7 @@
-#include "extrecmenu.h"
 #include "mymenusetup.h"
+#include "mymenurecordings.h"
+#include "extrecmenu.h"
+#include "i18n.h"
 
 cPluginExtrecmenu::cPluginExtrecmenu(void)
 {
@@ -70,7 +72,10 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
    if(!strcasecmp(Name,"ShowRecLength"))
     mysetup.ShowRecLength=atoi(Value);
    else
-    return false;
+    if(!strcasecmp(Name,"HideMainMenuEntry"))
+     mysetup.HideMainMenuEntry=atoi(Value);
+    else
+     return false;
  return true;
 }
 

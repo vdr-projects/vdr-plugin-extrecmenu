@@ -1,4 +1,6 @@
-#include "extrecmenu.h"
+#include <vdr/videodir.h>
+#include <vdr/menu.h>
+#include "mymenurecordings.h"
 
 bool clearall;
 char newname[128];
@@ -174,7 +176,7 @@ eOSState myMenuMoveRecording::MoveRec()
    // update recordings list
    Recordings.Update(true);
    // update menu
-   menurecordings->Set();
+   menurecordings->Set(true);
    // close move-recordings-menu
    clearall=true;
   }

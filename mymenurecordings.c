@@ -1,3 +1,4 @@
+#include <vdr/interface.h>
 #include "mymenurecordings.h"
 #include "mymenusetup.h"
 
@@ -108,8 +109,20 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 }
 
 // --- myMenuRecordings -------------------------------------------------------
-myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr(DESCRIPTION),8,6,4)
+myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr("Extended recordings menu"))
 {
+ // set tabs
+ if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // all details are shown
+  SetCols(8,6,4);
+ else
+  if(mysetup.ShowRecDate&&!mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording time is not shown
+   SetCols(8,4);
+  else
+   if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
+    SetCols(6,4);
+   else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because the details of the directories
+    SetCols(4,4);
+
  edit=false;
  level=Level;
  helpkeys=-1;
@@ -117,7 +130,15 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  
  Recordings.StateChanged(recordingsstate);
  
+ Display();
  Set();
+ /*
+ if(Current()<0)
+  SetCurrent(First());
+ else
+  if(myReplayControl::LastReplayed&&Open())
+   return;
+ */
  Display();
  SetHelpKeys();
 }
@@ -125,63 +146,6 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
 myMenuRecordings::~myMenuRecordings()
 {
  free(base);
-}
-
-void myMenuRecordings::Set(bool Refresh)
-{
- cThreadLock RecordingsLock(&Recordings);
- Clear();
- Recordings.Sort();
- 
- char *lastitemtext=NULL;
- myMenuRecordingsItem *lastitem=NULL;
- // add first the directories
- for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
- {
-  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
-  {
-   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(*item->Text()&&(!lastitem||strcmp(item->Text(),lastitemtext)))
-   {
-    if(item->IsDirectory())
-     Add(item);
-
-    lastitem=item;
-    free(lastitemtext);
-    lastitemtext=strdup(lastitem->Text());
-   }
-   else
-    delete item;
-   
-   if(lastitem)
-   {
-    if(lastitem->IsDirectory())
-     lastitem->IncrementCounter(recording->IsNew()); // counts the number of entries in a directory
-   }
-  }
- }
- lastitem=NULL;
- // and now the recordings
- for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
- {
-  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
-  {
-   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(*item->Text()&&(!lastitem||strcmp(lastitemtext,item->Text())))
-   {
-    if(!item->IsDirectory())
-     Add(item);
-    lastitem=item;
-    free(lastitemtext);
-    lastitemtext=strdup(lastitem->Text());
-   }
-   else
-    delete item;
-  }
- }
- free(lastitemtext);
- if(Refresh)
-  Display();
 }
 
 void myMenuRecordings::SetHelpKeys()
@@ -211,6 +175,91 @@ void myMenuRecordings::SetHelpKeys()
    helpkeys=newhelpkeys;
   }
  }
+}
+
+void myMenuRecordings::Set(bool Refresh)
+{
+// const char *currentrecording=myReplayControl::LastReplayed();
+
+ cThreadLock RecordingsLock(&Recordings);
+ Clear();
+ Recordings.Sort();
+ 
+ char *lastitemtext=NULL;
+ myMenuRecordingsItem *lastitem=NULL;
+ bool  inlist=false;
+ // add first the directories
+ for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+ {
+  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
+  {
+   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
+   if(*item->Text()&&(!lastitem||strcmp(item->Text(),lastitemtext)))
+   {
+    if(item->IsDirectory())
+    {
+     Add(item);
+     inlist=true;
+    }
+
+    lastitem=item;
+    free(lastitemtext);
+    lastitemtext=strdup(lastitem->Text());
+   }
+   else
+    delete item;
+   
+   if(lastitem)
+   {
+    if(lastitem->IsDirectory())
+     lastitem->IncrementCounter(recording->IsNew()); // counts the number of entries in a directory
+    // delete items that are not in the list
+    if(!inlist)
+    {
+     delete lastitem;
+     lastitem=NULL;
+     inlist=false;
+    }
+   }
+  }
+ }
+ inlist=false;
+ lastitem=NULL;
+ // and now the recordings
+ for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+ {
+  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
+  {
+   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
+   if(*item->Text()&&(!lastitem||strcmp(lastitemtext,item->Text())))
+   {
+    if(!item->IsDirectory())
+    {
+     Add(item);
+     inlist=true;
+    }     
+    lastitem=item;
+    free(lastitemtext);
+    lastitemtext=strdup(lastitem->Text());
+   }
+   else
+    delete item;
+   
+   if(lastitem)
+   {
+    // delete items that are not in the list
+    if(!inlist)
+    {
+     delete lastitem;
+     lastitem=NULL;
+     inlist=false;
+    }
+   }
+  }
+ }
+ free(lastitemtext);
+ if(Refresh)
+  Display();
 }
 
 // returns the corresponding recording to an item

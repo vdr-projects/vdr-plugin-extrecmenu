@@ -1,6 +1,3 @@
-#include <vdr/cutter.h>
-#include <vdr/status.h>
-#include <vdr/interface.h>
 #include "mydvbplayer.h"
 
 #define MODETIMEOUT 3 // seconds
