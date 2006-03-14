@@ -59,5 +59,8 @@ const tI18nPhrase Phrases[] = {
   { "Hide main menu entry",
     "Hauptmenüeintrag ausblenden",
   },
+  { "Replace original recordings menu",
+    "Originales Aufzeichnungsmenü ersetzen",
+  },
   { NULL }
   };

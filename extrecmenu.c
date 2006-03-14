@@ -63,6 +63,9 @@ cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
 
 bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
 {
+ if(!strcasecmp(Name,"IsOrgRecMenu"))
+  return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
+
  if(!strcasecmp(Name,"ShowRecDate"))
   mysetup.ShowRecDate=atoi(Value);
  else
@@ -75,7 +78,10 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
     if(!strcasecmp(Name,"HideMainMenuEntry"))
      mysetup.HideMainMenuEntry=atoi(Value);
     else
-     return false;
+     if(!strcasecmp(Name,"ReplaceOrgRecMenu"))
+      mysetup.ReplaceOrgRecMenu=atoi(Value);
+     else
+      return false;
  return true;
 }
 

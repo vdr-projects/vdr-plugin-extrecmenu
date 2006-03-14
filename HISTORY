@@ -1,6 +1,14 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-13: Version 0.5
+- improved updating of moved or renamed recordings - updating should be faster
+  now
+- added patch and option to replace VDR's recordings menu; thanks to 'egal'
+  from vdr-portal.de
+- fixed the settings of tabs
+- month of a recording was shown the wrong way - fixed
+
 2006-03-13: Version 0.4
 - add option to hide main menu entry
 - set tabs depending on the shown recordings details - looks more fancy and

@@ -50,7 +50,8 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
     if(result)
     {
      // update recordings list
-     Recordings.Update(true);
+     Recordings.AddByName(newFileName);
+     Recordings.Del(recording);
      // update menu
      menurecordings->Set(true);
      return osBack;

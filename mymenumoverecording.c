@@ -174,7 +174,8 @@ eOSState myMenuMoveRecording::MoveRec()
   if(result)
   {
    // update recordings list
-   Recordings.Update(true);
+   Recordings.AddByName(newfilename);
+   Recordings.Del(recording,false);
    // update menu
    menurecordings->Set(true);
    // close move-recordings-menu

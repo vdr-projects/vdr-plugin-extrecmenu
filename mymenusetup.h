@@ -7,6 +7,7 @@ class mySetup
   int ShowRecTime;
   int ShowRecLength;
   int HideMainMenuEntry;
+  int ReplaceOrgRecMenu;
 };
 
 extern mySetup mysetup;
@@ -18,6 +19,7 @@ class myMenuSetup:public cMenuSetupPage
   int showrectime;
   int showreclength;
   int hidemainmenuentry;
+  int replaceorgrecmenu;
  protected:
   virtual void Store();
  public:

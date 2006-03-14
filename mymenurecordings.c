@@ -70,7 +70,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    }   
    free(indexfilename);
 
-   snprintf(RecDate,sizeof(RecDate),"%02d.%02d.%02d",t.tm_mday,t.tm_mon,t.tm_year%100);
+   snprintf(RecDate,sizeof(RecDate),"%02d.%02d.%02d",t.tm_mday,t.tm_mon+1,t.tm_year%100);
    snprintf(RecTime,sizeof(RecTime),"%02d:%02d",t.tm_hour,t.tm_min);
    asprintf(&title,"%s%s%s%s%s%s%c%s",
                    (mysetup.ShowRecDate?RecDate:""),
@@ -112,10 +112,10 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr("Extended recordings menu"))
 {
  // set tabs
- if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // all details are shown
+ if(mysetup.ShowRecDate&&mysetup.ShowRecTime) // all details are shown
   SetCols(8,6,4);
  else
-  if(mysetup.ShowRecDate&&!mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording time is not shown
+  if(mysetup.ShowRecDate&&!mysetup.ShowRecTime) // recording time is not shown
    SetCols(8,4);
   else
    if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
@@ -132,13 +132,6 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  
  Display();
  Set();
- /*
- if(Current()<0)
-  SetCurrent(First());
- else
-  if(myReplayControl::LastReplayed&&Open())
-   return;
- */
  Display();
  SetHelpKeys();
 }
@@ -179,8 +172,6 @@ void myMenuRecordings::SetHelpKeys()
 
 void myMenuRecordings::Set(bool Refresh)
 {
-// const char *currentrecording=myReplayControl::LastReplayed();
-
  cThreadLock RecordingsLock(&Recordings);
  Clear();
  Recordings.Sort();
@@ -479,11 +470,11 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                    break;
                   }
     case kBlue: return Info();
-    case kNone: if(Recordings.StateChanged(recordingsstate))
-                 Set(true);
     default: break;
    }
   }
+  if(Recordings.StateChanged(recordingsstate))
+   Set(true);
   // go back if list is empty
   if(!Count())
    state=osBack;
