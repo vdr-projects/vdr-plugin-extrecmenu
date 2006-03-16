@@ -1,6 +1,8 @@
 /*
  * See the README file for copyright information and how to reach the author.
+ *
  */
+
 
 #include "i18n.h"
 
@@ -16,6 +18,9 @@ const tI18nPhrase Phrases[] = {
   },
   { "Button$Play",
     "Wiedergabe",
+  },
+  { "Button$Commands",
+    "Befehle",
   },
   { "Button$Rewind",
     "Anfang",

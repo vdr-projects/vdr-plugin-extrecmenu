@@ -1,6 +1,14 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ *
+ */
+
 #include <vdr/interface.h>
+#include <vdr/videodir.h>
+#include "myreplaycontrol.h"
 #include "mymenurecordings.h"
 #include "mymenusetup.h"
+#include "mymenucommands.h"
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
@@ -132,6 +140,12 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  
  Display();
  Set();
+ if(Current()<0)
+  SetCurrent(First());
+ else
+  if(myReplayControl::LastReplayed())
+   Open();
+ 
  Display();
  SetHelpKeys();
 }
@@ -154,6 +168,9 @@ void myMenuRecordings::SetHelpKeys()
    else
    {
     newhelpkeys=2;
+    cRecording *recording=GetRecording(item);
+    if(recording&&recording->Info()->Title())
+     newhelpkeys=3;
    }
    if(newhelpkeys!=helpkeys)
    {
@@ -161,8 +178,8 @@ void myMenuRecordings::SetHelpKeys()
     {
      case 0: SetHelp(NULL);break;
      case 1: SetHelp(tr("Button$Open"));break;
-     case 2: 
-     case 3: SetHelp(tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),tr("Button$Info"));break;
+     case 2: SetHelp(RecordingCommands.Count()?tr("Button$Commands"):tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),NULL);break;
+     case 3: SetHelp(RecordingCommands.Count()?tr("Button$Commands"):tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),tr("Button$Info"));break;
     }
    }
    helpkeys=newhelpkeys;
@@ -170,8 +187,11 @@ void myMenuRecordings::SetHelpKeys()
  }
 }
 
+// create the menu list
 void myMenuRecordings::Set(bool Refresh)
 {
+ const char *lastreplayed=myReplayControl::LastReplayed();
+ 
  cThreadLock RecordingsLock(&Recordings);
  Clear();
  Recordings.Sort();
@@ -192,7 +212,6 @@ void myMenuRecordings::Set(bool Refresh)
      Add(item);
      inlist=true;
     }
-
     lastitem=item;
     free(lastitemtext);
     lastitemtext=strdup(lastitem->Text());
@@ -203,7 +222,11 @@ void myMenuRecordings::Set(bool Refresh)
    if(lastitem)
    {
     if(lastitem->IsDirectory())
+    {
      lastitem->IncrementCounter(recording->IsNew()); // counts the number of entries in a directory
+     if(lastreplayed&&!strcmp(lastreplayed,recording->FileName()))
+      SetCurrent(lastitem);
+    }
     // delete items that are not in the list
     if(!inlist)
     {
@@ -238,6 +261,12 @@ void myMenuRecordings::Set(bool Refresh)
    
    if(lastitem)
    {
+    if(!item->IsDirectory()&&lastreplayed&&!strcmp(lastreplayed,recording->FileName()))
+    {
+     SetCurrent(lastitem);
+     if(!cControl::Control())
+      myReplayControl::ClearLastReplayed(recording->FileName());
+    }
     // delete items that are not in the list
     if(!inlist)
     {
@@ -426,6 +455,30 @@ eOSState myMenuRecordings::Info(void)
  return osContinue;
 }
 
+// execute a command for a recording
+eOSState myMenuRecordings::Commands(eKeys Key)
+{
+ if(HasSubMenu()||Count()==0)
+  return osContinue;
+ myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+ if(item&&!item->IsDirectory())
+ {
+  cRecording *recording=GetRecording(item);
+  if(recording)
+  {
+   char *parameter=NULL;
+   asprintf(&parameter,"'%s'",recording->FileName());
+   myMenuCommands *menu;
+   eOSState state=AddSubMenu(menu=new myMenuCommands(tr("Recording commands"),&RecordingCommands,parameter));
+   free(parameter);
+   if(Key!=kNone)
+    state=menu->ProcessKey(Key);
+   return state;
+  }
+ }
+ return osContinue;
+}
+
 eOSState myMenuRecordings::ProcessKey(eKeys Key)
 {
  eOSState state;
@@ -457,8 +510,8 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
   {
    switch(Key)
    {
-    case kOk:
-    case kRed: return Play();
+    case kOk: return Play();
+    case kRed: return (helpkeys>1&&RecordingCommands.Count())?Commands():Play();
     case kGreen: return Rewind();
     case kYellow: {
                    myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
@@ -470,6 +523,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                    break;
                   }
     case kBlue: return Info();
+    case k1...k9: return Commands(Key);
     default: break;
    }
   }

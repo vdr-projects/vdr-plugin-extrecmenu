@@ -1,5 +1,3 @@
-#include "myreplaycontrol.h"
-
 extern bool clearall; // needed for myMenuMoveRecording
 
 // --- myMenuRecordingsItem ---------------------------------------------------
@@ -37,6 +35,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Rename();
   eOSState MoveRec();
   eOSState Info();
+  eOSState Commands(eKeys Key=kNone);
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();

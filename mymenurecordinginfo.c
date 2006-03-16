@@ -1,3 +1,9 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ *
+ * This code is directly taken from VDR with some changes by me to work with this plugin
+ */
+
 #include <vdr/status.h>
 #include "myreplaycontrol.h"
 

@@ -4,8 +4,22 @@ Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
 
 Project's homepage: http://martins-kabuff.de/extrecmenu.html
 
-See the file COPYING for license information.
+See the file COPYING for license information. See top of *.c for copyright
+information
 
 Description:
 This plugin provides a recordings menu enhanced with the possibility to
 rename or move recordings.
+
+Renaming:
+Select a recording, press 'Yellow', then 'Red'. Type in/edit the name. By
+pressing 'Ok', the recording will be renamed with this name.
+
+Moving:
+Select a recording, press 'Yellow', then 'Green'. Now you are in the base video
+directory. You can browse the directories, the path to the selected directory
+is shown at the title bar. By pressing 'Blue' you select this path for moving.
+
+There is a patch for VDR in /patches for replacing VDR's recordings menu with
+this plugin. You have to set the corresponding option at the setup menu of the
+plugin!

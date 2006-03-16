@@ -1,6 +1,12 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-16: Version 0.6
+- after the replay of a recording ended, the menu jumps now to the last
+  replayed recording
+- recording commands like in VDR's recordings menu now work
+- start to write some documentation in README
+
 2006-03-13: Version 0.5
 - improved updating of moved or renamed recordings - updating should be faster
   now

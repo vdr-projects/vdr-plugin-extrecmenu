@@ -1,3 +1,8 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ *
+ */
+
 #include "mymenusetup.h"
 #include "mymenurecordings.h"
 #include "extrecmenu.h"

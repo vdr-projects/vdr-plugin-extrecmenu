@@ -1,3 +1,8 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ *
+ */
+
 #include <vdr/videodir.h>
 #include <vdr/menu.h>
 #include "mymenurecordings.h"
