@@ -1,6 +1,9 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-17: Version 0.6a
+- fixed problem with open directories
+
 2006-03-16: Version 0.6
 - after the replay of a recording ended, the menu jumps now to the last
   replayed recording

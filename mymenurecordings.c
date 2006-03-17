@@ -31,16 +31,38 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  // create the title of this item
  if(Level<level) // directory entries
  {
+/*
   s=Recording->Name();
+  printf("%s\n",s);
+
   while(Level)
   {
    s=strchr(Recording->Name(),'~')+1;
    Level--;
   }
+  
   asprintf(&title,"\t\t%s",s);
   char *p=strchr(title,'~');
   if(p)
    *p=0;
+*/
+  s=Recording->Name();
+  const char *p=s;
+  while(*++s)
+  {
+   if(*s == '~')
+   {
+    if(Level--)
+     p=s+1;
+    else
+     break;
+   }
+  }
+  title=MALLOC(char,s-p+3);
+  *title='\t';
+  *(title+1)='\t';
+  strn0cpy(title+2,p,s-p+1);
+
   name=strdup(title+2);
  }
  else

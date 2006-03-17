@@ -64,6 +64,7 @@ myMenuMoveRecordingItem::myMenuMoveRecordingItem(cRecording *Recording,int Level
 
  if(Level<level)
  {
+/*
   s=Recording->Name();
   while(Level)
   {
@@ -74,6 +75,22 @@ myMenuMoveRecordingItem::myMenuMoveRecordingItem(cRecording *Recording,int Level
   char *p=strchr(title,'~');
   if(p)
    *p=0;
+  SetText(title);
+*/
+  s=Recording->Name();
+  const char *p=s;
+  while(*++s)
+  {
+   if(*s == '~')
+   {
+    if(Level--)
+     p=s+1;
+    else
+     break;
+   }
+  }
+  title=MALLOC(char,s-p+1);
+  strn0cpy(title,p,s-p+1);
   SetText(title);
  }
  else
