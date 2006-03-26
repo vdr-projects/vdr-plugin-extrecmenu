@@ -35,6 +35,9 @@ bool cPluginExtrecmenu::ProcessArgs(int argc, char *argv[])
 bool cPluginExtrecmenu::Initialize(void)
 {
  RegisterI18n(Phrases);
+ 
+ mysetup.wasdvd=false;
+
  return true;
 }
 
@@ -86,7 +89,16 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
      if(!strcasecmp(Name,"ReplaceOrgRecMenu"))
       mysetup.ReplaceOrgRecMenu=atoi(Value);
      else
-      return false;
+      if(!strcasecmp(Name,"PatchNew"))
+       mysetup.PatchNew=atoi(Value);
+      else
+       if(!strcasecmp(Name,"PatchDvd"))
+        mysetup.PatchDvd=atoi(Value);
+       else
+        if(!strcasecmp(Name,"ShowDvdNr"))
+         mysetup.ShowDvdNr=atoi(Value);
+        else
+         return false;
  return true;
 }
 

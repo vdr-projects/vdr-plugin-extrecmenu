@@ -9,14 +9,18 @@
 #include "mymenurecordings.h"
 #include "mymenusetup.h"
 #include "mymenucommands.h"
+#include "patchfont.h"
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
  totalentries=newentries=0;
-
- char isnew=Recording->IsNew()?'*':' ';
+ isdvd=false;
  name=NULL;
+ id=NULL;
+ 
+ strn0cpy(dvdnr,"",sizeof(dvdnr));
+ bool isnew=Recording->IsNew();
  filename=Recording->FileName();
 
  // get the level of this recording
@@ -31,21 +35,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  // create the title of this item
  if(Level<level) // directory entries
  {
-/*
-  s=Recording->Name();
-  printf("%s\n",s);
-
-  while(Level)
-  {
-   s=strchr(Recording->Name(),'~')+1;
-   Level--;
-  }
-  
-  asprintf(&title,"\t\t%s",s);
-  char *p=strchr(title,'~');
-  if(p)
-   *p=0;
-*/
   s=Recording->Name();
   const char *p=s;
   while(*++s)
@@ -71,18 +60,19 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    s=strrchr(Recording->Name(),'~');
    
    // date and time of recording
-   struct tm t;
-   localtime_r(&Recording->start,&t);
+   struct tm tm_r;
+   struct tm *t=localtime_r(&Recording->start,&tm_r);
 
-   // recording length
    struct tIndex{int offset;uchar type;uchar number;short reserved;};
    char RecLength[21],RecDate[9],RecTime[6],RecDelimiter[2]={'\t',0};
    int last=-1;
    char *indexfilename;
    
+   // recording length
    asprintf(&indexfilename,"%s/index.vdr",filename);
    int delta=0;
-   if(!access(indexfilename,R_OK))
+   int hasindex=!access(indexfilename,R_OK);
+   if(hasindex)
    {
     struct stat buf;
     if(!stat(indexfilename,&buf))
@@ -99,18 +89,44 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
     }
    }   
    free(indexfilename);
+   
+   // dvdarchive-patch functionality
+   asprintf(&indexfilename,"%s/dvd.vdr",filename);
+   isdvd=!access(indexfilename,R_OK);
+   if(isdvd)
+   {
+    FILE *f;
+    if((f=fopen(indexfilename,"r"))!=NULL)
+    {
+     if(fgets(dvdnr,sizeof(dvdnr),f))
+     {
+      char *p=strchr(dvdnr,'\n');
+      if(p)
+       *p=0;
+     }
+     fclose(f);
+    }
+   }
+   free(indexfilename);
 
-   snprintf(RecDate,sizeof(RecDate),"%02d.%02d.%02d",t.tm_mday,t.tm_mon+1,t.tm_year%100);
-   snprintf(RecTime,sizeof(RecTime),"%02d:%02d",t.tm_hour,t.tm_min);
-   asprintf(&title,"%s%s%s%s%s%s%c%s",
-                   (mysetup.ShowRecDate?RecDate:""),
-                   (mysetup.ShowRecDate?RecDelimiter:""),
-                   (mysetup.ShowRecTime?RecTime:""),
-                   (mysetup.ShowRecTime?RecDelimiter:""),
-                   (mysetup.ShowRecLength?RecLength:""),
-                   (mysetup.ShowRecLength?RecDelimiter:""),
-                   isnew,
-                   s?s+1:Recording->Name());
+   char New[2]={(mysetup.PatchNew?char(250):'*'),0};
+   char Dvd[2]={(mysetup.PatchDvd?char(251):'~'),0};
+
+   snprintf(RecDate,sizeof(RecDate),"%02d.%02d.%02d",t->tm_mday,t->tm_mon+1,t->tm_year%100);
+   snprintf(RecTime,sizeof(RecTime),"%02d:%02d",t->tm_hour,t->tm_min);
+   asprintf(&title,"%s%s%s%s%s%s%s%s%s%s",
+                   (mysetup.ShowRecDate?RecDate:""), // show recording date?
+                   (mysetup.ShowRecDate?RecDelimiter:""), // tab
+                   (mysetup.ShowRecTime?RecTime:""), // show recording time?
+                   (mysetup.ShowRecTime?RecDelimiter:""), // tab
+                   ((hasindex&&mysetup.ShowRecLength)?RecLength:""), // show recording length?
+                   (mysetup.ShowRecLength?RecDelimiter:""), // tab
+                   (isdvd?Dvd:(isnew?New:"")), // dvd/new marker
+                   (mysetup.ShowDvdNr?dvdnr:""), // show dvd nummber
+                   ((isdvd&&mysetup.ShowDvdNr)?" ":""), // space for fancy looking
+                   s?s+1:Recording->Name()); // recording name
+   
+   asprintf(&id,"%s %s %s",RecDate,RecTime,Recording->Name());
   }
   else 
    if(Level>level) // any other
@@ -141,17 +157,28 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 // --- myMenuRecordings -------------------------------------------------------
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr("Extended recordings menu"))
 {
- // set tabs
- if(mysetup.ShowRecDate&&mysetup.ShowRecTime) // all details are shown
-  SetCols(8,6,4);
- else
-  if(mysetup.ShowRecDate&&!mysetup.ShowRecTime) // recording time is not shown
-   SetCols(8,4);
+ // patch font
+ if(Level==0&&(mysetup.PatchNew||mysetup.PatchDvd))
+ {
+  if(Setup.UseSmallFont==2)
+   PatchFont(fontSml);
   else
-   if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
-    SetCols(6,4);
-   else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because the details of the directories
-    SetCols(4,4);
+   PatchFont(fontOsd);
+ }
+ // set tabs
+ if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&!mysetup.ShowRecLength) // recording date and time are shown, recording length not
+  SetCols(8,6);
+ else
+  if(mysetup.ShowRecDate&&mysetup.ShowRecTime) // all details are shown
+   SetCols(8,6,4);
+  else
+   if(mysetup.ShowRecDate&&!mysetup.ShowRecTime) // recording time is not shown
+    SetCols(8,4);
+   else
+    if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
+     SetCols(6,4);
+    else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because the details of the directories
+     SetCols(4,3);
 
  edit=false;
  level=Level;
@@ -166,7 +193,16 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
   SetCurrent(First());
  else
   if(myReplayControl::LastReplayed())
+  {
+   if(mysetup.wasdvd)
+   {
+    char *cmd;
+    asprintf(&cmd,"dvdarchive.sh umount '%s'",myReplayControl::LastReplayed());
+    SystemExec(cmd);
+    free(cmd);
+   }
    Open();
+  }
  
  Display();
  SetHelpKeys();
@@ -175,6 +211,14 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
 myMenuRecordings::~myMenuRecordings()
 {
  free(base);
+
+ if(level==0&&(mysetup.PatchNew||mysetup.PatchDvd))
+ {
+  if(Setup.UseSmallFont==2)
+   cFont::SetFont(fontSml);
+  else
+   cFont::SetFont(fontOsd);
+ }
 }
 
 void myMenuRecordings::SetHelpKeys()
@@ -267,16 +311,16 @@ void myMenuRecordings::Set(bool Refresh)
   if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
   {
    myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(*item->Text()&&(!lastitem||strcmp(lastitemtext,item->Text())))
+   if(item->ID()&&(!lastitem||strcmp(lastitemtext,item->ID())))
    {
     if(!item->IsDirectory())
     {
      Add(item);
      inlist=true;
-    }     
+    }
     lastitem=item;
     free(lastitemtext);
-    lastitemtext=strdup(lastitem->Text());
+    lastitemtext=strdup(lastitem->ID());
    }
    else
     delete item;
@@ -336,6 +380,11 @@ bool myMenuRecordings::Open()
 // plays a recording
 eOSState myMenuRecordings::Play()
 {
+ char *msg=NULL;
+ char *name=NULL;
+
+ char path[MaxFileName];
+ 
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
  if(item)
  {
@@ -346,6 +395,36 @@ eOSState myMenuRecordings::Play()
    cRecording *recording=GetRecording(item);
    if(recording)
    {
+    if(item->IsDVD())
+    {
+     asprintf(&msg,tr("Please insert DVD %s"),item->DvdNr());
+     if(Interface->Confirm(msg))
+     {
+      free(msg);
+      strcpy(path,recording->FileName());
+      name=strrchr(path,'/')+1;
+      asprintf(&msg,"dvdarchive.sh mount '%s' '%s'",path,name); // call the dvdarchive.sh script
+
+      int result=SystemExec(msg);
+      free(msg);
+      if(result)
+      {
+       if(result==256)
+        Skins.Message(mtError,tr("Error while mounting DVD!"));
+       if(result==512)
+        Skins.Message(mtError,tr("Recording not found on DVD!"));
+       if(result==32512)
+        Skins.Message(mtError,tr("Script 'dvdarchive.sh' not found!"));
+       return osContinue;
+      }
+      mysetup.wasdvd=true;
+     }
+     else
+     {
+      free(msg);
+      return osContinue;
+     }
+    }
     myReplayControl::SetRecording(recording->FileName(),recording->Title());
     cControl::Shutdown(); // stop running playbacks
     cControl::Launch(new myReplayControl); // start playback
@@ -527,6 +606,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
  }
  else
  {
+  bool hadsubmenu=HasSubMenu();
   state=cOsdMenu::ProcessKey(Key);
   if(state==osUnknown)
   {
@@ -549,8 +629,10 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
     default: break;
    }
   }
-  if(Recordings.StateChanged(recordingsstate))
+  // refresh list after submenu has closed
+  if(hadsubmenu&&!HasSubMenu()&&Recordings.StateChanged(recordingsstate))
    Set(true);
+  
   // go back if list is empty
   if(!Count())
    state=osBack;

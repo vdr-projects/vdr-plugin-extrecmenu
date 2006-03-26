@@ -48,7 +48,7 @@ DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 OBJS = $(PLUGIN).o mymenurecordings.o myreplaycontrol.o mymenurenamerecording.o \
        mymenumoverecording.o i18n.o mydvbplayer.o mymenurecordinginfo.o mymenusetup.o \
-       mymenucommands.o
+       mymenucommands.o patchfont.o tools.o
 
 ### Implicit rules:
 

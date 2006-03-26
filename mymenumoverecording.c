@@ -5,7 +5,9 @@
 
 #include <vdr/videodir.h>
 #include <vdr/menu.h>
+#include <vdr/remote.h>
 #include "mymenurecordings.h"
+#include "tools.h"
 
 bool clearall;
 char newname[128];
@@ -24,19 +26,22 @@ myMenuNewName::myMenuNewName():cOsdMenu(tr("New folder"),12)
 {
  strn0cpy(name,tr("New folder"),sizeof(name));
  Add(new cMenuEditStrItem(tr("Name"),name,sizeof(name),tr(FileNameChars)));
+ cRemote::Put(kRight);
 }
 
 eOSState myMenuNewName::ProcessKey(eKeys Key)
 {
  eOSState state=cOsdMenu::ProcessKey(Key);
  
- if(state==osUnknown)
+ if(state==osContinue)
  {
   if(Key==kOk)
   {
    strn0cpy(newname,name,sizeof(newname));
    state=osBack;
   }
+  if(Key==kBack)
+   state=osBack;
  }
  
  return state;
@@ -49,34 +54,31 @@ class myMenuMoveRecordingItem:public cOsdItem
   int level;
   char *title;
  public:
+  myMenuMoveRecordingItem(const char *Title,int Level);
   myMenuMoveRecordingItem(cRecording *Recording,int Level);
+  int Level(){return level;}
+  void SetLevel(int Level){level=Level;}
 };
+
+myMenuMoveRecordingItem::myMenuMoveRecordingItem(const char *Title,int Level)
+{
+ level=Level;
+ title=strdup(Title);
+ SetText(title);
+}
 
 myMenuMoveRecordingItem::myMenuMoveRecordingItem(cRecording *Recording,int Level)
 {
  level=0;
+
  const char *s=Recording->Name();
  while(*++s)
  {
   if(*s=='~')
    level++;
  }
-
  if(Level<level)
  {
-/*
-  s=Recording->Name();
-  while(Level)
-  {
-   s=strchr(Recording->Name(),'~')+1;
-   Level--;
-  }
-  title=strdup(s);
-  char *p=strchr(title,'~');
-  if(p)
-   *p=0;
-  SetText(title);
-*/
   s=Recording->Name();
   const char *p=s;
   while(*++s)
@@ -106,7 +108,7 @@ myMenuMoveRecording::myMenuMoveRecording(cRecording *Recording,myMenuRecordings 
  base=Base?strdup(Base):NULL;
  level=Level;
  Set();
- SetHelp(tr("Button$Cancel"),NULL,tr("Button$Create"),tr("Button$Select"));
+ SetHelp(tr("Button$Cancel"),NULL,tr("Button$Create"),tr("Button$Move"));
 }
 
 myMenuMoveRecording::~myMenuMoveRecording()
@@ -116,17 +118,33 @@ myMenuMoveRecording::~myMenuMoveRecording()
 
 void myMenuMoveRecording::Set()
 {
+ if(level==0)
+  Add(new myMenuMoveRecordingItem(tr("[base dir]"),0));
+
  char *lastitemtext=NULL;
+ myMenuMoveRecordingItem *lastitem=NULL;
  for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
  {
   if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
   {
    myMenuMoveRecordingItem *item=new myMenuMoveRecordingItem(recording,level);
-   if(*item->Text()&&(!lastitemtext||strcmp(lastitemtext,item->Text())))
+   if(*item->Text())
    {
-    Add(item);
-    free(lastitemtext);
-    lastitemtext=strdup(item->Text());
+    if(lastitemtext&&!strcmp(lastitemtext,item->Text())) // same text
+    {
+     if(lastitem&&lastitem->Level()<item->Level()) // if level of the previous item is lower, set it to the new value
+     {
+      lastitem->SetLevel(item->Level());
+     }
+     delete item;
+    }
+    else
+    {
+     Add(item); // different text means a new item to add
+     lastitem=item;
+     free(lastitemtext);
+     lastitemtext=strdup(lastitem->Text());
+    }
    }
    else
     delete item;
@@ -137,21 +155,10 @@ void myMenuMoveRecording::Set()
 
 eOSState myMenuMoveRecording::Open()
 {
- if(newname[0]!=0)
+ myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
+ if(item)
  {
-  const char *t;
-  char buffer[MaxFileName];
-  if(base)
-   snprintf(buffer,sizeof(buffer),"%s~%s",base,newname);
-  else
-   snprintf(buffer,sizeof(buffer),"%s",newname);
-  t=buffer;
-  return AddSubMenu(new myMenuMoveRecording(recording,menurecordings,t,level+1));
- }
- else
- {
-  myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
-  if(item)
+  if(item->Level()>level)
   {
    const char *t=item->Text();
    char buffer[MaxFileName];
@@ -168,48 +175,61 @@ eOSState myMenuMoveRecording::Open()
 
 eOSState myMenuMoveRecording::MoveRec()
 {
- char *name;
+ char *dir=NULL,*p=NULL,*name,*newfilename;
+ eOSState state=osContinue;
  
- char *p=strrchr(recording->Name(),'~');
- if(p)
+ myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
+ if(item)
  {
-  if(base)
-   asprintf(&name,"%s~%s",base,++p);
+  
+  if(!strcmp(tr("[base dir]"),item->Text()))
+   dir="";
   else
-   asprintf(&name,"%s",++p);
+   asprintf(&dir,"%s~",item->Text());
+  
+  p=strrchr(recording->Name(),'~');
+  if(p)
+  {
+   if(base)
+    asprintf(&name,"%s~%s%s",base,dir,++p);
+   else
+    asprintf(&name,"%s%s",dir,++p);
+  }
+  else
+  {
+   if(base)
+    asprintf(&name,"%s~%s%s",base,dir,recording->Name());
+   else
+    asprintf(&name,"%s%s",dir,recording->Name());
+  }
+ 
+  asprintf(&newfilename,"%s/%s/%s",VideoDirectory,ExchangeChars(name,true),strrchr(recording->FileName(),'/')+1);
  }
  else
  {
-  if(base)
-   asprintf(&name,"%s~%s",base,recording->Name());
+  p=strrchr(recording->Name(),'~');
+  if(p)
+   asprintf(&name,"%s~%s",base,++p);
   else
-   asprintf(&name,"%s",recording->Name());
+   asprintf(&name,"%s~%s",base,recording->Name());
+  
+  asprintf(&newfilename,"%s/%s/%s",VideoDirectory,ExchangeChars(name,true),strrchr(recording->FileName(),'/')+1);
  }
 
- char *newfilename;
- asprintf(&newfilename,"%s/%s/%s",VideoDirectory,ExchangeChars(name,true),strrchr(recording->FileName(),'/')+1);
-
- int result=MakeDirs(newfilename,true);
- if(result)
+ if(MoveVideoFile(recording,newfilename))
  {
-  result=RenameVideoFile(recording->FileName(),newfilename);
-  if(result)
-  {
-   // update recordings list
-   Recordings.AddByName(newfilename);
-   Recordings.Del(recording,false);
-   // update menu
-   menurecordings->Set(true);
-   // close move-recordings-menu
-   clearall=true;
-  }
-  else
-   Skins.Message(mtError,tr("Error while accessing recording!"));
+  menurecordings->Set(true);
+  clearall=true; // close move recording menu
+  state=osBack;
  }
  else
   Skins.Message(mtError,tr("Error while accessing recording!"));
-
- return osContinue;
+ 
+ if(dir!="")
+  free(dir);
+ free(name);
+ free(newfilename);
+ return state;
 }
 
 eOSState myMenuMoveRecording::Create()
@@ -234,7 +254,11 @@ eOSState myMenuMoveRecording::ProcessKey(eKeys Key)
  }
 
  if(newname[0]!=0)
-  return Open();
+ {
+  Add(new myMenuMoveRecordingItem(newname,level+2));
+  Display();
+  strn0cpy(newname,"",sizeof(newname));
+ }
 
  if(clearall)
   return osBack;

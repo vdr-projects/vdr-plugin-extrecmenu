@@ -4,14 +4,11 @@ extern bool clearall; // needed for myMenuMoveRecording
 class myMenuRecordingsItem:public cOsdItem
 {
  private:
-  bool isdvd;
-  char dvdnr[BUFSIZ];
   int level,isdirectory;
   int totalentries,newentries;
   char *title;
   char *name;
   const char *filename;
-  char *id; // this is the unique name that identifies a recording
  public:
   myMenuRecordingsItem(cRecording *Recording,int Level);
   ~myMenuRecordingsItem();
@@ -19,9 +16,6 @@ class myMenuRecordingsItem:public cOsdItem
   const char *Name(){return name;}
   bool IsDirectory(){return name!=NULL;}
   void IncrementCounter(bool IsNew);
-  bool IsDVD(){return isdvd;}
-  char *DvdNr(){return dvdnr;}
-  const char *ID(){return id;}
 };
 
 // --- myMenuRecordings -------------------------------------------------------

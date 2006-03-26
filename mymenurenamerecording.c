@@ -5,7 +5,9 @@
 
 #include <vdr/videodir.h>
 #include <vdr/menu.h>
+#include <vdr/remote.h>
 #include "mymenurecordings.h"
+#include "tools.h"
 
 myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,myMenuRecordings *MenuRecordings):cOsdMenu(tr("Rename recording"),12)
 {
@@ -28,44 +30,30 @@ myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,myMenuRecordi
   strn0cpy(path,"",sizeof(path));
  }
  Add(new cMenuEditStrItem(tr("Name"),name,sizeof(name),tr(FileNameChars)));
+ cRemote::Put(kRight);
 }
 
 eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 {
  eOSState state=cOsdMenu::ProcessKey(Key);
- if(state==osUnknown)
+ if(state==osContinue)
  {
   if(Key==kOk)
   {
-   int result;
    char *buffer;
-   char *newFileName;
+   char *newfilename;
    
    if(strlen(path))
     asprintf(&buffer,"%s~%s",path,name);
    else
     asprintf(&buffer,"%s",name);
    
-   asprintf(&newFileName,"%s/%s/%s",VideoDirectory,ExchangeChars(buffer,true),strrchr(recording->FileName(),'/')+1);
-   
-   result=MakeDirs(newFileName,true);
-   if(result)
+   asprintf(&newfilename,"%s/%s/%s",VideoDirectory,ExchangeChars(buffer,true),strrchr(recording->FileName(),'/')+1);
+
+   if(MoveVideoFile(recording,newfilename))
    {
-    result=RenameVideoFile(recording->FileName(),newFileName);
-    if(result)
-    {
-     // update recordings list
-     Recordings.AddByName(newFileName);
-     Recordings.Del(recording);
-     // update menu
-     menurecordings->Set(true);
-     return osBack;
-    }
-    else
-    {
-     Skins.Message(mtError,tr("Error while accessing recording!"));
-     state=osContinue;
-    }
+    menurecordings->Set(true);
+    state=osBack;
    }
    else
    {
@@ -73,8 +61,10 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
     state=osContinue;
    }
    free(buffer);
-   free(newFileName);
+   free(newfilename);
   }
+  if(Key==kBack)
+   return osBack;
  }
  return state;
 }

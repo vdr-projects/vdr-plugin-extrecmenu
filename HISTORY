@@ -1,6 +1,28 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-25: Version 0.7
+- added frensh translation; thanks to Patrice Staudt
+- added finnish translation; thanks to Rolf Ahrenberg
+- several bugfixes:
+  * if there are more then one recording with the same name, only one of it is
+    shown if the recording details are hidden; thanks to Monroe from
+    vdr-portal.de for reporting
+  * recording list entry (not the recording itselfs!) is deleted, if it is
+    moved to the same place; thanks to Monroe from vdr-portal.de for reporting
+  * if a recording was deleted, the selection bar jumps to the first list entry
+  * some people reported problems with wrong recording dates using LinVDR
+- revised rename-recording-menu; thanks to Monroe from vdr-portal.de for
+  suggesting
+- revised move-recording-menu - it is now more obvious; thanks to Monroe from
+  vdr-portal.de for suggesting
+- added option to show an alternative new marker - it's only useful for german
+  speaking users because this icon shows 'NEU'; suggestions for an
+  international version are welcome, you has 22x22 pixels for it
+- added the functionality of the DvdArchive- and the DVDShowArchive-patch
+  for VDR
+- thanks fpr vejoun from vdr-portal.de for the script 'dvdarchive.sh'
+
 2006-03-17: Version 0.6a
 - fixed problem with open directories
 
