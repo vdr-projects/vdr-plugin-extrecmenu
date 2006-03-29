@@ -11,6 +11,7 @@ class mySetup
   int PatchNew;
   int PatchDvd;
   int ShowDvdNr;
+  int ShowNewRecs;
   bool wasdvd; // needed for dvdarchive-patch functionality
 };
 
@@ -27,6 +28,7 @@ class myMenuSetup:public cMenuSetupPage
   int patchnew;
   int patchdvd;
   int showdvdnr;
+  int shownewrecs;
  protected:
   virtual void Store();
  public:

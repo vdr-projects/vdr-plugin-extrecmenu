@@ -1,6 +1,24 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-29: Version 0.8
+- added some logging
+- added option to hide the "new recordings column"
+- added possibility to edit lifetime and priority at the rename menu
+- changed alternative new marker, it marks now the recordings that are not
+  "rewinded", if turned of the behaviour is like that of VDR's recordings
+  menu
+- added support for a file length.vdr, containing the length of a recording as
+  a string
+- new version of 'dvdarchive.sh'; thanks to vejoun from vdr-portal.de
+- added two small tools (in tools/); isodetect to check for a dvd in drive
+  (optionally used by 'dvdarchive.sh'); getlength to create a length.vdr
+- updated error messages, more detailed now
+- fixed quoting of the parameters for dvdarchive.sh to avoid problems with
+  filenames containing a '
+- fixed unnecessary calls of 'dvdarchive.sh'; thanks to vejoun from
+  vdr-portal.de for reporting
+
 2006-03-25: Version 0.7
 - added frensh translation; thanks to Patrice Staudt
 - added finnish translation; thanks to Rolf Ahrenberg
@@ -18,10 +36,10 @@ VDR Plugin 'extrecmenu' Revision History
   vdr-portal.de for suggesting
 - added option to show an alternative new marker - it's only useful for german
   speaking users because this icon shows 'NEU'; suggestions for an
-  international version are welcome, you has 22x22 pixels for it
-- added the functionality of the DvdArchive- and the DVDShowArchive-patch
+  international version are welcome, you have 22x22 pixels for it
+- added the functionality of the DVDArchive- and the DVDShowArchive-patch
   for VDR
-- thanks fpr vejoun from vdr-portal.de for the script 'dvdarchive.sh'
+- thanks to vejoun from vdr-portal.de for the script 'dvdarchive.sh'
 
 2006-03-17: Version 0.6a
 - fixed problem with open directories

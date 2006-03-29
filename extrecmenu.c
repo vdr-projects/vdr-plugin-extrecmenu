@@ -98,7 +98,10 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
         if(!strcasecmp(Name,"ShowDvdNr"))
          mysetup.ShowDvdNr=atoi(Value);
         else
-         return false;
+         if(!strcasecmp(Name,"ShowNewRecs"))
+          mysetup.ShowNewRecs=atoi(Value);
+         else
+          return false;
  return true;
 }
 

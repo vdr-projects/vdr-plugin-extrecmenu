@@ -5,7 +5,8 @@ Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
 Project's homepage: http://martins-kabuff.de/extrecmenu.html
 
 See the file COPYING for license information. See top of *.c for additional
-copyright information
+copyright information. The script 'dvdarchive.sh' is provided by vejoun from
+vdr-portal.de
 
 Description
 -------------------------------------------------------------------------------
@@ -16,26 +17,28 @@ configurable. The plugin also handles archive dvd's of VDR recordings
 
 Handling
 -------------------------------------------------------------------------------
-Renaming:
-Select a recording, press 'Yellow', then 'Red'. Type in/edit the name. By
-pressing 'Ok', the recording will be renamed with this name.
+Renaming: Select a recording, press 'Yellow', then 'Red'. Type in/edit the
+name. By pressing 'Ok', the recording will be renamed with this name.
 
-Moving:
-Select a recording, press 'Yellow', then 'Green'. Now you are at the base
-directory of the /video-directory-hierarchy. 'Ok' opens sub-directories, with
-'Yellow' you can create new dirs. 'Blue' moves the recording to the selected
-directory
+Moving: Select a recording, press 'Yellow', then 'Green'. Now you are at the
+base directory of the /video-directory-hierarchy. 'Ok' opens sub-directories,
+with 'Yellow' you can create new dirs. 'Blue' moves the recording to the
+selected directory.
 
 DVDArchive-patch functionality
 -------------------------------------------------------------------------------
 Burn the entire directory, that contains the recording, to a dvd and label it
 with an indentifier (a number or anything else). You can of cource burn more
-than one recording to a dvd. Now you can delete the video data files (001.vdr,
-002.vdr, ...) from your hard disc. Leave the index.vdr and info.vdr at the dir
-and create a new file dvd.vdr, that contains the identifier of the dvd. If you
-now call the plugin and select such a recording entry you are asked to insert
-this dvd. It will be mounted by the plugin and the replay starts from the dvd.
-After replay ends, the dvd is unmountet instantly.
+than one recording to a dvd.
+Now you can delete the video data files (001.vdr, 002.vdr, ...) from your hard
+disc. Leave the index.vdr and info.vdr at the dir. index.vdr is needed if you
+want the length of the recording displayed. You can also use 'getlength' from
+the tools/-directory to create a length.vdr, containing the length of the
+recording. If you do this, you can also delete index.vdr.
+Create a new file dvd.vdr, that contains the identifier of the dvd. If you now
+call the plugin and select such a recording entry you are asked to insert this
+dvd. It will be mounted by the plugin and the replay starts from the dvd. After
+replay ends, the dvd is unmountet instantly.
 
 Installation
 -------------------------------------------------------------------------------
@@ -48,7 +51,7 @@ For VDR running as a user the script is designed to use sudo. Therefor sudo has
 to be installed on your system and configured to execute mount and umount
 without asking for a password. If you run VDR as root, change the variables
 MOUNTCMD and UMOUNTCMD at top of the skript. Furthermore you have to adjust the
-variable MOUNTPOINT to the mount point of your dvd device is it is defined at
+variable MOUNTPOINT to the mount point of your dvd device is it is defined in
 /etc/fstab.
 
 Check the options at the setup menu of the plugin. They are self-explaining.

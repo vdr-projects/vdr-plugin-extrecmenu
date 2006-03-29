@@ -7,6 +7,7 @@ bool MoveVideoFile(cRecording *Recording,char *NewName)
  if(!strcmp(Recording->FileName(),NewName))
   return true;
  
+ isyslog("[extrecmenu] moving file %s to %s",Recording->FileName(),NewName);
  int result=MakeDirs(NewName);
  if(result)
  {
@@ -19,5 +20,6 @@ bool MoveVideoFile(cRecording *Recording,char *NewName)
    return true;
   }
  }
+ isyslog("[extrecmenu] moving failed");
  return false;
 }

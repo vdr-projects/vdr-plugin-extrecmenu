@@ -53,6 +53,7 @@ class myMenuRecordings:public cOsdMenu
 class myMenuRenameRecording:public cOsdMenu
 {
  private:
+  int priority,lifetime;
   char name[MaxFileName];
   char path[MaxFileName];
   cRecording *recording;
