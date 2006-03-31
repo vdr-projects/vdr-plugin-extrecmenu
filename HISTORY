@@ -1,6 +1,12 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-03-31: Version 0.8a
+- fixed problem when open the plugin while replaying a archive dvd; thanks to
+  Monroe from vdr-portal.de for reporting
+- new version of 'dvdarchive.sh'; thanks to vejoun from vdr-portal.de
+- updated finnish translation; thanks to Rolf Ahrenberg
+
 2006-03-29: Version 0.8
 - added some logging
 - added option to hide the "new recordings column"

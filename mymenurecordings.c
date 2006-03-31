@@ -215,7 +215,7 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  else
   if(myReplayControl::LastReplayed())
   {
-   if(mysetup.wasdvd)
+   if(mysetup.wasdvd&&!cControl::Control())
    {
     char *cmd;
     asprintf(&cmd,"dvdarchive.sh umount \"%s\"",myReplayControl::LastReplayed());

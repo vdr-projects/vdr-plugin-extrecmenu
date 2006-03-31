@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version 1.1 2006-03-27
+# Version 1.2 2006-03-30
 #
 # Exitcodes:
 #
@@ -24,7 +24,7 @@ MOUNTPOINT="/media/cdrom" # no trailing '/'!
 
 #</Configuration>
 
-DEVICE="$(grep "$MOUNTPOINT" /etc/fstab | head -n1 | awk '{ print $1; }')" # dvd-device, used by isodetect if exists
+DEVICE="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" ) { print $1; exit; }' /etc/fstab)" # dvd-device, used by isodetect if exists
 
 REC="$2"
 NAME="$3"

@@ -1,6 +1,6 @@
 #include <vdr/plugin.h>
 
-static const char *VERSION        = "0.8";
+static const char *VERSION        = "0.8a";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 

@@ -283,7 +283,7 @@ const tI18nPhrase Phrases[] = {
     "",
     "",
     "",
-    "",
+    "Asemassa ei ole DVD-levyä!",
   },
   { "Error while linking [0-9]*.vdr!",
     "Fehler beim Anlegen der Symlinks [0-9]*.vdr!",
@@ -293,7 +293,7 @@ const tI18nPhrase Phrases[] = {
     "",
     "",
     "",
-    "",
+    "Tiedostojen [0-9]*.vdr linkittäminen epäonnistui!",
   },
   { "Show \"new recordings column\"",
     "\"Neue-Aufzeichnungen-Spalte\" anzeigen",
@@ -303,7 +303,7 @@ const tI18nPhrase Phrases[] = {
     "",
     "",
     "",
-    "",
+    "Näytä \"uudet tallenteet\"-sarake",
   },
   { NULL }
   };
