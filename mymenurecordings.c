@@ -10,6 +10,7 @@
 #include "mymenusetup.h"
 #include "mymenucommands.h"
 #include "patchfont.h"
+#include "tools.h"
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
@@ -51,7 +52,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
   *title='\t';
   *(title+1)='\t';
   strn0cpy(title+2,p,s-p+1);
-
   name=strdup(title+2);
  }
  else
@@ -121,7 +121,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    char RecDate[9],RecTime[6],RecDelimiter[2]={'\t',0};
    char New[2]={0,0};
    if(isdvd)
-    New[0]=mysetup.PatchDvd?char(129):'~';
+    New[0]=char(129);
    else
     if(isnew&&!mysetup.PatchNew)
      New[0]='*';
@@ -142,7 +142,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
                    (mysetup.ShowDvdNr?dvdnr:""), // show dvd nummber
                    ((isdvd&&mysetup.ShowDvdNr)?" ":""), // space for fancy looking
                    s?s+1:Recording->Name()); // recording name
-   
+
    asprintf(&id,"%s %s %s",RecDate,RecTime,Recording->Name());
   }
   else 
@@ -172,6 +172,10 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
  else
   asprintf(&buffer,"%d\t%s",totalentries,name);
  
+ // don't show '-', '.', '$', 'ª' or '·' if the directory name ends with one of it
+ if(buffer[strlen(buffer)-1]=='.'||buffer[strlen(buffer)-1]=='-'||buffer[strlen(buffer)-1]=='$'||buffer[strlen(buffer)-1]==char(170)||buffer[strlen(buffer)-1]==char(183))
+  buffer[strlen(buffer)-1]=0;
+
  SetText(buffer,false);
 }
 
@@ -179,7 +183,7 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Base:tr("Extended recordings menu"))
 {
  // patch font
- if(Level==0&&(mysetup.PatchNew||mysetup.PatchDvd))
+ if(Level==0)
  {
   if(Setup.UseSmallFont==2)
    PatchFont(fontSml);
@@ -209,31 +213,28 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  Recordings.StateChanged(recordingsstate);
  
  Display();
- Set();
- if(Current()<0)
-  SetCurrent(First());
- else
-  if(myReplayControl::LastReplayed())
+
+ if(mysetup.wasdvd&&!cControl::Control())
+ {
+  char *cmd;
+  asprintf(&cmd,"dvdarchive.sh umount \"%s\"",myReplayControl::LastReplayed());
+  isyslog("[extrecmenu] calling %s to unmount dvd",cmd);
+  int result=SystemExec(cmd);
+  if(result)
   {
-   if(mysetup.wasdvd&&!cControl::Control())
-   {
-    char *cmd;
-    asprintf(&cmd,"dvdarchive.sh umount \"%s\"",myReplayControl::LastReplayed());
-    isyslog("[extrecmenu] calling %s to unmount dvd",cmd);
-    int result=SystemExec(cmd);
-    if(result)
-    {
-     result=result/256;
-     if(result==1)
-      Skins.Message(mtError,tr("Error while mounting DVD!"));
-    }
-    isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
-    free(cmd);
-    
-    mysetup.wasdvd=false;
-   }
-   Open();
+   result=result/256;
+   if(result==1)
+    Skins.Message(mtError,tr("Error while mounting DVD!"));
   }
+  isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
+  free(cmd);
+  
+  mysetup.wasdvd=false;
+ }
+
+ Set();
+ if(myReplayControl::LastReplayed())
+  Open();
  
  Display();
  SetHelpKeys();
@@ -243,7 +244,7 @@ myMenuRecordings::~myMenuRecordings()
 {
  free(base);
 
- if(level==0&&(mysetup.PatchNew||mysetup.PatchDvd))
+ if(level==0)
  {
   if(Setup.UseSmallFont==2)
    cFont::SetFont(fontSml);
@@ -291,90 +292,49 @@ void myMenuRecordings::Set(bool Refresh)
  
  cThreadLock RecordingsLock(&Recordings);
  Clear();
+ // create my own recordings list from VDR's
+ myRecList *list=new myRecList();
+ for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+  list->Add(new myRecListItem(recording));
+ // sort my recordings list
+ list->Sort();
+
+ // needed for move recording menu
  Recordings.Sort();
  
  char *lastitemtext=NULL;
  myMenuRecordingsItem *lastitem=NULL;
- bool  inlist=false;
- // add first the directories
- for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+ for(myRecListItem *listitem=list->First();listitem;listitem=list->Next(listitem))
  {
-  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
+  cRecording *recording=listitem->recording;
+  if(!base||(strstr(listitem->recording->Name(),base)==listitem->recording->Name()&&listitem->recording->Name()[strlen(base)]=='~'))
   {
-   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(*item->Text()&&(!lastitem||strcmp(item->Text(),lastitemtext)))
+   myMenuRecordingsItem *recitem=new myMenuRecordingsItem(listitem->recording,level);
+   if(*recitem->Text()&&(!lastitem||strcmp(recitem->Text(),lastitemtext)))
    {
-    if(item->IsDirectory())
-    {
-     Add(item);
-     inlist=true;
-    }
-    lastitem=item;
+    Add(recitem);
+    lastitem=recitem;
     free(lastitemtext);
     lastitemtext=strdup(lastitem->Text());
    }
    else
-    delete item;
-   
+    delete recitem;
+
    if(lastitem)
    {
     if(lastitem->IsDirectory())
-    {
-     lastitem->IncrementCounter(recording->IsNew()); // counts the number of entries in a directory
-     if(lastreplayed&&!strcmp(lastreplayed,recording->FileName()))
-      SetCurrent(lastitem);
-    }
-    // delete items that are not in the list
-    if(!inlist)
-    {
-     delete lastitem;
-     lastitem=NULL;
-     inlist=false;
-    }
-   }
-  }
- }
- inlist=false;
- lastitem=NULL;
- // and now the recordings
- for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
- {
-  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
-  {
-   myMenuRecordingsItem *item=new myMenuRecordingsItem(recording,level);
-   if(item->ID()&&(!lastitem||strcmp(lastitemtext,item->ID())))
-   {
-    if(!item->IsDirectory())
-    {
-     Add(item);
-     inlist=true;
-    }
-    lastitem=item;
-    free(lastitemtext);
-    lastitemtext=strdup(lastitem->ID());
-   }
-   else
-    delete item;
-   
-   if(lastitem)
-   {
-    if(!item->IsDirectory()&&lastreplayed&&!strcmp(lastreplayed,recording->FileName()))
+     lastitem->IncrementCounter(recording->IsNew());
+    if(lastreplayed&&!strcmp(lastreplayed,recording->FileName()))
     {
      SetCurrent(lastitem);
-     if(!cControl::Control())
+     if(recitem&&!recitem->IsDirectory()&&!cControl::Control())
       myReplayControl::ClearLastReplayed(recording->FileName());
-    }
-    // delete items that are not in the list
-    if(!inlist)
-    {
-     delete lastitem;
-     lastitem=NULL;
-     inlist=false;
     }
    }
   }
- }
+ }  
  free(lastitemtext);
+ delete list;
  if(Refresh)
   Display();
 }
@@ -559,6 +519,22 @@ eOSState myMenuRecordings::Rename()
  return osContinue;
 }
 
+// edit details of a recording
+eOSState myMenuRecordings::Details()
+{
+ if(HasSubMenu()||Count()==0)
+  return osContinue;
+
+ myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+ if(item&&!item->IsDirectory())
+ {
+  cRecording *recording=GetRecording(item);
+  if(recording)
+   return AddSubMenu(new myMenuRecordingDetails(recording,this));
+ }
+ return osContinue;
+}
+
 // moves a recording
 eOSState myMenuRecordings::MoveRec()
 {
@@ -635,6 +611,9 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
    case kYellow: edit=false;
                  helpkeys=-1;
                  return Delete();
+   case kBlue: edit=false;
+               helpkeys=-1;
+               return Details();
    case kBack: edit=false;
                helpkeys=-1;
                SetHelpKeys();
@@ -658,7 +637,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                    if(item&&!item->IsDirectory())
                    {
                     edit=true;
-                    SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"));
+                    SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),tr("Details"));
                    }
                    break;
                   }

@@ -87,7 +87,7 @@ void PatchFont(eDvbFont DvbFont)
    }
   }
   // dvd marker
-  else if(num_char==129&&mysetup.PatchDvd)
+  else if(num_char==129)
   {
    if(DvbFont==fontOsd)
    {

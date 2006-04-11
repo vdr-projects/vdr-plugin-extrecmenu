@@ -1,9 +1,8 @@
-#include "mydvbplayer.h"
-
+#include <vdr/dvbplayer.h>
 #define MODETIMEOUT 3 // seconds
 
 // --- myReplayControls -------------------------------------------------------
-class myReplayControl : public myDvbPlayerControl {
+class myReplayControl : public cDvbPlayerControl {
 private:
   cSkinDisplayReplay *displayReplay;
   cMarks marks;
@@ -12,6 +11,9 @@ private:
   bool lastPlay, lastForward;
   int lastSpeed;
   time_t timeoutShow;
+#ifdef BIGPACKVERSION
+  time_t lastLoadMarks;
+#endif
   bool timeSearchActive, timeSearchHide;
   int timeSearchTime, timeSearchPos;
   void TimeSearchDisplay(void);

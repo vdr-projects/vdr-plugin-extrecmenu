@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version 1.2 2006-03-30
+# Version 1.4 2006-04-07
 #
 # Exitcodes:
 #
@@ -15,19 +15,34 @@
 # For dvd-in-drive detection download isodetect.c, compile it and put it into the PATH,
 # usually /usr/local/bin/
 #
+# Tools needed: mount, awk, find, test
+# Optional tools: isodetect
 
 #<Configuration>
 
 MOUNTCMD="/usr/bin/sudo /bin/mount"
 UMOUNTCMD="/usr/bin/sudo /bin/umount"
+
 MOUNTPOINT="/media/cdrom" # no trailing '/'!
+
+# Eject DVD for exit-codes 2 and 3 (no or wrong dvd). 1 = yes, 0 = no.
+EJECTWRONG=0
+# Eject DVD after unmounting. 1 = yes, 0 = no.
+EJECTUMOUNT=0
 
 #</Configuration>
 
-DEVICE="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" ) { print $1; exit; }' /etc/fstab)" # dvd-device, used by isodetect if exists
+DEVICE="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" ) { printf("%s", $1); exit; }' /etc/fstab)" # dvd-device, used by isodetect if exists
 
 REC="$2"
 NAME="$3"
+
+call() {
+	echo -e "\nScript $0 needs three parameters. Action, rec and name. Action is mount or umount"
+	echo -e "Example: dvdarchive.sh mount '/video1.0/Music/%Riverdance/2004-06-06.00:10.50.99.rec' '2004-06-06.00:10.50.99.rec'\n"
+}
+
+[ $# -ne 3 ] && { call; exit 10; }
 
 case "$1" in
 mount)
@@ -36,6 +51,7 @@ mount)
 		isodetect -d "$DEVICE" >/dev/null 2>&1
 		if [ $? -ne 0 ]; then
 			echo "no dvd in drive"
+			[ $EJECTWRONG -eq 1 ] && { eject "$DEVICE"; }
 			exit 2
 		fi
 	fi
@@ -50,6 +66,7 @@ mount)
 	if [ -z "$DIR" ]; then
 		$UMOUNTCMD "$MOUNTPOINT" || { echo "dvd umount error"; exit 1; }
 		echo "wrong dvd in drive / recording not found on dvd"
+		[ $EJECTWRONG -eq 1 ] && { eject "$DEVICE"; }
 		exit 3
 	fi
 	# link index.vdr if not exist
@@ -84,7 +101,12 @@ umount)
 			rm "$LINK"
 		fi
 	done
+	[ $EJECTUMOUNT -eq 1 ] && { eject "$DEVICE"; }
 	;;
+     *)
+        echo -e "\nWrong action."
+        call
+        ;;
 esac
 
 exit 0

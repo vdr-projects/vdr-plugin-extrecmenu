@@ -6,7 +6,7 @@ Project's homepage: http://martins-kabuff.de/extrecmenu.html
 
 See the file COPYING for license information. See top of *.c for additional
 copyright information. The script 'dvdarchive.sh' is provided by vejoun from
-vdr-portal.de
+vdr-portal.de.
 
 Description
 -------------------------------------------------------------------------------
@@ -25,7 +25,19 @@ base directory of the /video-directory-hierarchy. 'Ok' opens sub-directories,
 with 'Yellow' you can create new dirs. 'Blue' moves the recording to the
 selected directory.
 
-DVDArchive-patch functionality
+Sort recordings
+-------------------------------------------------------------------------------
+There are four options for sorting at the setup menu:
+Sort recordings by:
+- alphabet for main-, flexible for subdirectories
+- date for main-, flexible for subdirectories
+- alphabet for all directories
+- date for all directories
+Flexible means, if the directory name ends with "-",".","$" or "ª", the
+recordings in this directory are sorted by name, else by date.
+
+
+DVD-archive functionality
 -------------------------------------------------------------------------------
 Burn the entire directory, that contains the recording, to a dvd and label it
 with an indentifier (a number or anything else). You can of cource burn more
@@ -59,3 +71,11 @@ Check the options at the setup menu of the plugin. They are self-explaining.
 There is a patch for VDR in patches/ for replacing VDR's recordings menu with
 this plugin. You have to set the corresponding option at the setup menu of the
 plugin!
+
+There ist a patched TTF-Font for Enigma containing the dvd and alternative new
+symbols. See this post at vdr-portal.de:
+http://www.vdr-portal.de/board/thread.php?postid=447376#post447376
+
+
+Do you like this plugin? Support the developer! Go to the project homepage and
+make a donation over the PayPal donation button.

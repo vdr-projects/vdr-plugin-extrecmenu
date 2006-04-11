@@ -1,7 +1,8 @@
 /*
  * See the README file for copyright information and how to reach the author.
  *
- * This code is directly taken from VDR with some changes by me to work with this plugin
+ * This code is directly taken from VDR with some changes by me to work with this plugin.
+ * Also to JumpPlay-Patch is integrated using #ifdef's.
  */
 
 #include <vdr/interface.h>
@@ -13,7 +14,12 @@ char *myReplayControl::fileName = NULL;
 char *myReplayControl::title = NULL;
 
 myReplayControl::myReplayControl(void)
-:myDvbPlayerControl(fileName)
+#ifdef BIGPATCHVERSION
+:cDvbPlayerControl(fileName,&marks)
+#endif
+#ifndef BIGPATCHVERSION
+:cDvbPlayerControl(fileName)
+#endif
 {
   displayReplay = NULL;
   visible = modeOnly = shown = displayFrames = false;
@@ -23,6 +29,9 @@ myReplayControl::myReplayControl(void)
   timeoutShow = 0;
   timeSearchActive = false;
   marks.Load(fileName);
+#ifdef BIGPACKVERSION
+  lastLoadMarks = time(NULL);
+#endif
   cRecording Recording(fileName);
   cStatus::MsgReplaying(this, Recording.Name(), Recording.FileName(), true);
 }
@@ -244,8 +253,16 @@ void myReplayControl::MarkToggle(void)
         ShowTimed(2);
         bool Play, Forward;
         int Speed;
+#ifndef BIGPACKVERSION
         if (GetReplayMode(Play, Forward, Speed) && !Play)
            Goto(Current, true);
+#endif
+#ifdef BIGBACKVERSION
+        if (GetReplayMode(Play, Forward, Speed) && !Play) {
+           Goto(Current, true);
+           displayFrames = true;
+           }
+#endif
         }
 
      marks.Save();
@@ -259,8 +276,23 @@ void myReplayControl::MarkJump(bool Forward)
      if (GetIndex(Current, Total)) {
         cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
         if (m) {
+#ifndef BIGPACKVERSION
            Goto(m->position, true);
            displayFrames = true;
+#endif
+#ifdef BIGPACKVERSION
+           bool Play2, Forward2;
+           int Speed;
+           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
+               Play2 && Forward && m->position < Total - SecondsToFrames(3)) {
+              Goto(m->position);
+              Play();
+              }
+           else {
+              Goto(m->position, true);
+              displayFrames = true;
+              }
+#endif
            }
         }
      }
@@ -315,7 +347,12 @@ void myReplayControl::EditTest(void)
      if (!m)
         m = marks.GetNext(Current);
      if (m) {
+#ifndef BIGPACKVERSION
         if ((m->Index() & 0x01) != 0)
+#endif
+#ifdef BIGPACKVERSION
+        if ((m->Index() & 0x01) != 0 && !Setup.PlayJump)
+#endif
            m = marks.Next(m);
         if (m) {
            Goto(m->position - SecondsToFrames(3));
@@ -337,6 +374,13 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
 {
   if (!Active())
      return osEnd;
+#ifdef BIGPACKVERSION
+  if (Setup.LoadMarksInterval &&
+      time(NULL) >= lastLoadMarks + Setup.LoadMarksInterval) {
+     marks.Load(fileName, true);
+     lastLoadMarks = time(NULL);
+     }
+#endif
   if (visible) {
      if (timeoutShow && time(NULL) > timeoutShow) {
         Hide();

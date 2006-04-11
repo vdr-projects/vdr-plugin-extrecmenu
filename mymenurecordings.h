@@ -41,6 +41,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Rename();
   eOSState MoveRec();
   eOSState Info();
+  eOSState Details();
   eOSState Commands(eKeys Key=kNone);
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
@@ -53,7 +54,6 @@ class myMenuRecordings:public cOsdMenu
 class myMenuRenameRecording:public cOsdMenu
 {
  private:
-  int priority,lifetime;
   char name[MaxFileName];
   char path[MaxFileName];
   cRecording *recording;
@@ -78,5 +78,17 @@ class myMenuMoveRecording:public cOsdMenu
  public:
   myMenuMoveRecording(cRecording *Recording,myMenuRecordings *MenuRecordings,const char *Base=NULL,int Level=0);
   myMenuMoveRecording::~myMenuMoveRecording();
+  virtual eOSState ProcessKey(eKeys Key);
+};
+
+// --- myMenuRenameRecording --------------------------------------------------
+class myMenuRecordingDetails:public cOsdMenu
+{
+ private:
+  int priority,lifetime;
+  cRecording *recording;
+  myMenuRecordings *menurecordings;
+ public:
+  myMenuRecordingDetails(cRecording *Recording,myMenuRecordings *MenuRecordings);
   virtual eOSState ProcessKey(eKeys Key);
 };

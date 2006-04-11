@@ -1,6 +1,18 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-04-10: Version 0.9
+- removed myDvbPlayer, use VDR's cDvbPlayer instead
+- made adjustments to work with BigPatch-VDRs (JumpPlay-patch)
+- added option for sort recordings
+- moved editing of priority and lifetime to its own submenu
+- removed option to select alternative dvd marker, the icon is now default
+- added default values for setup options
+- moved content of patches/ and tools/ to contrib/ and added a small README
+- new version of 'dvdarchive.sh'; thanks to vejoun from vdr-portal.de
+- fixed problem with archive dvd recordings at the base dir; thanks to Mase
+  from vdr-portal.de for reporting
+
 2006-03-31: Version 0.8a
 - fixed problem when open the plugin while replaying a archive dvd; thanks to
   Monroe from vdr-portal.de for reporting
