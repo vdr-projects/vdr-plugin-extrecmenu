@@ -30,8 +30,13 @@ eOSState myMenuCommands::Execute()
  {
   char *buffer=NULL;
   bool confirmed=true;
-  if(command->Confirm())
-  {
+#ifdef CMD_SUBMENUS
+     if (command->hasChilds()) {
+        AddSubMenu(new cMenuCommands(command->Title(), command->getChilds(), parameters));
+        return osContinue;
+        }
+#endif // CMD_SUBMENUS
+  if(command->Confirm()) {
    asprintf(&buffer,"%s?",command->Title());
    confirmed=Interface->Confirm(buffer);
    free(buffer);

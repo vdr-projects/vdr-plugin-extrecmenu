@@ -29,7 +29,7 @@ myReplayControl::myReplayControl(void)
   timeoutShow = 0;
   timeSearchActive = false;
   marks.Load(fileName);
-#ifdef BIGPACKVERSION
+#ifdef BIGPATCHVERSION
   lastLoadMarks = time(NULL);
 #endif
   cRecording Recording(fileName);
@@ -253,11 +253,11 @@ void myReplayControl::MarkToggle(void)
         ShowTimed(2);
         bool Play, Forward;
         int Speed;
-#ifndef BIGPACKVERSION
+#ifndef BIGPATCHVERSION
         if (GetReplayMode(Play, Forward, Speed) && !Play)
            Goto(Current, true);
 #endif
-#ifdef BIGBACKVERSION
+#ifdef BIGPATCHVERSION
         if (GetReplayMode(Play, Forward, Speed) && !Play) {
            Goto(Current, true);
            displayFrames = true;
@@ -276,11 +276,11 @@ void myReplayControl::MarkJump(bool Forward)
      if (GetIndex(Current, Total)) {
         cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
         if (m) {
-#ifndef BIGPACKVERSION
+#ifndef BIGPATCHVERSION
            Goto(m->position, true);
            displayFrames = true;
 #endif
-#ifdef BIGPACKVERSION
+#ifdef BIGPATCHVERSION
            bool Play2, Forward2;
            int Speed;
            if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
@@ -347,10 +347,10 @@ void myReplayControl::EditTest(void)
      if (!m)
         m = marks.GetNext(Current);
      if (m) {
-#ifndef BIGPACKVERSION
+#ifndef BIGPATCHVERSION
         if ((m->Index() & 0x01) != 0)
 #endif
-#ifdef BIGPACKVERSION
+#ifdef BIGPATCHVERSION
         if ((m->Index() & 0x01) != 0 && !Setup.PlayJump)
 #endif
            m = marks.Next(m);
@@ -374,7 +374,7 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
 {
   if (!Active())
      return osEnd;
-#ifdef BIGPACKVERSION
+#ifdef BIGPATCHVERSION
   if (Setup.LoadMarksInterval &&
       time(NULL) >= lastLoadMarks + Setup.LoadMarksInterval) {
      marks.Load(fileName, true);

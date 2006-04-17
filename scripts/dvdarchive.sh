@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Version 1.4 2006-04-07
+# Version 1.5 2006-04-17
 #
 # Exitcodes:
 #
@@ -38,11 +38,15 @@ REC="$2"
 NAME="$3"
 
 call() {
-	echo -e "\nScript $0 needs three parameters. Action, rec and name. Action is mount or umount"
+	echo -e "\nScript $0 needs three parameters for mount and two for umount. The first must be mount or umount, the second is the full path.\n"
+	echo -e "Only for mounting the script needs a third parameter, the last part of the recording path.\n"
 	echo -e "Example: dvdarchive.sh mount '/video1.0/Music/%Riverdance/2004-06-06.00:10.50.99.rec' '2004-06-06.00:10.50.99.rec'\n"
+	echo -e "Example: dvdarchive.sh umount '/video1.0/Music/%Riverdance/2004-06-06.00:10.50.99.rec'\n"
 }
 
-[ $# -ne 3 ] && { call; exit 10; }
+[ "$1" = "mount" -o "$1" = "umount" ] || { call; exit 10; }
+[ -z "$2" ] && { call; exit 10; }
+[ "$1" = mount -a -z "$3" ] && { call; exit 10; }
 
 case "$1" in
 mount)

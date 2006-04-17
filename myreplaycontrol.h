@@ -11,7 +11,7 @@ private:
   bool lastPlay, lastForward;
   int lastSpeed;
   time_t timeoutShow;
-#ifdef BIGPACKVERSION
+#ifdef BIGPATCHVERSION
   time_t lastLoadMarks;
 #endif
   bool timeSearchActive, timeSearchHide;

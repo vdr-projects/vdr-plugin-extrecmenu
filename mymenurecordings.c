@@ -19,7 +19,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  isdvd=false;
  name=NULL;
  id=NULL;
- 
+
  strn0cpy(dvdnr,"",sizeof(dvdnr));
  bool isnew=Recording->IsNew();
  filename=Recording->FileName();
@@ -58,14 +58,14 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
   if(Level==level) // recording entries
   {
    s=strrchr(Recording->Name(),'~');
-   
+
    // date and time of recording
    struct tm tm_r;
    struct tm *t=localtime_r(&Recording->start,&tm_r);
 
    char RecLength[21];
    char *indexfilename;
-   
+
    // recording length
    asprintf(&indexfilename,"%s/index.vdr",filename);
    int haslength=!access(indexfilename,R_OK);
@@ -98,7 +98,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
     }
    }
    free(indexfilename);
-   
+
    // dvdarchive-patch functionality
    asprintf(&indexfilename,"%s/dvd.vdr",filename);
    isdvd=!access(indexfilename,R_OK);
@@ -145,7 +145,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
    asprintf(&id,"%s %s %s",RecDate,RecTime,Recording->Name());
   }
-  else 
+  else
    if(Level>level) // any other
    {
     title="";
@@ -165,13 +165,13 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
  totalentries++;
  if(IsNew)
   newentries++;
- 
+
  char *buffer=NULL;
  if(mysetup.ShowNewRecs)
   asprintf(&buffer,"%d\t%d\t%s",totalentries,newentries,name);
  else
   asprintf(&buffer,"%d\t%s",totalentries,name);
- 
+
  // don't show '-', '.', '$', 'ª' or '·' if the directory name ends with one of it
  if(buffer[strlen(buffer)-1]=='.'||buffer[strlen(buffer)-1]=='-'||buffer[strlen(buffer)-1]=='$'||buffer[strlen(buffer)-1]==char(170)||buffer[strlen(buffer)-1]==char(183))
   buffer[strlen(buffer)-1]=0;
@@ -209,9 +209,9 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  level=Level;
  helpkeys=-1;
  base=Base?strdup(Base):NULL;
- 
+
  Recordings.StateChanged(recordingsstate);
- 
+
  Display();
 
  if(mysetup.wasdvd&&!cControl::Control())
@@ -228,14 +228,14 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
   }
   isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
   free(cmd);
-  
+
   mysetup.wasdvd=false;
  }
 
  Set();
  if(myReplayControl::LastReplayed())
   Open();
- 
+
  Display();
  SetHelpKeys();
 }
@@ -289,7 +289,7 @@ void myMenuRecordings::SetHelpKeys()
 void myMenuRecordings::Set(bool Refresh)
 {
  const char *lastreplayed=myReplayControl::LastReplayed();
- 
+
  cThreadLock RecordingsLock(&Recordings);
  Clear();
  // create my own recordings list from VDR's
@@ -301,7 +301,7 @@ void myMenuRecordings::Set(bool Refresh)
 
  // needed for move recording menu
  Recordings.Sort();
- 
+
  char *lastitemtext=NULL;
  myMenuRecordingsItem *lastitem=NULL;
  for(myRecListItem *listitem=list->First();listitem;listitem=list->Next(listitem))
@@ -332,7 +332,7 @@ void myMenuRecordings::Set(bool Refresh)
     }
    }
   }
- }  
+ }
  free(lastitemtext);
  delete list;
  if(Refresh)
@@ -375,7 +375,7 @@ eOSState myMenuRecordings::Play()
  char *name=NULL;
 
  char path[MaxFileName];
- 
+
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
  if(item)
  {
@@ -455,7 +455,7 @@ eOSState myMenuRecordings::Delete()
 {
  if(HasSubMenu()||Count()==0)
   return osContinue;
- 
+
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
  if(item&&!item->IsDirectory())
  {
@@ -499,7 +499,7 @@ eOSState myMenuRecordings::Delete()
      Skins.Message(mtError,tr("Error while deleting recording!"));
    }
   }
- } 
+ }
  return osContinue;
 }
 
@@ -540,7 +540,7 @@ eOSState myMenuRecordings::MoveRec()
 {
  if(HasSubMenu()||Count()==0)
   return osContinue;
- 
+
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
  if(item&&!item->IsDirectory())
  {
@@ -597,7 +597,7 @@ eOSState myMenuRecordings::Commands(eKeys Key)
 eOSState myMenuRecordings::ProcessKey(eKeys Key)
 {
  eOSState state;
- 
+
  if(edit)
  {
   switch(Key)
@@ -649,7 +649,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
   // refresh list after submenu has closed
   if(hadsubmenu&&!HasSubMenu()&&Recordings.StateChanged(recordingsstate))
    Set(true);
-  
+
   // go back if list is empty
   if(!Count())
    state=osBack;

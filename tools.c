@@ -1,7 +1,7 @@
 /*
  * See the README file for copyright information and how to reach the author.
  *
- * The code for sort recordings as adopted from the SortRecordings-patch
+ * The code for sort recordings is adopted from the SortRecordings-patch
  * copyright by FrankJepsen and FRank99 from vdr-portal.de
  */
 
@@ -14,7 +14,7 @@ bool MoveVideoFile(cRecording *Recording,char *NewName)
 {
  if(!strcmp(Recording->FileName(),NewName))
   return true;
- 
+
  isyslog("[extrecmenu] moving file %s to %s",Recording->FileName(),NewName);
  int result=MakeDirs(NewName);
  if(result)

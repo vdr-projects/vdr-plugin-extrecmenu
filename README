@@ -15,7 +15,7 @@ rename or move recordings. The display of recording date, time and length is
 configurable. The plugin also handles archive dvd's of VDR recordings
 (as known from the DVDArchive-patch for VDR).
 
-Handling
+Editing
 -------------------------------------------------------------------------------
 Renaming: Select a recording, press 'Yellow', then 'Red'. Type in/edit the
 name. By pressing 'Ok', the recording will be renamed with this name.
@@ -24,6 +24,9 @@ Moving: Select a recording, press 'Yellow', then 'Green'. Now you are at the
 base directory of the /video-directory-hierarchy. 'Ok' opens sub-directories,
 with 'Yellow' you can create new dirs. 'Blue' moves the recording to the
 selected directory.
+
+Details: Select a recording, press 'Yellow', then 'Blue'. In this menu you can
+edit the lifetime and priority of the selected recording.
 
 Sort recordings
 -------------------------------------------------------------------------------
@@ -37,7 +40,7 @@ Flexible means, if the directory name ends with "-",".","$" or "ª", the
 recordings in this directory are sorted by name, else by date.
 
 
-DVD-archive functionality
+Archiv-DVD-functionality
 -------------------------------------------------------------------------------
 Burn the entire directory, that contains the recording, to a dvd and label it
 with an indentifier (a number or anything else). You can of cource burn more
@@ -68,7 +71,7 @@ variable MOUNTPOINT to the mount point of your dvd device is it is defined in
 
 Check the options at the setup menu of the plugin. They are self-explaining.
 
-There is a patch for VDR in patches/ for replacing VDR's recordings menu with
+There is a patch for VDR in contrib/ for replacing VDR's recordings menu with
 this plugin. You have to set the corresponding option at the setup menu of the
 plugin!
 
@@ -76,6 +79,7 @@ There ist a patched TTF-Font for Enigma containing the dvd and alternative new
 symbols. See this post at vdr-portal.de:
 http://www.vdr-portal.de/board/thread.php?postid=447376#post447376
 
-
+-------------------------------------------------------------------------------
 Do you like this plugin? Support the developer! Go to the project homepage and
 make a donation over the PayPal donation button.
+-------------------------------------------------------------------------------

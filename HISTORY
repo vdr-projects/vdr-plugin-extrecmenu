@@ -1,6 +1,14 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-04-17: Version 0.9a
+- fixed #ifdef's for JumpPlay-patch in myreplaycontrol.c; thanks to Thomas
+  Günther for reporting
+- include fixed 'dvdarchive.sh', umount wasn't possible; thanks to Mase from
+  vdr-portal.de for reporting
+- added support for CmdSubMenu-patch, it should now be possible to use sub
+  menus if you patched your VDR with BigPatch or CmdSubMenu-patch
+
 2006-04-10: Version 0.9
 - removed myDvbPlayer, use VDR's cDvbPlayer instead
 - made adjustments to work with BigPatch-VDRs (JumpPlay-patch)
