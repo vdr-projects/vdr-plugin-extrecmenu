@@ -1,6 +1,5 @@
 /*
  * See the README file for copyright information and how to reach the author.
- *
  */
 
 #include "mymenusetup.h"
@@ -88,7 +87,10 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
          if(!strcasecmp(Name,"SortRecords"))
           mysetup.SortRecords=atoi(Value);
          else
-          return false;
+          if(!strcasecmp(Name,"JumpRec"))
+           mysetup.JumpRec=atoi(Value);
+          else
+           return false;
  return true;
 }
 

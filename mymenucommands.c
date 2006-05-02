@@ -30,12 +30,12 @@ eOSState myMenuCommands::Execute()
  {
   char *buffer=NULL;
   bool confirmed=true;
-#ifdef CMD_SUBMENUS
+#ifdef BIGPATCHVERSION
      if (command->hasChilds()) {
-        AddSubMenu(new cMenuCommands(command->Title(), command->getChilds(), parameters));
+        AddSubMenu(new myMenuCommands(command->Title(), command->getChilds(), parameters));
         return osContinue;
         }
-#endif // CMD_SUBMENUS
+#endif
   if(command->Confirm()) {
    asprintf(&buffer,"%s?",command->Title());
    confirmed=Interface->Confirm(buffer);

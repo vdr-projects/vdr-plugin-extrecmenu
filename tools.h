@@ -1,5 +1,3 @@
-bool MoveVideoFile(cRecording *Recording,char *NewName);
-
 class myRecListItem:public cListObject
 {
  private:

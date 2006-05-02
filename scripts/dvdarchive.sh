@@ -1,7 +1,46 @@
 #!/bin/bash
 #
-# Version 1.5 2006-04-17
+# Version 1.9 2006-04-28
 #
+# Author:	Mike Constabel
+# VDR-Portal:	vejoun
+# EMail:	vejoun @ toppoint.de
+#
+# MANUAL:
+# -------
+# 1.
+# If you run VDR as user, you need in /etc/fstab the option "user" for your DVD mountpoint.
+#
+# Example:
+# /dev/hdc /media/cdrom iso9660 defaults,ro,user,noauto 0 0
+#
+# 2.
+# If you use a VFAT partition for your video-data, you must configure sudo to allow the
+# VDR-user to execute mount and umount as root. To edit sudoers run 'visudo' command as root.
+#
+# Example:
+# # Cmnd alias specification
+# Cmnd_Alias SYSTEM = /bin/mount, /bin/umount
+# # User privilege specification
+# vdr	ALL=(root) NOPASSWD: SYSTEM
+#
+# With a vfat partition some things doesn't work: resume, marks
+#
+# 3.
+# For dvd-in-drive detection compile isodetect.c and put it into the $PATH,
+# usually /usr/local/bin/
+# You find isodetect.c in the extrecmenu plugin source package.
+#
+# 4.
+# Tools needed:   mount, awk, find, test, stat
+# Optional tools: isodetect
+#
+# 5.
+# If you have some DVDs with the index.vdr only on DVD, you don't use vfat and you
+# want to see the recording length in the menu, you can switch GETLENGTH to 1 and
+# the script will create a length.vdr for you.
+#
+# 6.
 # Exitcodes:
 #
 # exit 0 - no error
@@ -9,29 +48,44 @@
 # exit 2 - no dvd in drive
 # exit 3 - wrong dvd in drive / recording not found
 # exit 4 - error while linking [0-9]*.vdr
+# exit 5 - sudo or mount --bind / umount error (vfat system)
 #
-# Errorhandling/Symlinking: vejoun@vdr-portal
+# HISTORY:
+# --------
+# 1.9 - use "sudo mount --bind" for mounting if filesystem is vfat
+#     - automatic fallback to 'sudo' and 'mount --bind' if filesystem is vfat
+#     - mounting more failure tolerant
+#     - added MANUAL part in script
+#     - length.vdr creation, you must not use it ;)
 #
-# For dvd-in-drive detection download isodetect.c, compile it and put it into the PATH,
-# usually /usr/local/bin/
+# 1.8 - remove sudo, is not necessary
+#     - on mount, if already mounted try to umount first
+#     - logging per syslog, see $SYSLOG
 #
-# Tools needed: mount, awk, find, test
-# Optional tools: isodetect
 
 #<Configuration>
 
-MOUNTCMD="/usr/bin/sudo /bin/mount"
-UMOUNTCMD="/usr/bin/sudo /bin/umount"
-
-MOUNTPOINT="/media/cdrom" # no trailing '/'!
+# Mountpoint, the same as in fstab
+MOUNTPOINT="/media/cdrom" # no trailing '/'
 
 # Eject DVD for exit-codes 2 and 3 (no or wrong dvd). 1 = yes, 0 = no.
 EJECTWRONG=0
+
 # Eject DVD after unmounting. 1 = yes, 0 = no.
 EJECTUMOUNT=0
 
+# Log warnings/errors in syslog. 1 = yes, 0 = no.
+SYSLOG=0
+
+# Create a length.vdr after mounting the dvd for the played recording. 1 = yes, 0 = no.
+# Only for non-vfat and with index.vdr only on dvd.
+GETLENGTH=0
+
 #</Configuration>
 
+# No changes needed after this mark
+
+MOUNTPOINT=${MOUNTPOINT/%\/}
 DEVICE="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" ) { printf("%s", $1); exit; }' /etc/fstab)" # dvd-device, used by isodetect if exists
 
 REC="$2"
@@ -40,8 +94,22 @@ NAME="$3"
 call() {
 	echo -e "\nScript $0 needs three parameters for mount and two for umount. The first must be mount or umount, the second is the full path.\n"
 	echo -e "Only for mounting the script needs a third parameter, the last part of the recording path.\n"
-	echo -e "Example: dvdarchive.sh mount '/video1.0/Music/%Riverdance/2004-06-06.00:10.50.99.rec' '2004-06-06.00:10.50.99.rec'\n"
-	echo -e "Example: dvdarchive.sh umount '/video1.0/Music/%Riverdance/2004-06-06.00:10.50.99.rec'\n"
+	echo -e "Example: dvdarchive.sh mount '/video0/Music/%Riverdance/2004-06-06.00:10.50.99.rec' '2004-06-06.00:10.50.99.rec'\n"
+	echo -e "Example: dvdarchive.sh umount '/video0/Music/%Riverdance/2004-06-06.00:10.50.99.rec'\n"
+	echo -e "For more information read the MANUAL part inside this script.\n"
+}
+
+log() {
+	case $1 in
+	   warning)
+	   	echo -e "WARNING: $2"
+	   	[ $SYSLOG -eq 1 ] && logger -t "$0" "WARNING: $2"
+	   	;;
+	     error)
+	     	echo -e "ERROR: $2"
+	     	[ $SYSLOG -eq 1 ] && logger -t "$0" "ERROR: $2"
+	     	;;
+	esac		
 }
 
 [ "$1" = "mount" -o "$1" = "umount" ] || { call; exit 10; }
@@ -54,61 +122,105 @@ mount)
 	if [ -n "$(which isodetect)" -a -n "$DEVICE" ]; then
 		isodetect -d "$DEVICE" >/dev/null 2>&1
 		if [ $? -ne 0 ]; then
-			echo "no dvd in drive"
+			log warning "no dvd in drive"
 			[ $EJECTWRONG -eq 1 ] && { eject "$DEVICE"; }
 			exit 2
 		fi
 	fi
 	# check if not mounted
-	$MOUNTCMD | grep "$MOUNTPOINT" >/dev/null && { echo "dvd already mounted"; exit 1; }
+	if mount | egrep -q " $MOUNTPOINT "; then
+		# check if dvd is in use
+		if mount | egrep -q "^$MOUNTPOINT"; then
+			log error "dvd in use"
+			exit 1
+		fi
+		# if already mountet, try to umount
+		log warning "dvd already mounted, try to umount"
+		umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
+		# unlink broken existing links
+		for LINK in "${REC}/"*.vdr; do
+			if [ -L "$LINK" -a ! -s "$LINK" ]; then
+				rm "$LINK"
+			fi
+		done
+	fi
 	# mount dvd
- 	$MOUNTCMD "$MOUNTPOINT" || { echo "dvd mount error"; exit 1; }
- 	# is mounted?
-	# find recording on dvd
+ 	mount "$MOUNTPOINT" || { log error "dvd mount error"; exit 1; }
+ 	# is mounted, find recording on dvd
 	DIR="$(find "${MOUNTPOINT}/" -name "$NAME")"
 	# if not found, umount
 	if [ -z "$DIR" ]; then
-		$UMOUNTCMD "$MOUNTPOINT" || { echo "dvd umount error"; exit 1; }
-		echo "wrong dvd in drive / recording not found on dvd"
+		log error "wrong dvd in drive / recording not found on dvd"
+		umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
+		# If wanted, eject dvd
 		[ $EJECTWRONG -eq 1 ] && { eject "$DEVICE"; }
 		exit 3
 	fi
-	# link index.vdr if not exist
-	if [ ! -e "${REC}/index.vdr" ]; then
-		cp -s "${DIR}/index.vdr" "${REC}/"
+	# check if video partition is vfat
+	if [ "$(stat -f -c %T "$REC")" != "vfat" ]; then
+		# link index.vdr if not exist
+		if [ ! -e "${REC}/index.vdr" ]; then
+			cp -s "${DIR}/index.vdr" "${REC}/"
+		fi
+		# link [0-9]*.vdr files
+		cp -s "${DIR}"/[0-9]*.vdr "${REC}/"
+		# error while linking [0-9]*.vdr files?
+		if [ $? -ne 0 ]; then
+			log error "error while linking [0-9]*.vdr"
+			# umount dvd bevor unlinking
+			umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
+			# unlink broken links
+			for LINK in "${REC}/"*.vdr; do
+				if [ -L "$LINK" -a ! -s "$LINK" ]; then
+					rm "$LINK"
+				fi
+			done
+			exit 4
+		fi
+		# If wanted, create length.vdr
+		if [ $GETLENGTH -eq 1 -a ! -s "${REC}/length.vdr" -a -L "${REC}/index.vdr" ]; then
+			 echo $(( $(stat -L -c %s "${REC}/index.vdr")/12000 )) > "${REC}/length.vdr"
+		fi
+	else
+		if [ ! "$(sudo -l | egrep "\(root\) NOPASSWD: /bin/mount")" -o ! "$(sudo -l | egrep "\(root\) NOPASSWD: /bin/umount")" ]; then
+			log error "you must configure sudo and allow $(whoami) to use mount/umount!"
+			umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
+			exit 5
+		fi
+		# mount recording
+		sudo mount --bind "$DIR" "$REC"
+		if [ $? -ne 0 ]; then
+			log error "sudo mount --bind $DIR $REC"
+			umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
+			exit 5
+		fi
 	fi
-	# link [0-9]*.vdr files
-	cp -s "${DIR}/"[0-9]*.vdr "${REC}/"
-	# error while linking [0-9]*.vdr files?
-	if [ $? -ne 0 ]; then
-		# umount dvd bevor unlinking
-		$UMOUNTCMD "$MOUNTPOINT" || { echo "dvd umount error"; exit 1; }
+	;;
+umount)
+	# check if dvd is mounted
+	mount | egrep -q " $MOUNTPOINT " || { log error "dvd not mounted"; exit 1; }
+	# check if video partition is vfat
+	if [ "$(stat -f -c %T "$REC")" != "vfat" ]; then
+		# is mounted, umount dvd bevor unlinking
+		umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
 		# unlink broken links
 		for LINK in "${REC}/"*.vdr; do
 			if [ -L "$LINK" -a ! -s "$LINK" ]; then
 				rm "$LINK"
 			fi
 		done
-		echo "error while linking [0-9]*.vdr"
-		exit 4
+	else
+		# umount recording
+		sudo umount "$REC" || { log error "sudo umount $REC"; exit 5; }
+		# umount dvd
+		umount "$MOUNTPOINT" || { log error "dvd umount error"; exit 1; }
 	fi
-	;;
-umount)
-	# check if dvd is mounted
-	$MOUNTCMD | grep "$MOUNTPOINT" >/dev/null || { echo "dvd not mounted"; exit 1; }
-	# is mounted?
-	# umount dvd bevor unlinking
-	$UMOUNTCMD "$MOUNTPOINT" || { echo "dvd umount error"; exit 1; }
-	# unlink broken links
-	for LINK in "${REC}/"*.vdr; do
-		if [ -L "$LINK" -a ! -s "$LINK" ]; then
-			rm "$LINK"
-		fi
-	done
+	# If wanted, eject dvd
 	[ $EJECTUMOUNT -eq 1 ] && { eject "$DEVICE"; }
 	;;
      *)
-        echo -e "\nWrong action."
+     	# Output help
+        log error "\nWrong action."
         call
         ;;
 esac

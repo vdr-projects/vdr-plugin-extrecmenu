@@ -1,3 +1,7 @@
+/*
+ * See the README file for copyright information and how to reach the author.
+ */
+
 #include <vdr/menu.h>
 #include "mymenusetup.h"
 
@@ -12,6 +16,7 @@ mySetup::mySetup()
  mysetup.ShowRecLength=0;
  mysetup.ShowNewRecs=1;
  mysetup.SortRecords=0;
+ mysetup.JumpRec=1;
  mysetup.wasdvd=false;
 }
 
@@ -33,6 +38,7 @@ myMenuSetup::myMenuSetup()
  showdvdnr=mysetup.ShowDvdNr;
  shownewrecs=mysetup.ShowNewRecs;
  sortrecords=mysetup.SortRecords;
+ jumprec=mysetup.JumpRec;
  
  Add(new cMenuEditBoolItem(tr("Show recording date"),&showrecdate));
  Add(new cMenuEditBoolItem(tr("Show recording time"),&showrectime));
@@ -43,6 +49,7 @@ myMenuSetup::myMenuSetup()
  Add(new cMenuEditBoolItem(tr("Show dvd number"),&showdvdnr));
  Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
  Add(new cMenuEditBoolItem(tr("Replace original recordings menu"),&replaceorgrecmenu));
+ Add(new cMenuEditBoolItem(tr("While opening jump to last replayed recording"),&jumprec));
 }
 
 void myMenuSetup::Store()
@@ -56,4 +63,5 @@ void myMenuSetup::Store()
  SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
  SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
  SetupStore("SortRecords",mysetup.SortRecords=sortrecords);
+ SetupStore("JumpRec",mysetup.JumpRec=jumprec);
 }

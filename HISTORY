@@ -1,9 +1,28 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-02-05: Version 0.10
+- made changes to Makefile for APIVERSION (VDR >= 1.3.47)
+- changed myReplayControl; suggested by Thomas Günther
+- added display of free disk space to the title bar
+- fixed adjustments for BigPatch/CmdSubMenu-patch; thanks to Thomas Günther
+  for the patch
+- renaming/moving directories is now possible
+- fixed escaping of parameters for dvdarchive.sh
+- changed behaviour if the replay of a recording ends, plugins will not open
+- 'Play' and 'Menu'->'Blue' for resuming a replay work now; BUT: the replay
+  isn't done with the plugin if you start replaying this way, means if you stop
+  the replay you come to VDR's recordings menu
+- switched off editing of details (priority and lifetime) or archive dvd
+  recordings to avoid trouble with the dir name that identifies it on the media
+- added option to mark last replayed recording while opening the plugin
+- added possibilty to include video dvd's into the recordings hierarchy; see
+  README
+- introduced new parameters for the '-r'-option if VDR: move, rename and delete
+
 2006-04-17: Version 0.9a
 - fixed #ifdef's for JumpPlay-patch in myreplaycontrol.c; thanks to Thomas
-  GÃ¼nther for reporting
+  Günther for reporting
 - include fixed 'dvdarchive.sh', umount wasn't possible; thanks to Mase from
   vdr-portal.de for reporting
 - added support for CmdSubMenu-patch, it should now be possible to use sub
@@ -97,7 +116,7 @@ VDR Plugin 'extrecmenu' Revision History
 
 2006-03-11: Version 0.2
 - implemented own dvbplayercontrol-class so that people who haved patch their
-  vdr with the jumpplay-patch can compile the plugin
+  vdr with the JumpPlay-patch can compile the plugin
 - 'Info' while replaying opens recording info
 - option 'Info' added to recordings list to show the description of a
   recording

@@ -5,6 +5,7 @@ class myMenuRecordingsItem:public cOsdItem
 {
  private:
   bool isdvd;
+  bool isvideodvd;
   char dvdnr[BUFSIZ];
   int level,isdirectory;
   int totalentries,newentries;
@@ -20,6 +21,7 @@ class myMenuRecordingsItem:public cOsdItem
   bool IsDirectory(){return name!=NULL;}
   void IncrementCounter(bool IsNew);
   bool IsDVD(){return isdvd;}
+  bool IsVideoDVD(){return isvideodvd;}
   char *DvdNr(){return dvdnr;}
   const char *ID(){return id;}
 };
@@ -54,12 +56,15 @@ class myMenuRecordings:public cOsdMenu
 class myMenuRenameRecording:public cOsdMenu
 {
  private:
+  bool isdir;
+  char *dirbase,*dirname;
   char name[MaxFileName];
   char path[MaxFileName];
   cRecording *recording;
   myMenuRecordings *menurecordings;
  public:
-  myMenuRenameRecording(cRecording *Recording,myMenuRecordings *MenuRecordings);
+  myMenuRenameRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName);
+  ~myMenuRenameRecording();
   virtual eOSState ProcessKey(eKeys Key);
 };
 
@@ -69,6 +74,7 @@ class myMenuMoveRecording:public cOsdMenu
  private:
   int level;
   char *base;
+  char *dirbase,*dirname;
   cRecording *recording;
   myMenuRecordings *menurecordings;
   void Set();
@@ -76,12 +82,12 @@ class myMenuMoveRecording:public cOsdMenu
   eOSState MoveRec();
   eOSState Create();
  public:
-  myMenuMoveRecording(cRecording *Recording,myMenuRecordings *MenuRecordings,const char *Base=NULL,int Level=0);
+  myMenuMoveRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName,const char *Base=NULL,int Level=0);
   myMenuMoveRecording::~myMenuMoveRecording();
   virtual eOSState ProcessKey(eKeys Key);
 };
 
-// --- myMenuRenameRecording --------------------------------------------------
+// --- myMenuRecordingDetails -------------------------------------------------
 class myMenuRecordingDetails:public cOsdMenu
 {
  private:
