@@ -16,8 +16,6 @@ mySetup::mySetup()
  mysetup.ShowRecLength=0;
  mysetup.ShowNewRecs=1;
  mysetup.SortRecords=0;
- mysetup.JumpRec=1;
- mysetup.wasdvd=false;
 }
 
 mySetup mysetup;
@@ -38,18 +36,16 @@ myMenuSetup::myMenuSetup()
  showdvdnr=mysetup.ShowDvdNr;
  shownewrecs=mysetup.ShowNewRecs;
  sortrecords=mysetup.SortRecords;
- jumprec=mysetup.JumpRec;
  
+ Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
+ Add(new cMenuEditBoolItem(tr("Replace original recordings menu"),&replaceorgrecmenu));
  Add(new cMenuEditBoolItem(tr("Show recording date"),&showrecdate));
  Add(new cMenuEditBoolItem(tr("Show recording time"),&showrectime));
  Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
  Add(new cMenuEditBoolItem(tr("Show \"new recordings column\""),&shownewrecs));
- Add(new cMenuEditStraItem(tr("Sort recordings by"),&sortrecords,4,sortrecordstext));
  Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
- Add(new cMenuEditBoolItem(tr("Show dvd number"),&showdvdnr));
- Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
- Add(new cMenuEditBoolItem(tr("Replace original recordings menu"),&replaceorgrecmenu));
- Add(new cMenuEditBoolItem(tr("While opening jump to last replayed recording"),&jumprec));
+ Add(new cMenuEditBoolItem(tr("Show dvd id"),&showdvdnr));
+ Add(new cMenuEditStraItem(tr("Sort recordings by"),&sortrecords,4,sortrecordstext));
 }
 
 void myMenuSetup::Store()
@@ -63,5 +59,4 @@ void myMenuSetup::Store()
  SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
  SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
  SetupStore("SortRecords",mysetup.SortRecords=sortrecords);
- SetupStore("JumpRec",mysetup.JumpRec=jumprec);
 }

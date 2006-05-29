@@ -8,7 +8,7 @@
 #include "mymenurecordings.h"
 #include "tools.h"
 
-bool clearall;
+bool myMenuMoveRecording::clearall=false;
 char newname[128];
 
 // --- myMenuRenameRecording --------------------------------------------------
@@ -64,49 +64,30 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
    char *oldname=NULL;
    char *newname=NULL;
 
+   if(strchr(name,'.')==name||!strlen(name))
+   {
+    Skins.Message(mtError,tr("Invalid filename!"));
+    cRemote::Put(kRight);
+    return osContinue;
+   }
+
    if(isdir)
     asprintf(&oldname,"%s%s%s/%s",VideoDirectory,path[0]?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
    else
     oldname=strdup(recording->FileName());
 
    asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,path[0]?"/":"",ExchangeChars(path,true),ExchangeChars(name,true),isdir?"":strrchr(recording->FileName(),'/'));
-   
-   if(strcmp(oldname,newname))
+
+   if(MoveRename(oldname,newname,isdir?NULL:recording,false))
    {
-    if(MakeDirs(newname,true)==false)
-    {
-     Skins.Message(mtError,"Error while accessing recording!");
-     state=osContinue;
-    }
-    else
-    {
-     isyslog("[extrecmenu] moving %s to %s",oldname,newname);
-    
-     if(rename(oldname,newname)==-1)
-     {
-      esyslog("[extrecmenu] error while moving: %s",strerror(errno));
-      Skins.Message(mtError,tr("Error while accessing recording!"));
-      state=osContinue;
-     }
-     else
-     {
-      cRecordingUserCommand::InvokeCommand("rename",newname);
-      if(isdir)
-       Recordings.Update(true);
-      else
-      {
-       free(newname);
-       asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,path[0]?"/":"",path,name,strrchr(recording->FileName(),'/'));
-       Recordings.AddByName(newname);
-       Recordings.Del(recording,false);
-      }
-      menurecordings->Set(true);
-      state=osBack;
-     }
-    }
+    state=osBack;
+    menurecordings->Set(true,isdir?NULL:newname);
    }
    else
-    state=osBack;
+   {
+    cRemote::Put(kRight);
+    state=osContinue;
+   }
 
    free(oldname);
    free(newname);
@@ -142,8 +123,17 @@ eOSState myMenuNewName::ProcessKey(eKeys Key)
  {
   if(Key==kOk)
   {
-   strn0cpy(newname,name,sizeof(newname));
-   state=osBack;
+   if(strchr(name,'.')==name||!strlen(name))
+   {
+    Skins.Message(mtError,tr("Invalid filename!"));
+    cRemote::Put(kRight);
+    state=osContinue;
+   }
+   else
+   {
+    strn0cpy(newname,name,sizeof(newname));
+    state=osBack;
+   }
   }
   if(Key==kBack)
    state=osBack;
@@ -242,9 +232,8 @@ void myMenuMoveRecording::Set()
     if(lastitemtext&&!strcmp(lastitemtext,item->Text())) // same text
     {
      if(lastitem&&lastitem->Level()<item->Level()) // if level of the previous item is lower, set it to the new value
-     {
       lastitem->SetLevel(item->Level());
-     }
+
      delete item;
     }
     else
@@ -287,70 +276,62 @@ eOSState myMenuMoveRecording::MoveRec()
  char *oldname=NULL;
  char *newname=NULL;
  char *dir=NULL;
- char *p=NULL;
  
  eOSState state=osContinue;
-
- myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
 
  if(dirname)
   asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
  else
   oldname=strdup(recording->FileName());
   
- p=strrchr(oldname,'/');
- if(p&&!dirname)
-  *p=0;
-
+ myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
  if(item)
  {
   if(strcmp(tr("[base dir]"),item->Text()))
   {
-   asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text());
-   ExchangeChars(dir,true);
-  }
- }
- else
- {
-  asprintf(&dir,"%s",base);
-  ExchangeChars(dir,true);
- }
-
- asprintf(&newname,"%s%s%s/%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(oldname,'/')+1);
-
- if(MakeDirs(newname,true)==false)
- {
-  Skins.Message(mtError,"Error while accessing recording!");
-  state=osContinue;
- }
- else
- {
-  isyslog("[extrecmenu] moving %s to %s",oldname,newname);
-  if(rename(oldname,newname)==-1)
-  {
-   esyslog("[extrecmenu] error while moving: %s",strerror(errno));
-   Skins.Message(mtError,"Error while accessing recording!");
-   state=osContinue;
+   if(dirname)
+    asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text());
+   else
+   {
+    char *p=strrchr(recording->Name(),'~');
+    asprintf(&dir,"%s%s%s~%s",base?base:"",base?"~":"",item->Text(),p?p+1:recording->Name());
+   }
   }
   else
   {
-   cRecordingUserCommand::InvokeCommand("move",newname);
-   if(dirname)
-    Recordings.Update(true);
-   else
+   if(!dirname)
    {
-    free(newname);
-    asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(oldname,'/')+1,strrchr(recording->FileName(),'/'));
-    Recordings.AddByName(newname);
-    Recordings.Del(recording,false);
+    char *p=strrchr(recording->Name(),'~');
+    asprintf(&dir,"%s",p?++p:recording->Name());
    }
-   clearall=true;
-   state=osBack;
   }
  }
+ else
+ {
+  if(dirname)
+   asprintf(&dir,"%s",base);
+  else
+  {
+   char *p=strrchr(recording->Name(),'~');
+   asprintf(&dir,"%s~%s",base,p?p:recording->Name());
+  }
+ }
+ if(dir)
+  ExchangeChars(dir,true);
+
+ asprintf(&newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
+
+ if(MoveRename(oldname,newname,dirname?NULL:recording,true))
+ {
+  clearall=true;
+  state=osBack;
+  menurecordings->Set(true);
+ }
+
  free(oldname);
  free(newname);
  free(dir);
+ 
  return state;
 }
 
@@ -412,26 +393,13 @@ eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
 
    sprintf(newname+strlen(newname)-9,"%02d.%02d.rec",priority,lifetime);
 
-   if(strcmp(oldname,newname))
+   if(MoveRename(oldname,newname,recording,false))
    {
-    isyslog("[extrecmenu] moving %s to %s",oldname,newname);
-   
-    if(rename(oldname,newname)==-1)
-    {
-     esyslog("[extrecmenu] error while moving: %s",strerror(errno));
-     Skins.Message(mtError,tr("Error while accessing recording!"));
-     state=osContinue;
-    }
-    else
-    {
-     Recordings.AddByName(newname);
-     Recordings.Del(recording,false);
-     menurecordings->Set(true);
-     state=osBack;
-    }
+    state=osBack;
+    menurecordings->Set(true,newname);
    }
    else
-    state=osBack;
+    state=osContinue;
 
    free(oldname);
    free(newname);

@@ -1,6 +1,26 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-28-05: Version 0.11
+- added czech translation; thanks to Vladimír Bárta
+- added missing dialog for video dvds
+- added more meaningful error messages
+- avoid empty names and names starting with . or .. while editing
+- free space display in title bar is now updated immediately
+- switched off editing of recordings and directories while a cut is in progress
+- switched off resume by 'Play' or 'Menu'->'Blue' for archive dvd recordings
+- changed back the behaviour if replay ends; plugin has to open to unmount
+  archive dvds
+- removed setup option "While opening jump to last replayed recording"; its
+  implemention interfers with the following one
+- after renaming a recording, the selection bar now stays at this renamed list
+  entry
+- the parameters 'move' and 'rename' for the '-r'-option of VDR have now the
+  following format: move/rename oldname newname
+- fixed hopefully all problems in connection with renaming and moving
+  directories
+- plugins closes if there are no recordings - fixed
+
 2006-02-05: Version 0.10
 - made changes to Makefile for APIVERSION (VDR >= 1.3.47)
 - changed myReplayControl; suggested by Thomas Günther
@@ -16,7 +36,7 @@ VDR Plugin 'extrecmenu' Revision History
 - switched off editing of details (priority and lifetime) or archive dvd
   recordings to avoid trouble with the dir name that identifies it on the media
 - added option to mark last replayed recording while opening the plugin
-- added possibilty to include video dvd's into the recordings hierarchy; see
+- added possibilty to include video dvds into the recordings hierarchy; see
   README
 - introduced new parameters for the '-r'-option if VDR: move, rename and delete
 

@@ -1,4 +1,4 @@
-extern bool clearall; // needed for myMenuMoveRecording
+#define MB_PER_MINUTE 25.75 // this is just an estimate!
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 class myMenuRecordingsItem:public cOsdItem
@@ -31,11 +31,14 @@ class myMenuRecordings:public cOsdMenu
 {
  private:
   bool edit;
+  static bool wasdvd;
+  static bool golastreplayed;
   int level,helpkeys;
   int recordingsstate;
   char *base;
   bool Open();
   void SetHelpKeys();
+  void SetFreeSpaceTitle();
   cRecording *GetRecording(myMenuRecordingsItem *Item);
   eOSState Play();
   eOSState Rewind();
@@ -48,7 +51,7 @@ class myMenuRecordings:public cOsdMenu
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();
-  void Set(bool Refresh=false);
+  void Set(bool Refresh=false,char *current=NULL);
   virtual eOSState ProcessKey(eKeys Key);
 };
 
@@ -83,8 +86,9 @@ class myMenuMoveRecording:public cOsdMenu
   eOSState Create();
  public:
   myMenuMoveRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName,const char *Base=NULL,int Level=0);
-  myMenuMoveRecording::~myMenuMoveRecording();
+  ~myMenuMoveRecording();
   virtual eOSState ProcessKey(eKeys Key);
+  static bool clearall;
 };
 
 // --- myMenuRecordingDetails -------------------------------------------------

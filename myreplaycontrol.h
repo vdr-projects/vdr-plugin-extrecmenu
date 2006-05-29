@@ -4,5 +4,5 @@ class myReplayControl:public cReplayControl
 {
  public:
   eOSState ProcessKey(eKeys Key);
-  static bool jumprec;
+  ~myReplayControl();
 };

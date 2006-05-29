@@ -87,10 +87,7 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
          if(!strcasecmp(Name,"SortRecords"))
           mysetup.SortRecords=atoi(Value);
          else
-          if(!strcasecmp(Name,"JumpRec"))
-           mysetup.JumpRec=atoi(Value);
-          else
-           return false;
+          return false;
  return true;
 }
 

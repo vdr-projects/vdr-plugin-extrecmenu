@@ -1,3 +1,5 @@
+bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bool Move);
+
 class myRecListItem:public cListObject
 {
  private:

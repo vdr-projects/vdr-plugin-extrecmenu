@@ -13,8 +13,6 @@ class mySetup
   int ShowDvdNr;
   int ShowNewRecs;
   int SortRecords;
-  int JumpRec;
-  bool wasdvd; // needed for dvdarchive-patch functionality
 };
 
 extern mySetup mysetup;
@@ -32,7 +30,6 @@ class myMenuSetup:public cMenuSetupPage
   int showdvdnr;
   int shownewrecs;
   int sortrecords;
-  int jumprec;
  protected:
   virtual void Store();
  public:

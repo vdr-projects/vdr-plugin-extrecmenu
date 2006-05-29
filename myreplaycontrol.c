@@ -5,16 +5,17 @@
 #include <vdr/interface.h>
 #include <vdr/status.h>
 #include "myreplaycontrol.h"
+#include "mymenusetup.h"
 
-bool myReplayControl::jumprec=true;
+myReplayControl::~myReplayControl()
+{
+ cRemote::CallPlugin("extrecmenu");
+}
 
 eOSState myReplayControl::ProcessKey(eKeys Key)
 {
  if(Key==kBack)
- {
-  cRemote::CallPlugin("extrecmenu");
   return osEnd;
- }
 
  return cReplayControl::ProcessKey(Key);
 }
