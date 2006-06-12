@@ -1,19 +1,49 @@
 This is a "plugin" for the Video Disk Recorder (VDR).
-
 Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
-
 Project's homepage: http://martins-kabuff.de/extrecmenu.html
 
 See the file COPYING for license information. See top of *.c for additional
-copyright information. The script 'dvdarchive.sh' is provided by Mike
-Constabel (vejoun@toppoint.de).
+copyright information.
 
+I want to thank to following contributors:
+- Mike Constabel for the skript dvdarchive.sh
+- Rolf Ahrenberg for the finnish translation
+- Patrice Staudt for the frensh translation
+- Vladimír Bárta for the czech translation
+
+-------------------------------------------------------------------------------
 Description
 -------------------------------------------------------------------------------
 This plugin provides a recordings menu enhanced with the possibility to
 rename or move recordings and directories. The display of recording date, time
-and length is configurable. The plugin also handles archive dvd's of VDR
-recordings (as known from the DVDArchive-patch for VDR).
+and length is configurable. Sorting by name or date is selectable for each
+directory. If you use the PIN-plugin, the replay and editing of recordings is
+protected. The plugin also handles archive dvds of VDR recordings (as known
+from the DVDArchive-patch for VDR). This plugin extends VDR's '-r'-option with
+messages for deleting, moving and renaming a recording.
+
+-------------------------------------------------------------------------------
+Installation
+-------------------------------------------------------------------------------
+Installation of the plugin itselfs is like any other plugin installation. Check
+the Makefile if you use the PIN-plugin. You have to place the script
+'dvdarchive.sh' from the scripts/-directory within your $PATH (maybe adjust the
+permissions) for the DVDArchive-patch functionality. See the top of
+'dvdarchive.sh' for the adjustments you maybe have to take.
+
+Check the options at the setup menu of the plugin. They are self-explaining.
+
+There is a patch for VDR in contrib/ for replacing VDR's recordings menu with
+this plugin. You have to set the corresponding option at the setup menu of the
+plugin!
+
+There ist a patched TTF-Font for Enigma containing the dvd and alternative new
+symbols. See this post at vdr-portal.de:
+http://www.vdr-portal.de/board/thread.php?postid=447376#post447376
+
+-------------------------------------------------------------------------------
+Handling
+-------------------------------------------------------------------------------
 
 Editing
 -------------------------------------------------------------------------------
@@ -25,20 +55,16 @@ Moving: Press 'Yellow', then 'Green'. Now you are at the base directory of the
 create new dirs. With 'Blue' moving to the selected dir will be executed.
 
 Details: Select a recording, press 'Yellow', then 'Blue'. In this menu you can
-edit the lifetime and priority of the selected recording.
+edit the lifetime and priority of the selected recording. Editing the details
+of archive dvd entries is not possible, because this would change the name by
+which the recording is found on the disc.
 
 Sort recordings
 -------------------------------------------------------------------------------
-There are four options for sorting at the setup menu:
-Sort recordings by:
-- alphabet for main-, flexible for subdirectories
-- date for main-, flexible for subdirectories
-- alphabet for all directories
-- date for all directories
-Flexible means, if the directory name ends with "-",".","$" or "ª", the
-recordings in this directory are sorted by name, else by date.
+All directories are sorted by date by default. To change the sorting, simply
+press '0'.
 
-
+-------------------------------------------------------------------------------
 Archiv-DVD-functionality
 -------------------------------------------------------------------------------
 Burn the entire directory, that contains the recording, to a dvd and label it
@@ -64,28 +90,11 @@ meanings: DD - day (01-31), MM - month (01-12), YY - year (00-99), hh - hour
 (00-23), mm - minutes (00-59), pr - priority (00-99), li - lifetime (00-99).
 (Example: 01-01-06.20.15.50.99.rec) You must use this name scheme, so that VDR
 identifies the folder as a recording. Now create in this folder a file dvd.vdr.
-The first column contains the dvd id, in the second column write 0000. This
+The first column contains the dvd id, in the second column write 0000 (or
+anything else, its only important that there is a second column). This
 identifies the dvd as a video dvd. If you now select such a recording in the
-list you are asked to insert the dvd and after confirming this the dvd-plugin
+list you are asked to insert the dvd and after confirming this the DVD-plugin
 is started to play the video dvd.
-
-Installation
--------------------------------------------------------------------------------
-Installation of the plugin itselfs is like any other plugin installation. In
-addition you have to place the script 'dvdarchive.sh' from the
-scripts/-directory within your $PATH (maybe adjust the permissions) for the
-DVDArchive-patch functionality. See the top of 'dvdarchive.sh' for the
-adjustments you maybe have to do.
-
-Check the options at the setup menu of the plugin. They are self-explaining.
-
-There is a patch for VDR in contrib/ for replacing VDR's recordings menu with
-this plugin. You have to set the corresponding option at the setup menu of the
-plugin!
-
-There ist a patched TTF-Font for Enigma containing the dvd and alternative new
-symbols. See this post at vdr-portal.de:
-http://www.vdr-portal.de/board/thread.php?postid=447376#post447376
 
 -------------------------------------------------------------------------------
 Do you like this plugin? Support the developer! Go to the project homepage and

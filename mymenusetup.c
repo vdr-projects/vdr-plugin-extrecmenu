@@ -8,25 +8,19 @@
 mySetup::mySetup()
 {
  mysetup.HideMainMenuEntry=0;
- mysetup.PatchNew=0;
+ mysetup.PatchNew=1;
  mysetup.ShowDvdNr=0;
  mysetup.ReplaceOrgRecMenu=0;
  mysetup.ShowRecDate=1;
  mysetup.ShowRecTime=1;
  mysetup.ShowRecLength=0;
  mysetup.ShowNewRecs=1;
- mysetup.SortRecords=0;
 }
 
 mySetup mysetup;
 
 myMenuSetup::myMenuSetup()
 {
- sortrecordstext[0]=tr("alphabet for main-, flexible for subdirectories");
- sortrecordstext[1]=tr("date for main-, flexible for subdirectories");
- sortrecordstext[2]=tr("alphabet for all directories");
- sortrecordstext[3]=tr("date for all directories");
-
  hidemainmenuentry=mysetup.HideMainMenuEntry;
  patchnew=mysetup.PatchNew;
  replaceorgrecmenu=mysetup.ReplaceOrgRecMenu;
@@ -35,17 +29,15 @@ myMenuSetup::myMenuSetup()
  showreclength=mysetup.ShowRecLength;
  showdvdnr=mysetup.ShowDvdNr;
  shownewrecs=mysetup.ShowNewRecs;
- sortrecords=mysetup.SortRecords;
  
  Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
  Add(new cMenuEditBoolItem(tr("Replace original recordings menu"),&replaceorgrecmenu));
  Add(new cMenuEditBoolItem(tr("Show recording date"),&showrecdate));
  Add(new cMenuEditBoolItem(tr("Show recording time"),&showrectime));
  Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
- Add(new cMenuEditBoolItem(tr("Show \"new recordings column\""),&shownewrecs));
+ Add(new cMenuEditBoolItem(tr("Show nr. of new recordings in a directory"),&shownewrecs));
  Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
  Add(new cMenuEditBoolItem(tr("Show dvd id"),&showdvdnr));
- Add(new cMenuEditStraItem(tr("Sort recordings by"),&sortrecords,4,sortrecordstext));
 }
 
 void myMenuSetup::Store()
@@ -58,5 +50,4 @@ void myMenuSetup::Store()
  SetupStore("ShowRecTime",mysetup.ShowRecTime=showrectime);
  SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
  SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
- SetupStore("SortRecords",mysetup.SortRecords=sortrecords);
 }

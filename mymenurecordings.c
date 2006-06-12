@@ -14,6 +14,8 @@
 #include "patchfont.h"
 #include "tools.h"
 
+extern SortList *mySortList;
+
 // --- myMenuRecordingInfo ----------------------------------------------------
 class myMenuRecordingInfo:public cOsdMenu
 {
@@ -84,10 +86,8 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  isdvd=false;
  isvideodvd=false;
  name=NULL;
- id=NULL;
 
  strn0cpy(dvdnr,"",sizeof(dvdnr));
- bool isnew=Recording->IsNew();
  filename=Recording->FileName();
 
  // get the level of this recording
@@ -106,7 +106,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
   const char *p=s;
   while(*++s)
   {
-   if(*s == '~')
+   if(*s=='~')
    {
     if(Level--)
      p=s+1;
@@ -124,55 +124,16 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
  {
   if(Level==level) // recording entries
   {
-   s=strrchr(Recording->Name(),'~');
-
-   // date and time of recording
-   struct tm tm_r;
-   struct tm *t=localtime_r(&Recording->start,&tm_r);
-
-   char reclength[21];
-   char *indexfilename;
-
-   // recording length
-   asprintf(&indexfilename,"%s/index.vdr",filename);
-   int haslength=!access(indexfilename,R_OK);
-   if(haslength) // calculate recording length from the size of index.vdr
-   {
-    struct stat buf;
-    if(!stat(indexfilename,&buf))
-     snprintf(reclength,sizeof(reclength),"%d'",(int)(buf.st_size/12000));
-   }
-   else // no index -> is there a length.vdr, containing recording length as a string?
-   {
-    free(indexfilename);
-    asprintf(&indexfilename,"%s/length.vdr",filename);
-    haslength=!access(indexfilename,R_OK);
-    if(haslength)
-    {
-     FILE *f;
-     if((f=fopen(indexfilename,"r"))!=NULL)
-     {
-      char buffer[8];
-      if(fgets(buffer,sizeof(buffer),f))
-      {
-       char *p=strchr(buffer,'\n');
-       if(p)
-        *p=0;
-      }
-      fclose(f);
-      snprintf(reclength,sizeof(reclength),"%s'\n",buffer);
-     }
-    }
-   }
-   free(indexfilename);
-
+   char *buffer=NULL;
+   string titlebuffer;
+   
    // dvdarchive-patch functionality
-   asprintf(&indexfilename,"%s/dvd.vdr",filename);
-   isdvd=!access(indexfilename,R_OK);
+   asprintf(&buffer,"%s/dvd.vdr",filename);
+   isdvd=!access(buffer,R_OK);
    if(isdvd)
    {
     FILE *f;
-    if((f=fopen(indexfilename,"r"))!=NULL)
+    if((f=fopen(buffer,"r"))!=NULL)
     {
      // get the dvd id
      if(fgets(dvdnr,sizeof(dvdnr),f))
@@ -189,34 +150,101 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
      fclose(f);
     }
    }
-   free(indexfilename);
+   free(buffer);
 
-   char recdate[9],rectime[6],recdelimiter[2]={'\t',0};
-   char dvd[2]={0,0};
+   // marker
+   titlebuffer=' ';
+   if(Recording->IsNew()&&!mysetup.PatchNew)
+    titlebuffer='*';
+   if(!Recording->IsNew()&&mysetup.PatchNew)
+    titlebuffer=char(128);
    if(isdvd)
-    dvd[0]=char(129);
-   else
-    if(isnew&&!mysetup.PatchNew)
-     dvd[0]='*';
-    else
-     if(!isnew&&mysetup.PatchNew)
-      dvd[0]=char(128);
+    titlebuffer=char(129);
+   
+   titlebuffer+='\t';
+   
+   // date and time of recording
+   struct tm tm_r;
+   struct tm *t=localtime_r(&Recording->start,&tm_r);
 
+   char recdate[9],rectime[6];
+   strn0cpy(recdate,"",sizeof(recdate));
+   strn0cpy(rectime,"",sizeof(rectime));
    snprintf(recdate,sizeof(recdate),"%02d.%02d.%02d",t->tm_mday,t->tm_mon+1,t->tm_year%100);
    snprintf(rectime,sizeof(rectime),"%02d:%02d",t->tm_hour,t->tm_min);
-   asprintf(&title,"%s%s%s%s%s%s%s%s%s%s",
-                   (mysetup.ShowRecDate?recdate:""), // show recording date?
-                   (mysetup.ShowRecDate?recdelimiter:""), // tab
-                   (mysetup.ShowRecTime?rectime:""), // show recording time?
-                   (mysetup.ShowRecTime?recdelimiter:""), // tab
-                   ((haslength&&mysetup.ShowRecLength)?reclength:""), // show recording length?
-                   (mysetup.ShowRecLength?recdelimiter:""), // tab
-                   dvd, // dvd/new marker
-                   (mysetup.ShowDvdNr?dvdnr:""), // show dvd nummber
-                   ((isdvd&&mysetup.ShowDvdNr)?" ":""), // space for fancy looking
-                   s?s+1:Recording->Name()); // recording name
+   
+   if(mysetup.ShowRecDate)
+   {
+    titlebuffer+=recdate;
+    titlebuffer+='\t';
+   }
+   
+   if(mysetup.ShowRecTime)
+   {
+    titlebuffer+=rectime;
+    titlebuffer+='\t';
+   }
 
-   asprintf(&id,"%s %s %s",recdate,rectime,Recording->Name());
+   // recording length
+   if(mysetup.ShowRecLength)
+   {
+    char reclength[21];
+    strn0cpy(reclength,"",sizeof(reclength));
+
+    asprintf(&buffer,"%s/index.vdr",filename);
+    int haslength=!access(buffer,R_OK);
+    if(haslength) // calculate recording length from the size of index.vdr
+    {
+     struct stat buf;
+     if(!stat(buffer,&buf))
+      snprintf(reclength,sizeof(reclength),"%3d'",(int)(buf.st_size/12000));
+    }
+    else // no index -> is there a length.vdr, containing recording length as a string?
+    {
+     free(buffer);
+     asprintf(&buffer,"%s/length.vdr",filename);
+     haslength=!access(buffer,R_OK);
+     if(haslength)
+     {
+      FILE *f;
+      if((f=fopen(buffer,"r"))!=NULL)
+      {
+       char buf[8];
+       if(fgets(buf,sizeof(buf),f))
+       {
+        char *p=strchr(buf,'\n');
+        if(p)
+         *p=0;
+       }
+       fclose(f);
+       snprintf(reclength,sizeof(reclength),"%3s'\n",buf);
+      }
+     }
+    }
+    free(buffer);
+    
+    strreplace(reclength,' ',char(131));
+    
+    titlebuffer+=reclength;
+    titlebuffer+='\t';
+   }
+   
+   if(!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)
+    titlebuffer+='\t';
+   
+   // dvd id
+   if(isdvd&&mysetup.ShowDvdNr)
+   {
+    titlebuffer+='[';
+    titlebuffer+=dvdnr;
+    titlebuffer+="]";
+   }
+
+   // recording title   
+   s=strrchr(Recording->Name(),'~');
+   titlebuffer+=s?s+1:Recording->Name();
+   
+   title=strdup(titlebuffer.c_str());
   }
   else
   {
@@ -239,21 +267,41 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
  totalentries++;
  if(IsNew)
   newentries++;
-
+ 
  char *buffer=NULL;
+ char entries[8];
+ snprintf(entries,sizeof(entries),"%3d",totalentries);
+ strreplace(entries,' ',char(131));
+
  if(mysetup.ShowNewRecs)
-  asprintf(&buffer,"%d\t%d\t%s",totalentries,newentries,name);
+ {
+  asprintf(&buffer,"%c\t%s (%d)%s%s%s%s%s",
+                    char(130),
+                    entries,
+                    newentries,
+                    (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
+                    (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
+                    (mysetup.ShowRecDate&&mysetup.ShowRecTime||mysetup.ShowRecTime&&mysetup.ShowRecLength||mysetup.ShowRecLength&&mysetup.ShowRecDate)?"\t":"",
+                    (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
+                    name);
+ }
  else
-  asprintf(&buffer,"%d\t%s",totalentries,name);
-
- // don't show '-', '.', '$', 'ª' or '·' if the directory name ends with one of it
- if(buffer[strlen(buffer)-1]=='.'||buffer[strlen(buffer)-1]=='-'||buffer[strlen(buffer)-1]=='$'||buffer[strlen(buffer)-1]==char(170)||buffer[strlen(buffer)-1]==char(183))
-  buffer[strlen(buffer)-1]=0;
-
+ {
+  asprintf(&buffer,"%c\t%s%s%s%s%s%s",
+                    char(130),
+                    entries,
+                    (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
+                    (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
+                    (mysetup.ShowRecDate&&mysetup.ShowRecTime||mysetup.ShowRecTime&&mysetup.ShowRecLength||mysetup.ShowRecLength&&mysetup.ShowRecDate)?"\t":"",
+                    (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
+                    name);
+ }
  SetText(buffer,false);
 }
 
 // --- myMenuRecordings -------------------------------------------------------
+#define MB_PER_MINUTE 25.75 // this is just an estimate!
+
 bool myMenuRecordings::golastreplayed=false;
 bool myMenuRecordings::wasdvd;
 
@@ -270,18 +318,23 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  }
  // set tabs
  if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&!mysetup.ShowRecLength) // recording date and time are shown, recording length not
-  SetCols(8,6);
+  SetCols(2,8,6);
  else
   if(mysetup.ShowRecDate&&mysetup.ShowRecTime) // all details are shown
-   SetCols(8,6,4);
+   SetCols(2,8,6,4);
   else
    if(mysetup.ShowRecDate&&!mysetup.ShowRecTime) // recording time is not shown
-    SetCols(8,4);
+    SetCols(2,8,4);
    else
     if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
-     SetCols(6,4);
+     SetCols(2,6,4);
     else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because the details of the directories
-     SetCols(4,3);
+    {
+     if(mysetup.ShowNewRecs)
+      SetCols(2,8,3);
+     else
+      SetCols(2,4,3);
+    }
 
  edit=false;
  level=Level;
@@ -377,7 +430,7 @@ void myMenuRecordings::SetHelpKeys()
 void myMenuRecordings::Set(bool Refresh,char *current)
 {
  const char *lastreplayed=current?current:myReplayControl::LastReplayed();
-  
+
  if(level==0)
   SetFreeSpaceTitle();
 
@@ -401,7 +454,9 @@ void myMenuRecordings::Set(bool Refresh,char *current)
  for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
   list->Add(new myRecListItem(recording));
  // sort my recordings list
- list->Sort();
+ char path[BUFSIZ];
+ snprintf(path,sizeof(path),"%s/%s",VideoDirectory,base?base:"");
+ list->Sort(mySortList->Find(path));
 
  // needed for move recording menu
  Recordings.Sort();
@@ -414,7 +469,7 @@ void myMenuRecordings::Set(bool Refresh,char *current)
   if(!base||(strstr(listitem->recording->Name(),base)==listitem->recording->Name()&&listitem->recording->Name()[strlen(base)]=='~'))
   {
    myMenuRecordingsItem *recitem=new myMenuRecordingsItem(listitem->recording,level);
-   if(*recitem->Text()&&(!lastitem||strcmp(recitem->Text(),lastitemtext)))
+   if(*recitem->Text()&&((!lastitem||strcmp(recitem->Text(),lastitemtext))||!recitem->IsDirectory()))
    {
     Add(recitem);
     lastitem=recitem;
@@ -434,7 +489,8 @@ void myMenuRecordings::Set(bool Refresh,char *current)
      {
       SetCurrent(lastitem);
       if(recitem&&!recitem->IsDirectory())
-      golastreplayed=false;
+      if(!cControl::Control())
+       golastreplayed=false;
      }
      if(recitem&&!recitem->IsDirectory()&&recitem->IsDVD()&&!cControl::Control())
       cReplayControl::ClearLastReplayed(cReplayControl::LastReplayed());
@@ -488,6 +544,10 @@ eOSState myMenuRecordings::Play()
  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
  if(item)
  {
+#ifdef WITHPINPLUGIN
+  if(cStatus::MsgReplayProtected(GetRecording(item),item->Name(),base,item->IsDirectory())==true)
+   return osContinue;
+#endif
   if(item->IsDirectory())
    Open();
   else
@@ -736,6 +796,35 @@ eOSState myMenuRecordings::Commands(eKeys Key)
  return osContinue;
 }
 
+// change sorting
+eOSState myMenuRecordings::ChangeSorting()
+{
+ char buffer[BUFSIZ];
+ 
+ snprintf(buffer,sizeof(buffer),"%s/%s",VideoDirectory,base?base:"");
+ 
+ for(SortListItem *item=mySortList->First();item;item=mySortList->Next(item))
+ {
+  if(!strcmp(buffer,item->Path()))
+  {
+   mySortList->Del(item);
+   mySortList->WriteConfigFile();
+   Set(true);
+
+   Skins.Message(mtInfo,tr("Sort by date"),1);
+
+   return osContinue;
+  }
+ }
+ mySortList->Add(new SortListItem(buffer)); 
+ mySortList->WriteConfigFile();
+ Set(true);
+
+ Skins.Message(mtInfo,tr("Sort by name"),1);
+ 
+ return osContinue;
+}
+
 eOSState myMenuRecordings::ProcessKey(eKeys Key)
 {
  eOSState state;
@@ -779,6 +868,10 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                   else
                   {
                    myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+#ifdef WITHPINPLUGIN
+                   if(cStatus::MsgReplayProtected(GetRecording(item),item->Name(),base,item->IsDirectory())==true)
+                    return osContinue;
+#endif
                    if(!HasSubMenu()&&item)
                    {
                     edit=true;
@@ -791,6 +884,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                   break;
     case kBlue: return Info();
     case k1...k9: return Commands(Key);
+    case k0: return ChangeSorting();
     default: break;
    }
   }

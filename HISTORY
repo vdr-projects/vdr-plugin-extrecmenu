@@ -1,6 +1,15 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-11-06: Version 0.12
+- reworked layout
+- added possibility to set sorting mode for each directory
+- if you use the PIN-plugin, ExtRecMenu works together with it to protect
+  recordings
+- fixed a very annoying bug which prevent renaming and moving recordings which
+  have special chars in their names if VDR is compiled with VFAT=1 or startet
+  with the option --vfat
+
 2006-28-05: Version 0.11
 - added czech translation; thanks to Vladimír Bárta
 - added missing dialog for video dvds

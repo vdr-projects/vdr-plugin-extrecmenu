@@ -12,7 +12,6 @@ class mySetup
   int PatchNew;
   int ShowDvdNr;
   int ShowNewRecs;
-  int SortRecords;
 };
 
 extern mySetup mysetup;
@@ -29,7 +28,6 @@ class myMenuSetup:public cMenuSetupPage
   int patchnew;
   int showdvdnr;
   int shownewrecs;
-  int sortrecords;
  protected:
   virtual void Store();
  public:

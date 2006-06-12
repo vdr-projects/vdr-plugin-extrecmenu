@@ -30,7 +30,7 @@ eOSState myMenuCommands::Execute()
  {
   char *buffer=NULL;
   bool confirmed=true;
-#ifdef BIGPATCHVERSION
+#ifdef CMDSUBMENUVERSNUM
      if (command->hasChilds()) {
         AddSubMenu(new myMenuCommands(command->Title(), command->getChilds(), parameters));
         return osContinue;

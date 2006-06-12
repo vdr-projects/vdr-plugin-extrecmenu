@@ -1,10 +1,13 @@
 #!/bin/bash
 #
-# Version 2.0 2006-05-03
+# Version 2.1 2006-06-02
 #
 # Author:	Mike Constabel
 # VDR-Portal:	vejoun
 # EMail:	vejoun @ toppoint.de
+# WWW:          http://www.constabel.net/vdr/scripts.htm
+#
+# ---> CONFIGURATION AT LINE 79 <---
 #
 # MANUAL:
 # -------
@@ -56,6 +59,9 @@
 #
 # HISTORY:
 # --------
+# 2.1 - Fixed bug in testing if dvd is mounted
+#     - more DEBUG=1 output
+#
 # 2.0 - more logging
 #     - check if mountpoint and device exists
 #     - Debug Log in file $DEBUGLOG if $DEBUG is 1, for easier error reporting
@@ -84,7 +90,7 @@ EJECTWRONG=0
 EJECTUMOUNT=0
 
 # Log warnings/errors in syslog. 1 = yes, 0 = no.
-SYSLOG=1
+SYSLOG=0
 
 # Create a length.vdr after mounting the dvd for the played recording. 1 = yes, 0 = no.
 # Only for non-vfat and with index.vdr only on dvd.
@@ -100,8 +106,18 @@ DEBUGLOG="/tmp/dvdarchive.sh-debug.log"
 
 # Remove trailing slash
 MOUNTPOINT=${MOUNTPOINT/%\/}
+if [ -L "$MOUNTPOINT" ]; then
+	MOUNTPOINTT="$(find "$MOUNTPOINT" -printf "%l")"
+else
+	MOUNTPOINTT="$MOUNTPOINT"
+fi
 # determine dvd-device, used by eject and isodetect if exists
 DEVICE="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" ) { printf("%s", $1); exit; }' /etc/fstab)"
+if [ -L "$DEVICE" ]; then
+	DEVICET="$(find "$DEVICE" -printf "%l")"
+else
+	DEVICET="$DEVICE"
+fi
 
 ACTION="$1"
 REC="$2"
@@ -133,7 +149,11 @@ log() {
 	     	if [ $DEBUG -eq 1 ]; then
 	     		echo "-------" >> $DEBUGLOG
 	 	     	echo -e "Parameters: $ACTION $REC $NAME\n" >> $DEBUGLOG
-	 	     	echo -e "ERROR: $2\n\nMountpoint: $MOUNTPOINT\nDevice: $DEVICE\n" >> $DEBUGLOG
+	 	     	echo -e "ERROR: $2\n\n" >> $DEBUGLOG
+	 	     	echo -e "Mountpoint: $MOUNTPOINT\nDevice: $DEVICE\n" >> $DEBUGLOG
+	 	     	echo -e "MountpointT: $MOUNTPOINTT\nDeviceT: $DEVICET\n" >> $DEBUGLOG
+	 	     	FSTAB="$(awk '( $1 !~ /^#/ ) && ( $2 == "'$MOUNTPOINT'" || $2 == "'$MOUNTPOINTT'" ) { printf("%s", $0); }' /etc/fstab)"
+	 	     	echo -e "fstab: ${FSTAB}\n" >>$DEBUGLOG
 	 	     	echo -e "Filesystem: $(stat -f -c %T "$REC")\n" >> $DEBUGLOG
 		     	mount >> $DEBUGLOG
 		     	echo >> $DEBUGLOG
@@ -164,9 +184,9 @@ mount)
 		fi
 	fi
 	# check if not mounted
-	if mount | egrep -q " $MOUNTPOINT "; then
+	if mount | egrep -q " $MOUNTPOINTT "; then
 		# check if dvd is in use
-		if mount | egrep -q "^$MOUNTPOINT"; then
+		if mount | egrep -q "^$DEVICET"; then
 			log error "dvd in use (at: check if dvd is in use)"
 			exit 1
 		fi
@@ -235,7 +255,7 @@ mount)
 	;;
 umount)
 	# check if dvd is mounted
-	mount | egrep -q " $MOUNTPOINT " || { log error "dvd not mounted (at: check if dvd is mounted)"; exit 1; }
+	mount | egrep -q " $MOUNTPOINTT " || { log error "dvd not mounted (at: check if dvd is mounted)"; exit 1; }
 	# check if video partition is vfat
 	if [ "$(stat -f -c %T "$REC")" != "vfat" ]; then
 		# is mounted, umount dvd bevor unlinking

@@ -1,7 +1,9 @@
 #
 # Makefile for a Video Disk Recorder plugin
 #
-# $Id$
+
+# uncomment if you use the pin-plugin and want to protect your recordings
+#WITHPINPLUGIN=1
 
 # The official name of this plugin.
 # This name will be used in the '-P...' option of VDR to load the plugin.
@@ -11,7 +13,7 @@ PLUGIN = extrecmenu
 
 ### The version number of this plugin (taken from the main source file):
 
-VERSION = $(shell grep 'static const char \*VERSION *=' $(PLUGIN).h | awk '{ print $$6 }' | sed -e 's/[";]//g')
+VERSION = $(shell grep 'static const char \*VERSION *=' $(PLUGIN).c | awk '{ print $$6 }' | sed -e 's/[";]//g')
 
 ### The C++ compiler and options:
 
@@ -42,6 +44,10 @@ PACKAGE = vdr-$(ARCHIVE)
 INCLUDES += -I$(VDRDIR)/include
 
 DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
+
+ifdef WITHPINPLUGIN
+ DEFINES+=-DWITHPINPLUGIN
+endif
 
 ### The object files (add further files here):
 

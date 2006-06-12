@@ -2,11 +2,55 @@
  * See the README file for copyright information and how to reach the author.
  */
 
+#include <vdr/plugin.h>
 #include <vdr/videodir.h>
 #include <vdr/recording.h>
 #include "tools.h"
 #include "mymenusetup.h"
 
+#define CONFIGFILE "/extrecmenu.sort.conf"
+
+// --- SortList ---------------------------------------------------------------
+void SortList::ReadConfigFile()
+{
+ string configfile(cPlugin::ConfigDirectory());
+ configfile+=CONFIGFILE;
+ 
+ ifstream in(configfile.c_str());
+ if(in)
+ {
+  string buf;
+  while(!in.eof())
+  {
+   getline(in,buf);
+   if(buf.length()>0)
+    Add(new SortListItem(buf.c_str()));
+  }
+ }
+}
+
+void SortList::WriteConfigFile()
+{
+ string configfile(cPlugin::ConfigDirectory());
+ configfile+=CONFIGFILE;
+ 
+ ofstream outfile(configfile.c_str());
+ 
+ for(SortListItem *item=First();item;item=Next(item))
+  outfile << item->Path() << endl;
+}
+
+bool SortList::Find(char *Path)
+{
+ for(SortListItem *item=First();item;item=Next(item))
+ {
+  if(!strcmp(item->Path(),Path))
+   return true;
+ }
+ return false;
+}
+
+// --- MoveRename -------------------------------------------------------------
 // creates the necassery directories and renames the given old name to the new name
 bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bool Move)
 {
@@ -28,6 +72,7 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
   
   if(rename(OldName,NewName)==-1)
   {
+   esyslog("[extrecmenu] %s",strerror(errno));
    Skins.Message(mtError,tr("Rename/Move failed!"));
    return false;
   }
@@ -46,7 +91,6 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
  {
   // is the new path within the old?
   asprintf(&buf,"%s/",OldName); // we have to append a / to make sure that we search for a directory
-  printf("%s\n%s\n",buf,NewName);
   if(!strncmp(buf,NewName,strlen(buf)))
   {
    Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
@@ -67,7 +111,7 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
    if(!strncmp(OldName,item->recording->FileName(),strlen(OldName)))
    {
     buf=strdup(OldName+strlen(VideoDirectory)+1);
-    ExchangeChars(buf,false);
+    buf=ExchangeChars(buf,false);
     
     // exclude recordings with the same name as OldName
     if(strcmp(item->recording->Name(),buf))
@@ -87,16 +131,17 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
 }
 
 // --- myRecListItem ----------------------------------------------------------
+bool myRecListItem::SortByName=false;
+
 myRecListItem::myRecListItem(cRecording *Recording)
 {
  recording=Recording;
- filename=recording->FileName();
- sortbuffer=NULL;
+ filename=strdup(recording->FileName());
 }
 
 myRecListItem::~myRecListItem()
 {
- free(sortbuffer);
+ free(filename);
 }
 
 char *myRecListItem::StripEpisodeName(char *s)
@@ -117,32 +162,31 @@ char *myRecListItem::StripEpisodeName(char *s)
   }
   t++;
  }
-/*
- * The code for sort recordings is adopted from the SortRecordings-patch
- * copyright by FrankJepsen and Frank99 from vdr-portal.de
-*/
  *s1=255;
- if(s1&&s2&&(s1==s&&(mysetup.SortRecords&1)||s1!=s&&(mysetup.SortRecords==3||mysetup.SortRecords!=2&&!strchr(".-$ª·",*(s1-1)))))
+ if(s1&&s2&&!SortByName)
   memmove(s1+1,s2,t-s2+1);
- return s;
-}
 
-char *myRecListItem::SortName()const
-{
- if(!sortbuffer)
- {
-  char *s=StripEpisodeName(strdup(filename+strlen(VideoDirectory)));
-  strreplace(s,'/','a');
-  int l=strxfrm(NULL,s,0)+1;
-  sortbuffer=MALLOC(char,l);
-  strxfrm(sortbuffer,s,l);
-  free(s);
- }
- return sortbuffer;
+ return s;
 }
 
 int myRecListItem::Compare(const cListObject &ListObject)const
 {
  myRecListItem *item=(myRecListItem*)&ListObject;
- return strcasecmp(SortName(),item->SortName());
+ 
+ char *s1=StripEpisodeName(strdup(filename+strlen(VideoDirectory)));
+ char *s2=StripEpisodeName(strdup(item->filename+strlen(VideoDirectory)));
+
+ int compare=strcasecmp(s1,s2);
+ 
+ free(s1);
+ free(s2);
+ 
+ return compare;
+}
+
+// --- myRecList --------------------------------------------------------------
+void myRecList::Sort(bool SortByName)
+{
+ myRecListItem::SortByName=SortByName;
+ cListBase::Sort();
 }

@@ -2,10 +2,41 @@
  * See the README file for copyright information and how to reach the author.
  */
 
+#include <vdr/plugin.h>
 #include "mymenusetup.h"
 #include "mymenurecordings.h"
-#include "extrecmenu.h"
 #include "i18n.h"
+#include "tools.h"
+
+static const char *VERSION        = "0.12";
+static const char *DESCRIPTION    = "Extended recordings menu";
+static const char *MAINMENUENTRY  = "ExtRecMenu";
+
+SortList *mySortList;
+
+// --- cPluginExtrecmenu ------------------------------------------------------
+class cPluginExtrecmenu:public cPlugin
+{
+ private:
+ public:
+  cPluginExtrecmenu(void);
+  virtual ~cPluginExtrecmenu();
+  virtual const char *Version(void){return VERSION;}
+  virtual const char *Description(void){return tr(DESCRIPTION);}
+  virtual const char *CommandLineHelp(void);
+  virtual bool ProcessArgs(int argc,char *argv[]);
+  virtual bool Initialize(void);
+  virtual bool Start(void);
+  virtual void Stop(void);
+  virtual void Housekeeping(void);
+  virtual const char *MainMenuEntry(void){return mysetup.HideMainMenuEntry?NULL:MAINMENUENTRY;}
+  virtual cOsdObject *MainMenuAction(void);
+  virtual cMenuSetupPage *SetupMenu(void);
+  virtual bool SetupParse(const char *Name,const char *Value);
+  virtual bool Service(const char *Id,void *Data = NULL);
+  virtual const char **SVDRPHelpPages(void);
+  virtual cString SVDRPCommand(const char *Command,const char *Option,int &ReplyCode);
+};
 
 cPluginExtrecmenu::cPluginExtrecmenu(void)
 {
@@ -20,7 +51,7 @@ const char *cPluginExtrecmenu::CommandLineHelp(void)
  return NULL;
 }
 
-bool cPluginExtrecmenu::ProcessArgs(int argc, char *argv[])
+bool cPluginExtrecmenu::ProcessArgs(int argc,char *argv[])
 {
  return true;
 }
@@ -34,11 +65,15 @@ bool cPluginExtrecmenu::Initialize(void)
 
 bool cPluginExtrecmenu::Start(void)
 {
+ mySortList=new SortList;
+ mySortList->ReadConfigFile();
+
  return true;
 }
 
 void cPluginExtrecmenu::Stop(void)
 {
+ delete mySortList;
 }
 
 void cPluginExtrecmenu::Housekeeping(void)
@@ -55,7 +90,7 @@ cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
  return new myMenuSetup();
 }
 
-bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
+bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
 {
  if(!strcasecmp(Name,"IsOrgRecMenu"))
   return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
@@ -84,14 +119,11 @@ bool cPluginExtrecmenu::SetupParse(const char *Name, const char *Value)
         if(!strcasecmp(Name,"ShowNewRecs"))
          mysetup.ShowNewRecs=atoi(Value);
         else
-         if(!strcasecmp(Name,"SortRecords"))
-          mysetup.SortRecords=atoi(Value);
-         else
-          return false;
+         return false;
  return true;
 }
 
-bool cPluginExtrecmenu::Service(const char *Id, void *Data)
+bool cPluginExtrecmenu::Service(const char *Id,void *Data)
 {
  return false;
 }
@@ -101,7 +133,7 @@ const char **cPluginExtrecmenu::SVDRPHelpPages(void)
  return NULL;
 }
 
-cString cPluginExtrecmenu::SVDRPCommand(const char *Command, const char *Option, int &ReplyCode)
+cString cPluginExtrecmenu::SVDRPCommand(const char *Command,const char *Option,int &ReplyCode)
 {
  return NULL;
 }

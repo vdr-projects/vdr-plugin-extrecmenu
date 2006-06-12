@@ -1,5 +1,3 @@
-#define MB_PER_MINUTE 25.75 // this is just an estimate!
-
 // --- myMenuRecordingsItem ---------------------------------------------------
 class myMenuRecordingsItem:public cOsdItem
 {
@@ -12,7 +10,6 @@ class myMenuRecordingsItem:public cOsdItem
   char *title;
   char *name;
   const char *filename;
-  char *id; // this is the unique name that identifies a recording
  public:
   myMenuRecordingsItem(cRecording *Recording,int Level);
   ~myMenuRecordingsItem();
@@ -23,7 +20,6 @@ class myMenuRecordingsItem:public cOsdItem
   bool IsDVD(){return isdvd;}
   bool IsVideoDVD(){return isvideodvd;}
   char *DvdNr(){return dvdnr;}
-  const char *ID(){return id;}
 };
 
 // --- myMenuRecordings -------------------------------------------------------
@@ -48,6 +44,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Info();
   eOSState Details();
   eOSState Commands(eKeys Key=kNone);
+  eOSState ChangeSorting();
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();

@@ -8,9 +8,6 @@
 #include "mymenurecordings.h"
 #include "tools.h"
 
-bool myMenuMoveRecording::clearall=false;
-char newname[128];
-
 // --- myMenuRenameRecording --------------------------------------------------
 myMenuRenameRecording::myMenuRenameRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName):cOsdMenu(tr("Rename"),12)
 {
@@ -19,6 +16,8 @@ myMenuRenameRecording::myMenuRenameRecording(myMenuRecordings *MenuRecordings,cR
  recording=Recording;
  dirbase=DirBase?strdup(DirBase):NULL;
  dirname=DirName?strdup(DirName):NULL;
+ strn0cpy(name,"",sizeof(name));
+ strn0cpy(path,"",sizeof(path));
 
  if(recording)
  {
@@ -33,16 +32,14 @@ myMenuRenameRecording::myMenuRenameRecording(myMenuRecordings *MenuRecordings,cR
     *p=0;
   }
   else
-  {
-   strn0cpy(name,recording->Name(),sizeof(name));
-   strn0cpy(path,"",sizeof(path));
-  }
+   strn0cpy(name,recording->Name(),sizeof(name));  
  }
  else
  {
   isdir=true;
   strn0cpy(name,DirName,sizeof(name));
-  strn0cpy(path,DirBase?DirBase:"",sizeof(path));
+  if(DirBase)
+   strn0cpy(path,DirBase,sizeof(path));
  }
  Add(new cMenuEditStrItem(tr("Name"),name,sizeof(name),tr(FileNameChars)));
  cRemote::Put(kRight);
@@ -63,6 +60,8 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
   {
    char *oldname=NULL;
    char *newname=NULL;
+   char *tmppath=path[0]?strdup(path):NULL;
+   char *tmpname=name[0]?strdup(name):NULL;
 
    if(strchr(name,'.')==name||!strlen(name))
    {
@@ -72,11 +71,11 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
    }
 
    if(isdir)
-    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,path[0]?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
+    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
    else
     oldname=strdup(recording->FileName());
 
-   asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,path[0]?"/":"",ExchangeChars(path,true),ExchangeChars(name,true),isdir?"":strrchr(recording->FileName(),'/'));
+   asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?ExchangeChars(tmppath,true):"",ExchangeChars(tmpname,true),isdir?"":strrchr(recording->FileName(),'/'));
 
    if(MoveRename(oldname,newname,isdir?NULL:recording,false))
    {
@@ -91,6 +90,8 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 
    free(oldname);
    free(newname);
+   free(tmppath);
+   free(tmpname);
   }
   if(Key==kBack)
    return osBack;
@@ -99,6 +100,9 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 }
 
 // --- myMenuNewName ----------------------------------------------------------
+bool myMenuMoveRecording::clearall=false;
+char newname[128];
+
 class myMenuNewName:public cOsdMenu
 {
  private:
@@ -178,7 +182,7 @@ myMenuMoveRecordingItem::myMenuMoveRecordingItem(cRecording *Recording,int Level
   const char *p=s;
   while(*++s)
   {
-   if(*s == '~')
+   if(*s=='~')
    {
     if(Level--)
      p=s+1;
@@ -203,6 +207,7 @@ myMenuMoveRecording::myMenuMoveRecording(myMenuRecordings *MenuRecordings,cRecor
  recording=Recording;
  menurecordings=MenuRecordings;
  base=Base?strdup(Base):NULL;
+ 
  level=Level;
  Set();
  SetHelp(tr("Button$Cancel"),NULL,tr("Button$Create"),tr("Button$Move"));
@@ -283,7 +288,7 @@ eOSState myMenuMoveRecording::MoveRec()
   asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
  else
   oldname=strdup(recording->FileName());
-  
+
  myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
  if(item)
  {
@@ -317,7 +322,9 @@ eOSState myMenuMoveRecording::MoveRec()
   }
  }
  if(dir)
-  ExchangeChars(dir,true);
+  dir=ExchangeChars(dir,true);
+ 
+ printf("dir: %s\n",dir);
 
  asprintf(&newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
 
