@@ -869,7 +869,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                   {
                    myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
 #ifdef WITHPINPLUGIN
-                   if(cStatus::MsgReplayProtected(GetRecording(item),item->Name(),base,item->IsDirectory())==true)
+                   if(item&&cStatus::MsgReplayProtected(GetRecording(item),item->Name(),base,item->IsDirectory())==true)
                     return osContinue;
 #endif
                    if(!HasSubMenu()&&item)

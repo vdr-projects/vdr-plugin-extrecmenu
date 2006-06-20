@@ -1,6 +1,13 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-19-06: Version 0.12a
+- fixed a bug if you compiled the plugin with support for the PIN-plugin;
+  thanks to Thiemo Gehrke for reporting
+- fixed another bug with editing recordings if VDR is compiled with VFAT=1 or
+  started with the option --vfat; based upon a patch of berndm from
+  vdr-portal.de
+
 2006-11-06: Version 0.12
 - reworked layout
 - added possibility to set sorting mode for each directory

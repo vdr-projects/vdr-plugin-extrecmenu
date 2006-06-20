@@ -31,6 +31,9 @@ the Makefile if you use the PIN-plugin. You have to place the script
 permissions) for the DVDArchive-patch functionality. See the top of
 'dvdarchive.sh' for the adjustments you maybe have to take.
 
+If your /video-directory is a nfs mount, you have to mount it with the option
+'hard' to make renaming and moving of recordings work.
+
 Check the options at the setup menu of the plugin. They are self-explaining.
 
 There is a patch for VDR in contrib/ for replacing VDR's recordings menu with
@@ -38,8 +41,9 @@ this plugin. You have to set the corresponding option at the setup menu of the
 plugin!
 
 There ist a patched TTF-Font for Enigma containing the dvd and alternative new
-symbols. See this post at vdr-portal.de:
-http://www.vdr-portal.de/board/thread.php?postid=447376#post447376
+symbols. See this posts at vdr-portal.de:
+http://www.vdr-portal.de/board/thread.php?postid=483800#post483800
+http://www.vdr-portal.de/board/thread.php?postid=483988#post483988
 
 -------------------------------------------------------------------------------
 Handling

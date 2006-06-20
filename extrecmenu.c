@@ -8,7 +8,7 @@
 #include "i18n.h"
 #include "tools.h"
 
-static const char *VERSION        = "0.12";
+static const char *VERSION        = "0.12a";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 

@@ -14,8 +14,8 @@ myMenuRenameRecording::myMenuRenameRecording(myMenuRecordings *MenuRecordings,cR
  isdir=false;
  menurecordings=MenuRecordings;
  recording=Recording;
- dirbase=DirBase?strdup(DirBase):NULL;
- dirname=DirName?strdup(DirName):NULL;
+ dirbase=DirBase?ExchangeChars(strdup(DirBase),true):NULL;
+ dirname=DirName?ExchangeChars(strdup(DirName),true):NULL;
  strn0cpy(name,"",sizeof(name));
  strn0cpy(path,"",sizeof(path));
 
@@ -60,8 +60,8 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
   {
    char *oldname=NULL;
    char *newname=NULL;
-   char *tmppath=path[0]?strdup(path):NULL;
-   char *tmpname=name[0]?strdup(name):NULL;
+   char *tmppath=path[0]?ExchangeChars(strdup(path),true):NULL;
+   char *tmpname=name[0]?ExchangeChars(strdup(name),true):NULL;
 
    if(strchr(name,'.')==name||!strlen(name))
    {
@@ -71,11 +71,11 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
    }
 
    if(isdir)
-    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
+    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname);
    else
     oldname=strdup(recording->FileName());
 
-   asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?ExchangeChars(tmppath,true):"",ExchangeChars(tmpname,true),isdir?"":strrchr(recording->FileName(),'/'));
+   asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/'));
 
    if(MoveRename(oldname,newname,isdir?NULL:recording,false))
    {
@@ -281,11 +281,13 @@ eOSState myMenuMoveRecording::MoveRec()
  char *oldname=NULL;
  char *newname=NULL;
  char *dir=NULL;
+ char *tmpdirbase=dirbase?ExchangeChars(strdup(dirbase),true):NULL;
+ char *tmpdirname=dirname?ExchangeChars(strdup(dirname),true):NULL;
  
  eOSState state=osContinue;
 
  if(dirname)
-  asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",dirbase?ExchangeChars(dirbase,true):"",ExchangeChars(dirname,true));
+  asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname);
  else
   oldname=strdup(recording->FileName());
 
@@ -338,6 +340,8 @@ eOSState myMenuMoveRecording::MoveRec()
  free(oldname);
  free(newname);
  free(dir);
+ free(tmpdirbase);
+ free(tmpdirname);
  
  return state;
 }
