@@ -8,7 +8,7 @@
 #include "i18n.h"
 #include "tools.h"
 
-static const char *VERSION        = "0.12a";
+static const char *VERSION        = "0.12b";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -93,33 +93,28 @@ cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
 bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
 {
  if(!strcasecmp(Name,"IsOrgRecMenu"))
-  return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
+   return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
 
  if(!strcasecmp(Name,"ShowRecDate"))
-  mysetup.ShowRecDate=atoi(Value);
- else
-  if(!strcasecmp(Name,"ShowRecTime"))
+   mysetup.ShowRecDate=atoi(Value);
+ else if(!strcasecmp(Name,"ShowRecTime"))
    mysetup.ShowRecTime=atoi(Value);
-  else
-   if(!strcasecmp(Name,"ShowRecLength"))
-    mysetup.ShowRecLength=atoi(Value);
-   else
-    if(!strcasecmp(Name,"HideMainMenuEntry"))
-     mysetup.HideMainMenuEntry=atoi(Value);
-    else
-     if(!strcasecmp(Name,"ReplaceOrgRecMenu"))
-      mysetup.ReplaceOrgRecMenu=atoi(Value);
-     else
-      if(!strcasecmp(Name,"PatchNew"))
-       mysetup.PatchNew=atoi(Value);
-      else
-       if(!strcasecmp(Name,"ShowDvdNr"))
-        mysetup.ShowDvdNr=atoi(Value);
-       else
-        if(!strcasecmp(Name,"ShowNewRecs"))
-         mysetup.ShowNewRecs=atoi(Value);
-        else
-         return false;
+ else if(!strcasecmp(Name,"ShowRecLength"))
+   mysetup.ShowRecLength=atoi(Value);
+ else if(!strcasecmp(Name,"HideMainMenuEntry"))
+   mysetup.HideMainMenuEntry=atoi(Value);
+ else if(!strcasecmp(Name,"ReplaceOrgRecMenu"))
+   mysetup.ReplaceOrgRecMenu=atoi(Value);
+ else if(!strcasecmp(Name,"PatchNew"))
+   mysetup.PatchNew=atoi(Value);
+ else if(!strcasecmp(Name,"ShowDvdNr"))
+   mysetup.ShowDvdNr=atoi(Value);
+ else if(!strcasecmp(Name,"ShowNewRecs"))
+   mysetup.ShowNewRecs=atoi(Value);
+ else if(!strcasecmp(Name,"DescendSorting"))
+   mysetup.DescendSorting=atoi(Value);
+ else
+   return false;
  return true;
 }
 

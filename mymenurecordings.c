@@ -35,7 +35,7 @@ myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithB
  recording=Recording;
  withButtons=WithButtons;
  if(withButtons)
-  SetHelp(tr("Button$Play"),tr("Button$Rewind"));
+  SetHelp(tr("Button$Play"),tr("Button$Rewind"),NULL,tr("Button$Back"));
 }
 
 void myMenuRecordingInfo::Display(void)
@@ -72,6 +72,7 @@ eOSState myMenuRecordingInfo::ProcessKey(eKeys Key)
    case kGreen: if(!withButtons)
                  break;
                 cRemote::Put(Key,true);
+   case kBlue:
    case kOk: return osBack;
    default: break;
   }
@@ -364,6 +365,8 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  }
 
  Set();
+ 
+ 
  if(myReplayControl::LastReplayed())
   Open();
 
@@ -530,6 +533,9 @@ bool myMenuRecordings::Open()
   free(buffer);
   return true;
  }
+ printf("Open false\n");
+ if(item)
+   printf("%s\n",item->FileName());
  return false;
 }
 

@@ -15,6 +15,7 @@ mySetup::mySetup()
  mysetup.ShowRecTime=1;
  mysetup.ShowRecLength=0;
  mysetup.ShowNewRecs=1;
+ mysetup.DescendSorting=0;
 }
 
 mySetup mysetup;
@@ -29,9 +30,14 @@ myMenuSetup::myMenuSetup()
  showreclength=mysetup.ShowRecLength;
  showdvdnr=mysetup.ShowDvdNr;
  shownewrecs=mysetup.ShowNewRecs;
+ descendsorting=mysetup.DescendSorting;
+ 
+ sortingtypetexts[0]=tr("ascending");
+ sortingtypetexts[1]=tr("descending");
  
  Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
  Add(new cMenuEditBoolItem(tr("Replace original recordings menu"),&replaceorgrecmenu));
+ Add(new cMenuEditStraItem(tr("Sorting"),&descendsorting,2,sortingtypetexts));
  Add(new cMenuEditBoolItem(tr("Show recording date"),&showrecdate));
  Add(new cMenuEditBoolItem(tr("Show recording time"),&showrectime));
  Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
@@ -50,4 +56,5 @@ void myMenuSetup::Store()
  SetupStore("ShowRecTime",mysetup.ShowRecTime=showrectime);
  SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
  SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
+ SetupStore("DescendSorting",mysetup.DescendSorting=descendsorting);
 }

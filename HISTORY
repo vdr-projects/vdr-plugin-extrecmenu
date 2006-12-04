@@ -1,6 +1,11 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2006-04-12: Version 0.12b
+- type of sorting (ascending/descending) selectable at the setup menu of the
+  plugin
+- 'Blue' also closes the info menu for a recording
+
 2006-19-06: Version 0.12a
 - fixed a bug if you compiled the plugin with support for the PIN-plugin;
   thanks to Thiemo Gehrke for reporting

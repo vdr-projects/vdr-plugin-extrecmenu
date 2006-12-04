@@ -12,6 +12,7 @@ class mySetup
   int PatchNew;
   int ShowDvdNr;
   int ShowNewRecs;
+  int DescendSorting;
 };
 
 extern mySetup mysetup;
@@ -19,7 +20,7 @@ extern mySetup mysetup;
 class myMenuSetup:public cMenuSetupPage
 {
  private:
-  const char *sortrecordstext[4];
+  const char *sortingtypetexts[2];
   int showrecdate;
   int showrectime;
   int showreclength;
@@ -28,6 +29,7 @@ class myMenuSetup:public cMenuSetupPage
   int patchnew;
   int showdvdnr;
   int shownewrecs;
+  int descendsorting;
  protected:
   virtual void Store();
  public:

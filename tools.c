@@ -162,9 +162,18 @@ char *myRecListItem::StripEpisodeName(char *s)
   }
   t++;
  }
- *s1=255;
+ if(mysetup.DescendSorting)
+ {
+   if(SortByName)
+     *s1=1;
+   else
+     *(s2+1)=255;
+ }
+ else
+   *s1=255;
+ 
  if(s1&&s2&&!SortByName)
-  memmove(s1+1,s2,t-s2+1);
+   memmove(s1+1,s2,t-s2+1);
 
  return s;
 }
@@ -176,7 +185,11 @@ int myRecListItem::Compare(const cListObject &ListObject)const
  char *s1=StripEpisodeName(strdup(filename+strlen(VideoDirectory)));
  char *s2=StripEpisodeName(strdup(item->filename+strlen(VideoDirectory)));
 
- int compare=strcasecmp(s1,s2);
+ int compare;
+ if(mysetup.DescendSorting)
+   compare=strcasecmp(s2,s1);
+ else
+   compare=strcasecmp(s1,s2);
  
  free(s1);
  free(s2);
