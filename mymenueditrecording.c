@@ -326,8 +326,6 @@ eOSState myMenuMoveRecording::MoveRec()
  if(dir)
   dir=ExchangeChars(dir,true);
  
- printf("dir: %s\n",dir);
-
  asprintf(&newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
 
  if(MoveRename(oldname,newname,dirname?NULL:recording,true))

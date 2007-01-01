@@ -9,7 +9,6 @@ mySetup::mySetup()
 {
  mysetup.HideMainMenuEntry=0;
  mysetup.PatchNew=1;
- mysetup.ShowDvdNr=0;
  mysetup.ReplaceOrgRecMenu=0;
  mysetup.ShowRecDate=1;
  mysetup.ShowRecTime=1;
@@ -28,7 +27,6 @@ myMenuSetup::myMenuSetup()
  showrecdate=mysetup.ShowRecDate;
  showrectime=mysetup.ShowRecTime;
  showreclength=mysetup.ShowRecLength;
- showdvdnr=mysetup.ShowDvdNr;
  shownewrecs=mysetup.ShowNewRecs;
  descendsorting=mysetup.DescendSorting;
  
@@ -43,14 +41,12 @@ myMenuSetup::myMenuSetup()
  Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
  Add(new cMenuEditBoolItem(tr("Show nr. of new recordings in a directory"),&shownewrecs));
  Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
- Add(new cMenuEditBoolItem(tr("Show dvd id"),&showdvdnr));
 }
 
 void myMenuSetup::Store()
 {
  SetupStore("HideMainMenuEntry",mysetup.HideMainMenuEntry=hidemainmenuentry);
  SetupStore("PatchNew",mysetup.PatchNew=patchnew);
- SetupStore("ShowDvdNr",mysetup.ShowDvdNr=showdvdnr);
  SetupStore("ReplaceOrgRecMenu",mysetup.ReplaceOrgRecMenu=replaceorgrecmenu);
  SetupStore("ShowRecDate",mysetup.ShowRecDate=showrecdate);
  SetupStore("ShowRecTime",mysetup.ShowRecTime=showrectime);

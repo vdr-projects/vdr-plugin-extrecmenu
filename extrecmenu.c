@@ -8,7 +8,7 @@
 #include "i18n.h"
 #include "tools.h"
 
-static const char *VERSION        = "0.12b";
+static const char *VERSION        = "0.12c";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -107,8 +107,6 @@ bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
    mysetup.ReplaceOrgRecMenu=atoi(Value);
  else if(!strcasecmp(Name,"PatchNew"))
    mysetup.PatchNew=atoi(Value);
- else if(!strcasecmp(Name,"ShowDvdNr"))
-   mysetup.ShowDvdNr=atoi(Value);
  else if(!strcasecmp(Name,"ShowNewRecs"))
    mysetup.ShowNewRecs=atoi(Value);
  else if(!strcasecmp(Name,"DescendSorting"))

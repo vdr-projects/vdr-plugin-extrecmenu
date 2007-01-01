@@ -85,10 +85,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
  totalentries=newentries=0;
  isdvd=false;
- isvideodvd=false;
  name=NULL;
-
- strn0cpy(dvdnr,"",sizeof(dvdnr));
  filename=Recording->FileName();
 
  // get the level of this recording
@@ -131,27 +128,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    // dvdarchive-patch functionality
    asprintf(&buffer,"%s/dvd.vdr",filename);
    isdvd=!access(buffer,R_OK);
-   if(isdvd)
-   {
-    FILE *f;
-    if((f=fopen(buffer,"r"))!=NULL)
-    {
-     // get the dvd id
-     if(fgets(dvdnr,sizeof(dvdnr),f))
-     {
-      char *p=strchr(dvdnr,'\n');
-      if(p)
-       *p=0;
-     }
-     // determine if the dvd is a video dvd
-     char tmp[BUFSIZ];
-     if(fgets(tmp,sizeof(tmp),f))
-      isvideodvd=true;
-     
-     fclose(f);
-    }
-   }
-   free(buffer);
 
    // marker
    titlebuffer=' ';
@@ -204,22 +180,18 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
     {
      free(buffer);
      asprintf(&buffer,"%s/length.vdr",filename);
-     haslength=!access(buffer,R_OK);
-     if(haslength)
+     FILE *f;
+     if((f=fopen(buffer,"r"))!=NULL)
      {
-      FILE *f;
-      if((f=fopen(buffer,"r"))!=NULL)
+      char buf[8];
+      if(fgets(buf,sizeof(buf),f))
       {
-       char buf[8];
-       if(fgets(buf,sizeof(buf),f))
-       {
-        char *p=strchr(buf,'\n');
-        if(p)
-         *p=0;
-       }
-       fclose(f);
-       snprintf(reclength,sizeof(reclength),"%3s'\n",buf);
+       char *p=strchr(buf,'\n');
+       if(p)
+        *p=0;
       }
+      fclose(f);
+      snprintf(reclength,sizeof(reclength),"%3s'\n",buf);
      }
     }
     free(buffer);
@@ -233,14 +205,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
    if(!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)
     titlebuffer+='\t';
    
-   // dvd id
-   if(isdvd&&mysetup.ShowDvdNr)
-   {
-    titlebuffer+='[';
-    titlebuffer+=dvdnr;
-    titlebuffer+="]";
-   }
-
    // recording title   
    s=strrchr(Recording->Name(),'~');
    titlebuffer+=s?s+1:Recording->Name();
@@ -365,7 +329,6 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu(Base?Bas
  }
 
  Set();
- 
  
  if(myReplayControl::LastReplayed())
   Open();
@@ -533,9 +496,7 @@ bool myMenuRecordings::Open()
   free(buffer);
   return true;
  }
- printf("Open false\n");
- if(item)
-   printf("%s\n",item->FileName());
+
  return false;
 }
 
@@ -563,63 +524,87 @@ eOSState myMenuRecordings::Play()
    {
     if(item->IsDVD())
     {
-     asprintf(&msg,tr("Please insert DVD %s"),item->DvdNr());
-     if(Interface->Confirm(msg))
-     {
-      free(msg);
-      // recording is a video dvd
-      if(item->IsVideoDVD())
+      bool isvideodvd=false;
+      char dvdnr[BUFSIZ];
+      char *buffer=NULL;
+      FILE *f;
+      
+      asprintf(&buffer,"%s/dvd.vdr",recording->FileName());
+      if((f=fopen(buffer,"r"))!=NULL)
       {
-       cPlugin *plugin=cPluginManager::GetPlugin("dvd");
-       if(plugin)
-       {
-        cOsdObject *osd=plugin->MainMenuAction();
-        delete osd;
-        osd=NULL;
-        return osEnd;            
-       }
-       else
-       {
-        Skins.Message(mtError,tr("DVD plugin is not installed!"));
-        return osContinue;
-       }
+        // get the dvd id
+        if(fgets(dvdnr,sizeof(dvdnr),f))
+        {
+          char *p=strchr(dvdnr,'\n');
+          if(p)
+            *p=0;
+        }
+        // determine if dvd is a video dvd
+        char tmp[BUFSIZ];
+        if(fgets(tmp,sizeof(dvdnr),f))
+          isvideodvd=true;
+        
+        fclose(f);
       }
-      // recording is a archive dvd
+      free(buffer);
+
+      asprintf(&msg,tr("Please insert DVD %s"),dvdnr);
+      if(Interface->Confirm(msg))
+      {
+        free(msg);
+        // recording is a video dvd
+        if(isvideodvd)
+        {
+          cPlugin *plugin=cPluginManager::GetPlugin("dvd");
+          if(plugin)
+          {
+            cOsdObject *osd=plugin->MainMenuAction();
+            delete osd;
+            osd=NULL;
+            return osEnd;            
+          }
+          else
+          {
+            Skins.Message(mtError,tr("DVD plugin is not installed!"));
+            return osContinue;
+          }
+        }
+        // recording is a archive dvd
+        else
+        {
+          strcpy(path,recording->FileName());
+          name=strrchr(path,'/')+1;
+          asprintf(&msg,"dvdarchive.sh mount \"%s\" '%s'",*strescape(path,"'"),*strescape(name,"'\\\"$"));
+ 
+          isyslog("[extrecmenu] calling %s to mount dvd",msg);
+          int result=SystemExec(msg);
+          isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
+          free(msg);
+          if(result)
+          {
+            result=result/256;
+            if(result==1)
+              Skins.Message(mtError,tr("Error while mounting DVD!"));
+            if(result==2)
+              Skins.Message(mtError,tr("No DVD in drive!"));
+            if(result==3)
+              Skins.Message(mtError,tr("Recording not found on DVD!"));
+            if(result==4)
+              Skins.Message(mtError,tr("Error while linking [0-9]*.vdr!"));
+            if(result==5)
+              Skins.Message(mtError,tr("sudo or mount --bind / umount error (vfat system)"));
+            if(result==127)
+              Skins.Message(mtError,tr("Script 'dvdarchive.sh' not found!"));
+            return osContinue;
+          }
+          wasdvd=true;
+        }
+      }
       else
       {
-       strcpy(path,recording->FileName());
-       name=strrchr(path,'/')+1;
-       asprintf(&msg,"dvdarchive.sh mount \"%s\" '%s'",*strescape(path,"'"),*strescape(name,"'\\\"$"));
- 
-       isyslog("[extrecmenu] calling %s to mount dvd",msg);
-       int result=SystemExec(msg);
-       isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
-       free(msg);
-       if(result)
-       {
-        result=result/256;
-        if(result==1)
-         Skins.Message(mtError,tr("Error while mounting DVD!"));
-        if(result==2)
-         Skins.Message(mtError,tr("No DVD in drive!"));
-        if(result==3)
-         Skins.Message(mtError,tr("Recording not found on DVD!"));
-        if(result==4)
-         Skins.Message(mtError,tr("Error while linking [0-9]*.vdr!"));
-        if(result==5)
-         Skins.Message(mtError,tr("sudo or mount --bind / umount error (vfat system)"));
-        if(result==127)
-         Skins.Message(mtError,tr("Script 'dvdarchive.sh' not found!"));
+        free(msg);
         return osContinue;
-       }
-       wasdvd=true;
       }
-     }
-     else
-     {
-      free(msg);
-      return osContinue;
-     }
     }
     golastreplayed=true;
     myReplayControl::SetRecording(recording->FileName(),recording->Title());

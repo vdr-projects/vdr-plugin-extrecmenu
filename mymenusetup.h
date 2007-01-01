@@ -10,7 +10,6 @@ class mySetup
   int HideMainMenuEntry;
   int ReplaceOrgRecMenu;
   int PatchNew;
-  int ShowDvdNr;
   int ShowNewRecs;
   int DescendSorting;
 };
@@ -27,7 +26,6 @@ class myMenuSetup:public cMenuSetupPage
   int hidemainmenuentry;
   int replaceorgrecmenu;
   int patchnew;
-  int showdvdnr;
   int shownewrecs;
   int descendsorting;
  protected:

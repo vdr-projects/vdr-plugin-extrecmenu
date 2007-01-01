@@ -3,8 +3,6 @@ class myMenuRecordingsItem:public cOsdItem
 {
  private:
   bool isdvd;
-  bool isvideodvd;
-  char dvdnr[BUFSIZ];
   int level,isdirectory;
   int totalentries,newentries;
   char *title;
@@ -18,8 +16,6 @@ class myMenuRecordingsItem:public cOsdItem
   bool IsDirectory(){return name!=NULL;}
   void IncrementCounter(bool IsNew);
   bool IsDVD(){return isdvd;}
-  bool IsVideoDVD(){return isvideodvd;}
-  char *DvdNr(){return dvdnr;}
 };
 
 // --- myMenuRecordings -------------------------------------------------------
