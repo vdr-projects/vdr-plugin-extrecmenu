@@ -1,6 +1,25 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2007-01-??: Version 0.13
+- added two setup option to adjust the plugin behaviour to whose of VDR's
+  recording menu (jumping to last replayed recording, call plugin after
+  replay ends) 
+- only editing of cutting recordings is prevented now
+- moving recordings between filesystems is now possible; includes:
+  * check for enough free disk space on target filesystem
+  * switch to limit bandwith (a.t.m. 2MBytes/sec)
+  * prevent editing of recordings that are moved
+  * marker for recordings, that are moved
+- added marker for cutting and moving recording entries
+- added marker to title bar for cutting and moving recordings
+- recording info menu shows additional informations (name, path, channel,
+  size, lifetime, priority)
+- added setup option to select between plugin's and VDR's recording info menu
+- dvd.vdr is ignored, as long as a 001.vdr is present
+- fixed following issue (again): if there are more then one recording with the
+  same name, only one of it is shown if all recording details are hidden
+
 2006-12-31: Version 0.12c
 - dvd id for archive dvd would be first read out when the corresponding entry
   is selected; this should prevent delays while opening the plugin
@@ -59,7 +78,7 @@ VDR Plugin 'extrecmenu' Revision History
 - 'Play' and 'Menu'->'Blue' for resuming a replay work now; BUT: the replay
   isn't done with the plugin if you start replaying this way, means if you stop
   the replay you come to VDR's recordings menu
-- switched off editing of details (priority and lifetime) or archive dvd
+- switched off editing of details (priority and lifetime) of archive dvd
   recordings to avoid trouble with the dir name that identifies it on the media
 - added option to mark last replayed recording while opening the plugin
 - added possibilty to include video dvds into the recordings hierarchy; see

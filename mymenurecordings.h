@@ -1,21 +1,23 @@
 // --- myMenuRecordingsItem ---------------------------------------------------
 class myMenuRecordingsItem:public cOsdItem
 {
- private:
-  bool isdvd;
-  int level,isdirectory;
-  int totalentries,newentries;
-  char *title;
-  char *name;
-  const char *filename;
- public:
-  myMenuRecordingsItem(cRecording *Recording,int Level);
-  ~myMenuRecordingsItem();
-  const char *FileName(){return filename;}
-  const char *Name(){return name;}
-  bool IsDirectory(){return name!=NULL;}
-  void IncrementCounter(bool IsNew);
-  bool IsDVD(){return isdvd;}
+  private:
+    bool isdvd;
+    int level,isdirectory;
+    int totalentries,newentries;
+    char *title;
+    char *name;
+    const char *filename;
+    std::string uniqid; // this is the unique name that identifies a recording
+  public:
+    myMenuRecordingsItem(cRecording *Recording,int Level);
+    ~myMenuRecordingsItem();
+    const char *FileName(){return filename;}
+    const char *Name(){return name;}
+    bool IsDirectory(){return name!=NULL;}
+    void IncrementCounter(bool IsNew);
+    bool IsDVD(){return isdvd;}
+    const char *UniqID(){return uniqid.length()?uniqid.c_str():"";}
 };
 
 // --- myMenuRecordings -------------------------------------------------------
@@ -30,7 +32,7 @@ class myMenuRecordings:public cOsdMenu
   char *base;
   bool Open();
   void SetHelpKeys();
-  void SetFreeSpaceTitle();
+  void Title();
   cRecording *GetRecording(myMenuRecordingsItem *Item);
   eOSState Play();
   eOSState Rewind();
@@ -41,6 +43,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Details();
   eOSState Commands(eKeys Key=kNone);
   eOSState ChangeSorting();
+  bool IsCutted();
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();

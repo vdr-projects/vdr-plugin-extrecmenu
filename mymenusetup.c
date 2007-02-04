@@ -15,6 +15,10 @@ mySetup::mySetup()
  mysetup.ShowRecLength=0;
  mysetup.ShowNewRecs=1;
  mysetup.DescendSorting=0;
+ mysetup.GoLastReplayed=0;
+ mysetup.ReturnToPlugin=1;
+ mysetup.LimitBandwidth=0;
+ mysetup.UseVDRsRecInfoMenu=0;
 }
 
 mySetup mysetup;
@@ -29,6 +33,10 @@ myMenuSetup::myMenuSetup()
  showreclength=mysetup.ShowRecLength;
  shownewrecs=mysetup.ShowNewRecs;
  descendsorting=mysetup.DescendSorting;
+ golastreplayed=mysetup.GoLastReplayed;
+ returntoplugin=mysetup.ReturnToPlugin;
+ limitbandwidth=mysetup.LimitBandwidth;
+ usevdrsrecinfomenu=mysetup.UseVDRsRecInfoMenu;
  
  sortingtypetexts[0]=tr("ascending");
  sortingtypetexts[1]=tr("descending");
@@ -41,6 +49,10 @@ myMenuSetup::myMenuSetup()
  Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
  Add(new cMenuEditBoolItem(tr("Show nr. of new recordings in a directory"),&shownewrecs));
  Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
+ Add(new cMenuEditBoolItem(tr("Jump to last replayed recording"),&golastreplayed));
+ Add(new cMenuEditBoolItem(tr("Call plugin after playback"),&returntoplugin));
+ Add(new cMenuEditBoolItem(tr("Limit bandwidth for move recordings"),&limitbandwidth));
+ Add(new cMenuEditBoolItem(tr("Use VDR's recording info menu"),&usevdrsrecinfomenu));
 }
 
 void myMenuSetup::Store()
@@ -53,4 +65,8 @@ void myMenuSetup::Store()
  SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
  SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
  SetupStore("DescendSorting",mysetup.DescendSorting=descendsorting);
+ SetupStore("GoLastReplayed",mysetup.GoLastReplayed=golastreplayed);
+ SetupStore("ReturnToPlugin",mysetup.ReturnToPlugin=returntoplugin);
+ SetupStore("LimitBandwidth",mysetup.LimitBandwidth=limitbandwidth);
+ SetupStore("UseVDRsRecInfoMenu",mysetup.UseVDRsRecInfoMenu=usevdrsrecinfomenu);
 }

@@ -2,11 +2,16 @@
  * See the README file for copyright information and how to reach the author.
  */
 
+#include <sys/vfs.h>
+#include <string>
 #include <vdr/videodir.h>
 #include <vdr/remote.h>
 #include <vdr/menu.h>
+#include <vdr/interface.h>
 #include "mymenurecordings.h"
 #include "tools.h"
+
+using namespace std;
 
 // --- myMenuRenameRecording --------------------------------------------------
 myMenuRenameRecording::myMenuRenameRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName):cOsdMenu(tr("Rename"),12)
@@ -53,50 +58,54 @@ myMenuRenameRecording::~myMenuRenameRecording()
 
 eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 {
- eOSState state=cOsdMenu::ProcessKey(Key);
- if(state==osContinue)
- {
-  if(Key==kOk)
+  eOSState state=cOsdMenu::ProcessKey(Key);
+  if(state==osContinue)
   {
-   char *oldname=NULL;
-   char *newname=NULL;
-   char *tmppath=path[0]?ExchangeChars(strdup(path),true):NULL;
-   char *tmpname=name[0]?ExchangeChars(strdup(name),true):NULL;
+    if(Key==kOk)
+    {
+      char *oldname=NULL;
+      char *newname=NULL;
+      char *tmppath=path[0]?ExchangeChars(strdup(path),true):NULL;
+      char *tmpname=name[0]?ExchangeChars(strdup(name),true):NULL;
 
-   if(strchr(name,'.')==name||!strlen(name))
-   {
-    Skins.Message(mtError,tr("Invalid filename!"));
-    cRemote::Put(kRight);
-    return osContinue;
-   }
+      if(strchr(name,'.')==name||!strlen(name))
+      {
+        Skins.Message(mtError,tr("Invalid filename!"));
+        cRemote::Put(kRight);
+        return osContinue;
+      }
 
-   if(isdir)
-    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname);
-   else
-    oldname=strdup(recording->FileName());
+      if(isdir)
+        asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname);
+      else
+        oldname=strdup(recording->FileName());
 
-   asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/'));
+      asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/'));
 
-   if(MoveRename(oldname,newname,isdir?NULL:recording,false))
-   {
-    state=osBack;
-    menurecordings->Set(true,isdir?NULL:newname);
-   }
-   else
-   {
-    cRemote::Put(kRight);
-    state=osContinue;
-   }
-
-   free(oldname);
-   free(newname);
-   free(tmppath);
-   free(tmpname);
+      if(!MakeDirs(newname,true))
+        Skins.Message(mtError,tr("Creating directories failed!"));
+      else
+      {
+        if(MoveRename(oldname,newname,isdir?NULL:recording,false))
+        {
+          state=osBack;
+          menurecordings->Set(true,isdir?NULL:newname);
+        }
+        else
+        {
+          cRemote::Put(kRight);
+          state=osContinue;
+        }
+      }
+      free(oldname);
+      free(newname);
+      free(tmppath);
+      free(tmpname);
+    }
+    if(Key==kBack)
+      return osBack;
   }
-  if(Key==kBack)
-   return osBack;
- }
- return state;
+  return state;
 }
 
 // --- myMenuNewName ----------------------------------------------------------
@@ -222,38 +231,38 @@ myMenuMoveRecording::~myMenuMoveRecording()
 
 void myMenuMoveRecording::Set()
 {
- if(level==0)
-  Add(new myMenuMoveRecordingItem(tr("[base dir]"),0));
+  if(level==0)
+    Add(new myMenuMoveRecordingItem(tr("[base dir]"),0));
 
- char *lastitemtext=NULL;
- myMenuMoveRecordingItem *lastitem=NULL;
- for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
- {
-  if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
+  char *lastitemtext=NULL;
+  myMenuMoveRecordingItem *lastitem=NULL;
+  for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
   {
-   myMenuMoveRecordingItem *item=new myMenuMoveRecordingItem(recording,level);
-   if(*item->Text())
-   {
-    if(lastitemtext&&!strcmp(lastitemtext,item->Text())) // same text
+    if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
     {
-     if(lastitem&&lastitem->Level()<item->Level()) // if level of the previous item is lower, set it to the new value
-      lastitem->SetLevel(item->Level());
+      myMenuMoveRecordingItem *item=new myMenuMoveRecordingItem(recording,level);
+      if(*item->Text())
+      {
+        if(lastitemtext&&!strcmp(lastitemtext,item->Text())) // same text
+        {
+          if(lastitem&&lastitem->Level()<item->Level()) // if level of the previous item is lower, set it to the new value
+            lastitem->SetLevel(item->Level());
 
-     delete item;
+          delete item;
+        }
+        else
+        {
+          Add(item); // different text means a new item to add
+          lastitem=item;
+          free(lastitemtext);
+          lastitemtext=strdup(lastitem->Text());
+        }
+      }
+      else
+        delete item;
     }
-    else
-    {
-     Add(item); // different text means a new item to add
-     lastitem=item;
-     free(lastitemtext);
-     lastitemtext=strdup(lastitem->Text());
-    }
-   }
-   else
-    delete item;
   }
- }
- free(lastitemtext);
+  free(lastitemtext);
 }
 
 eOSState myMenuMoveRecording::Open()
@@ -278,70 +287,123 @@ eOSState myMenuMoveRecording::Open()
 
 eOSState myMenuMoveRecording::MoveRec()
 {
- char *oldname=NULL;
- char *newname=NULL;
- char *dir=NULL;
- char *tmpdirbase=dirbase?ExchangeChars(strdup(dirbase),true):NULL;
- char *tmpdirname=dirname?ExchangeChars(strdup(dirname),true):NULL;
+  char *oldname=NULL;
+  char *newname=NULL;
+  char *dir=NULL;
+  char *tmpdirbase=dirbase?ExchangeChars(strdup(dirbase),true):NULL;
+  char *tmpdirname=dirname?ExchangeChars(strdup(dirname),true):NULL;
  
- eOSState state=osContinue;
+  eOSState state=osContinue;
 
- if(dirname)
-  asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname);
- else
-  oldname=strdup(recording->FileName());
-
- myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
- if(item)
- {
-  if(strcmp(tr("[base dir]"),item->Text()))
-  {
-   if(dirname)
-    asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text());
-   else
-   {
-    char *p=strrchr(recording->Name(),'~');
-    asprintf(&dir,"%s%s%s~%s",base?base:"",base?"~":"",item->Text(),p?p+1:recording->Name());
-   }
-  }
-  else
-  {
-   if(!dirname)
-   {
-    char *p=strrchr(recording->Name(),'~');
-    asprintf(&dir,"%s",p?++p:recording->Name());
-   }
-  }
- }
- else
- {
   if(dirname)
-   asprintf(&dir,"%s",base);
+    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname);
+  else
+    oldname=strdup(recording->FileName());
+
+  myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
+  if(item)
+  {
+    if(strcmp(tr("[base dir]"),item->Text()))
+    {
+      if(dirname)
+        asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text());
+      else
+      {
+        char *p=strrchr(recording->Name(),'~');
+        asprintf(&dir,"%s%s%s~%s",base?base:"",base?"~":"",item->Text(),p?p+1:recording->Name());
+      }
+    }
+    else
+    {
+      if(!dirname)
+      {
+        char *p=strrchr(recording->Name(),'~');
+        asprintf(&dir,"%s",p?++p:recording->Name());
+      }
+    }
+  }
   else
   {
-   char *p=strrchr(recording->Name(),'~');
-   asprintf(&dir,"%s~%s",base,p?p:recording->Name());
+    if(dirname)
+      asprintf(&dir,"%s",base);
+    else
+    {
+      char *p=strrchr(recording->Name(),'~');
+      asprintf(&dir,"%s~%s",base,p?p:recording->Name());
+    }
   }
- }
- if(dir)
-  dir=ExchangeChars(dir,true);
+  if(dir)
+    dir=ExchangeChars(dir,true);
  
- asprintf(&newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
+  asprintf(&newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
 
- if(MoveRename(oldname,newname,dirname?NULL:recording,true))
- {
-  clearall=true;
-  state=osBack;
-  menurecordings->Set(true);
- }
-
- free(oldname);
- free(newname);
- free(dir);
- free(tmpdirbase);
- free(tmpdirname);
+  if(!MakeDirs(newname,true))
+    Skins.Message(mtError,tr("Creating directories failed!"));
+  else
+  {
+    struct stat stat1,stat2;
+    stat(oldname,&stat1);
+    stat(newname,&stat2);
+    if(stat1.st_dev==stat2.st_dev)
+    {
+      if(MoveRename(oldname,newname,dirname?NULL:recording,true))
+      {
+        clearall=true;
+        state=osBack;
+        menurecordings->Set(true);
+      }
+    }
+    else
+    {
+      if(MoveThread.Active())
+        Skins.Message(mtError,tr("Move recordings already in progress!"));
+      else
+      {
+        struct statfs fsstat;
+        statfs(newname,&fsstat);
+        int freemb=int(fsstat.f_bavail/(1024*1024/fsstat.f_bsize));
+        int recmb=0;
+        
+        if(recording)
+          recmb=DirSizeMB(recording->FileName());
+        else
+        {
+          for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
+          {
+            if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
+              recmb+=DirSizeMB(rec->FileName());
+          }
+        }
+        
+        if(freemb-recmb <= 0)
+        {
+          if(Interface->Confirm(tr("Target filesystem filled - try anyway?")))
+          {
+            MoveThread.Start(oldname,newname,dirname?NULL:recording);
+            clearall=true;
+            state=osBack;
+            menurecordings->Set(true);
+          }
+          else
+            remove(newname); // remove created directory
+        }
+        else
+        {
+          MoveThread.Start(oldname,newname,dirname?NULL:recording);
+          clearall=true;
+          state=osBack;
+          menurecordings->Set(true);
+        }
+      }
+    }
+  }
+  free(oldname);
+  free(newname);
+  free(dir);
+  free(tmpdirbase);
+  free(tmpdirname);
  
- return state;
+  return state;
 }
 
 eOSState myMenuMoveRecording::Create()

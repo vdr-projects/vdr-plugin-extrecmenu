@@ -1,6 +1,7 @@
 This is a "plugin" for the Video Disk Recorder (VDR).
+
 Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
-Project's homepage: http://martins-kabuff.de/extrecmenu.html
+Project's homepage: http://martins-kabuff.de/extrecmenu_en.html
 
 See the file COPYING for license information. See top of *.c for additional
 copyright information.
@@ -14,13 +15,23 @@ I want to thank to following contributors:
 -------------------------------------------------------------------------------
 Description
 -------------------------------------------------------------------------------
-This plugin provides a recordings menu enhanced with the possibility to
-rename or move recordings and directories. The display of recording date, time
-and length is configurable. Sorting by name or date is selectable for each
-directory. If you use the PIN-plugin, the replay and editing of recordings is
-protected. The plugin also handles archive dvds of VDR recordings (as known
-from the DVDArchive-patch for VDR). This plugin extends VDR's '-r'-option with
-messages for deleting, moving and renaming a recording.
+The EXTended RECordings MENU plugin provides additional functions to VDR's
+recordings menu:
+
+* renaming recordings and directories
+* moving recordings and directories, also between different filesystems
+* functionality of the DVDArchiv-patch (see below)
+* adjustable display of recording's length, date and size
+* directories are always shown on top of the list
+* reworked layout using icons for showing the status of list entries
+  (directory, new recording, moving recording, cutting recording, dvd archiv
+  entry)
+* sorting by name or date, adjustable for each directory
+* ascending/descending sorting
+* extends VDR's '-r'-option commands with 'move' and 'rename'
+* extended recordings info menu, shows name, path, channel, size, lifetime and
+  priority of the recording
+* protects recordings in co-work with the PIN-plugin
 
 -------------------------------------------------------------------------------
 Installation
@@ -56,7 +67,9 @@ renaming will be executed.
 
 Moving: Press 'Yellow', then 'Green'. Now you are at the base directory of the
 /video-directory-hierarchy. 'Ok' opens sub-directories, with 'Yellow' you can
-create new dirs. With 'Blue' moving to the selected dir will be executed.
+create new dirs. With 'Blue' moving to the selected dir will be executed. At
+the moment it is only possible to move one recording or directory to another
+filesystem.
 
 Details: Select a recording, press 'Yellow', then 'Blue'. In this menu you can
 edit the lifetime and priority of the selected recording. Editing the details
@@ -66,7 +79,8 @@ which the recording is found on the disc.
 Sort recordings
 -------------------------------------------------------------------------------
 All directories are sorted by date by default. To change the sorting, simply
-press '0'.
+press '0'. Ascending or descending sorting is selectable at plugin's setup
+menu.
 
 -------------------------------------------------------------------------------
 Archiv-DVD-functionality
@@ -102,5 +116,5 @@ is started to play the video dvd.
 
 -------------------------------------------------------------------------------
 Do you like this plugin? Support the developer! Go to the project homepage and
-make a donation over the PayPal donation button.
+make a donation over the PayPal button.
 -------------------------------------------------------------------------------

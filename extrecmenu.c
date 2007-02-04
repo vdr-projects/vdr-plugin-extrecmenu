@@ -2,13 +2,16 @@
  * See the README file for copyright information and how to reach the author.
  */
 
+#include <string>
 #include <vdr/plugin.h>
 #include "mymenusetup.h"
 #include "mymenurecordings.h"
 #include "i18n.h"
 #include "tools.h"
 
-static const char *VERSION        = "0.12c";
+using namespace std;
+
+static const char *VERSION        = "0.13";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -29,6 +32,7 @@ class cPluginExtrecmenu:public cPlugin
   virtual bool Start(void);
   virtual void Stop(void);
   virtual void Housekeeping(void);
+  virtual cString Active(void);
   virtual const char *MainMenuEntry(void){return mysetup.HideMainMenuEntry?NULL:MAINMENUENTRY;}
   virtual cOsdObject *MainMenuAction(void);
   virtual cMenuSetupPage *SetupMenu(void);
@@ -80,6 +84,13 @@ void cPluginExtrecmenu::Housekeeping(void)
 {
 }
 
+cString cPluginExtrecmenu::Active(void)
+{
+  if(MoveThread.Active())
+    return tr("Move recordings in progress");
+  return NULL;
+}
+
 cOsdObject *cPluginExtrecmenu::MainMenuAction(void)
 {
  return new myMenuRecordings();
@@ -111,6 +122,14 @@ bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
    mysetup.ShowNewRecs=atoi(Value);
  else if(!strcasecmp(Name,"DescendSorting"))
    mysetup.DescendSorting=atoi(Value);
+ else if(!strcasecmp(Name,"GoLastReplayed"))
+   mysetup.GoLastReplayed=atoi(Value);
+ else if(!strcasecmp(Name,"ReturnToPlugin"))
+   mysetup.ReturnToPlugin=atoi(Value);
+ else if(!strcasecmp(Name,"LimitBandwidth"))
+   mysetup.LimitBandwidth=atoi(Value);
+ else if(!strcasecmp(Name,"UseVDRsRecInfoMenu"))
+   mysetup.UseVDRsRecInfoMenu=atoi(Value);
  else
    return false;
  return true;

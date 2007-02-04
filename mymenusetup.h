@@ -12,6 +12,10 @@ class mySetup
   int PatchNew;
   int ShowNewRecs;
   int DescendSorting;
+  int GoLastReplayed;
+  int ReturnToPlugin;
+  int LimitBandwidth;
+  int UseVDRsRecInfoMenu;
 };
 
 extern mySetup mysetup;
@@ -28,6 +32,10 @@ class myMenuSetup:public cMenuSetupPage
   int patchnew;
   int shownewrecs;
   int descendsorting;
+  int golastreplayed;
+  int returntoplugin;
+  int limitbandwidth;
+  int usevdrsrecinfomenu;
  protected:
   virtual void Store();
  public:
