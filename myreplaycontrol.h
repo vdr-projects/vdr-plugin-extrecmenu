@@ -1,8 +1,9 @@
 class myReplayControl:public cReplayControl
 {
+ private:
+   bool timesearchactive;
  public:
-  static char *Cut;
-  static char *Cutted;
-  eOSState ProcessKey(eKeys Key);
-  ~myReplayControl();
+   myReplayControl();
+   ~myReplayControl();
+   eOSState ProcessKey(eKeys Key);
 };

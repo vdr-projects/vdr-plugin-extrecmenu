@@ -16,6 +16,8 @@ class mySetup
   int ReturnToPlugin;
   int LimitBandwidth;
   int UseVDRsRecInfoMenu;
+  int PatchFont;
+  int FileSystemFreeMB;
 };
 
 extern mySetup mysetup;
@@ -36,6 +38,8 @@ class myMenuSetup:public cMenuSetupPage
   int returntoplugin;
   int limitbandwidth;
   int usevdrsrecinfomenu;
+  int patchfont;
+  int filesystemfreemb;
  protected:
   virtual void Store();
  public:

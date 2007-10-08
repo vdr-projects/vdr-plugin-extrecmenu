@@ -2,6 +2,7 @@
 class myMenuRecordingsItem:public cOsdItem
 {
   private:
+    bool dirismoving;
     bool isdvd;
     int level,isdirectory;
     int totalentries,newentries;
@@ -17,6 +18,8 @@ class myMenuRecordingsItem:public cOsdItem
     bool IsDirectory(){return name!=NULL;}
     void IncrementCounter(bool IsNew);
     bool IsDVD(){return isdvd;}
+    void SetDirIsMoving(bool moving){dirismoving=moving;}
+    bool GetDirIsMoving(){return dirismoving;}
     const char *UniqID(){return uniqid.length()?uniqid.c_str():"";}
 };
 
@@ -27,6 +30,8 @@ class myMenuRecordings:public cOsdMenu
   bool edit;
   static bool wasdvd;
   static bool golastreplayed;
+  static dev_t fsid;
+  static int freediskspace;
   int level,helpkeys;
   int recordingsstate;
   char *base;
@@ -43,7 +48,7 @@ class myMenuRecordings:public cOsdMenu
   eOSState Details();
   eOSState Commands(eKeys Key=kNone);
   eOSState ChangeSorting();
-  bool IsCutted();
+  int FreeMB();
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();
@@ -62,7 +67,7 @@ class myMenuRenameRecording:public cOsdMenu
   cRecording *recording;
   myMenuRecordings *menurecordings;
  public:
-  myMenuRenameRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName);
+  myMenuRenameRecording(cRecording *Recording,const char *DirBase,const char *DirName);
   ~myMenuRenameRecording();
   virtual eOSState ProcessKey(eKeys Key);
 };
@@ -81,7 +86,7 @@ class myMenuMoveRecording:public cOsdMenu
   eOSState MoveRec();
   eOSState Create();
  public:
-  myMenuMoveRecording(myMenuRecordings *MenuRecordings,cRecording *Recording,const char *DirBase,const char *DirName,const char *Base=NULL,int Level=0);
+  myMenuMoveRecording(cRecording *Recording,const char *DirBase,const char *DirName,const char *Base=NULL,int Level=0);
   ~myMenuMoveRecording();
   virtual eOSState ProcessKey(eKeys Key);
   static bool clearall;
@@ -95,6 +100,6 @@ class myMenuRecordingDetails:public cOsdMenu
   cRecording *recording;
   myMenuRecordings *menurecordings;
  public:
-  myMenuRecordingDetails(cRecording *Recording,myMenuRecordings *MenuRecordings);
+  myMenuRecordingDetails(cRecording *Recording);
   virtual eOSState ProcessKey(eKeys Key);
 };

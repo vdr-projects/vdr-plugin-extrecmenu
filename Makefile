@@ -1,9 +1,10 @@
+###############################################################################
 #
-# Makefile for a Video Disk Recorder plugin
-#
-
 # uncomment if you use the pin-plugin and want to protect your recordings
 #WITHPINPLUGIN=1
+#
+###############################################################################
+
 
 # The official name of this plugin.
 # This name will be used in the '-P...' option of VDR to load the plugin.

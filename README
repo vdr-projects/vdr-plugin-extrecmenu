@@ -3,14 +3,13 @@ This is a "plugin" for the Video Disk Recorder (VDR).
 Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
 Project's homepage: http://martins-kabuff.de/extrecmenu_en.html
 
-See the file COPYING for license information. See top of *.c for additional
-copyright information.
+See the file COPYING for license information.
 
 I want to thank to following contributors:
-- Mike Constabel for the skript dvdarchive.sh
-- Rolf Ahrenberg for the finnish translation
-- Patrice Staudt for the frensh translation
-- Vladimír Bárta for the czech translation
+- Mike Constabel <mike@constabel.net> for the skript dvdarchive.sh
+- Rolf Ahrenberg <rahrenbe@cc.hut.fi> for the finnish translation
+- Patrice Staudt <staudt@engsystem.net> for the frensh translation
+- Vladimír Bárta <vladimir.barta@k2atmitec.cz> for the czech translation
 
 -------------------------------------------------------------------------------
 Description
@@ -20,18 +19,21 @@ recordings menu:
 
 * renaming recordings and directories
 * moving recordings and directories, also between different filesystems
-* functionality of the DVDArchiv-patch (see below)
 * adjustable display of recording's length, date and size
 * directories are always shown on top of the list
 * reworked layout using icons for showing the status of list entries
-  (directory, new recording, moving recording, cutting recording, dvd archiv
-  entry)
-* sorting by name or date, adjustable for each directory
-* ascending/descending sorting
-* extends VDR's '-r'-option commands with 'move' and 'rename'
+  (directory, new recording, moving recording/directory, cutting recording,
+  dvd archiv entry)
 * extended recordings info menu, shows name, path, channel, size, lifetime and
   priority of the recording
-* protects recordings in co-work with the PIN-plugin
+* free disk space is shown for the filesystem of the current directory
+* sorting by name or date, adjustable for each directory; type of sorting will
+  be stored
+* ascending/descending sorting
+* extends VDR's '-r'-option commands with 'move' and 'rename'
+* functionality of the DVDArchive-patch (see below)
+* protecting recordings in co-work with the PIN-plugin
+* a cutter queue
 
 -------------------------------------------------------------------------------
 Installation
@@ -51,11 +53,6 @@ There is a patch for VDR in contrib/ for replacing VDR's recordings menu with
 this plugin. You have to set the corresponding option at the setup menu of the
 plugin!
 
-There ist a patched TTF-Font for Enigma containing the dvd and alternative new
-symbols. See this posts at vdr-portal.de:
-http://www.vdr-portal.de/board/thread.php?postid=483800#post483800
-http://www.vdr-portal.de/board/thread.php?postid=483988#post483988
-
 -------------------------------------------------------------------------------
 Handling
 -------------------------------------------------------------------------------
@@ -67,14 +64,22 @@ renaming will be executed.
 
 Moving: Press 'Yellow', then 'Green'. Now you are at the base directory of the
 /video-directory-hierarchy. 'Ok' opens sub-directories, with 'Yellow' you can
-create new dirs. With 'Blue' moving to the selected dir will be executed. At
-the moment it is only possible to move one recording or directory to another
-filesystem.
+create new dirs. With 'Blue' moving to the selected dir will be executed.
 
 Details: Select a recording, press 'Yellow', then 'Blue'. In this menu you can
 edit the lifetime and priority of the selected recording. Editing the details
 of archive dvd entries is not possible, because this would change the name by
 which the recording is found on the disc.
+
+Cutter queue
+-------------------------------------------------------------------------------
+With the build-in cutter queue you don't have to wait until an editing process
+ended before you can start a new one. It only works, if you start the editing
+process from a replay that was started in the plugin.
+
+Canceling of editing or move processes
+-------------------------------------------------------------------------------
+Mark the entry, press 'Yellow'.
 
 Sort recordings
 -------------------------------------------------------------------------------
@@ -83,7 +88,7 @@ press '0'. Ascending or descending sorting is selectable at plugin's setup
 menu.
 
 -------------------------------------------------------------------------------
-Archiv-DVD-functionality
+DVDArchive-patch functionality
 -------------------------------------------------------------------------------
 Burn the entire directory, that contains the recording, to a dvd and label it
 with an identifier (a number or anything else). At least the *.rec-folder has
@@ -118,3 +123,4 @@ is started to play the video dvd.
 Do you like this plugin? Support the developer! Go to the project homepage and
 make a donation over the PayPal button.
 -------------------------------------------------------------------------------
+
