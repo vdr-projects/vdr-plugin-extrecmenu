@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.0";
+static const char *VERSION        = "1.1";
 static const char *DESCRIPTION    = "Extended recordings menu";
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -133,6 +133,8 @@ bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
     mysetup.PatchFont=atoi(Value);
   else if(!strcasecmp(Name,"FileSystemFreeMB"))
     mysetup.FileSystemFreeMB=atoi(Value);
+  else if(!strcasecmp(Name,"UseCutterQueue"))
+    mysetup.UseCutterQueue=atoi(Value);
   else
     return false;
   return true;

@@ -21,6 +21,7 @@ mySetup::mySetup()
   mysetup.UseVDRsRecInfoMenu=0;
   mysetup.PatchFont=1;
   mysetup.FileSystemFreeMB=1;
+  mysetup.UseCutterQueue=1;
 }
 
 mySetup mysetup;
@@ -43,6 +44,7 @@ myMenuSetup::myMenuSetup()
   usevdrsrecinfomenu=mysetup.UseVDRsRecInfoMenu;
   patchfont=mysetup.PatchFont;
   filesystemfreemb=mysetup.FileSystemFreeMB;
+  usecutterqueue=mysetup.UseCutterQueue;
  
   sortingtypetexts[0]=tr("ascending");
   sortingtypetexts[1]=tr("descending");
@@ -65,6 +67,7 @@ myMenuSetup::myMenuSetup()
 #endif
   Add(new cMenuEditBoolItem(tr("Limit bandwidth for move recordings"),&limitbandwidth));
   Add(new cMenuEditBoolItem(tr("Use VDR's recording info menu"),&usevdrsrecinfomenu));
+  Add(new cMenuEditBoolItem(tr("Use cutter queue"),&usecutterqueue));
 }
 
 void myMenuSetup::Store()
@@ -83,5 +86,6 @@ void myMenuSetup::Store()
   SetupStore("UseVDRsRecInfoMenu",mysetup.UseVDRsRecInfoMenu=usevdrsrecinfomenu);
   SetupStore("PatchFont",mysetup.PatchFont=patchfont);
   SetupStore("FileSystemFreeMB",mysetup.FileSystemFreeMB=filesystemfreemb);
+  SetupStore("UseCutterQueue",mysetup.UseCutterQueue=usecutterqueue);
 }
 

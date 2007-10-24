@@ -18,6 +18,7 @@ class mySetup
   int UseVDRsRecInfoMenu;
   int PatchFont;
   int FileSystemFreeMB;
+  int UseCutterQueue;
 };
 
 extern mySetup mysetup;
@@ -40,6 +41,7 @@ class myMenuSetup:public cMenuSetupPage
   int usevdrsrecinfomenu;
   int patchfont;
   int filesystemfreemb;
+  int usecutterqueue;
  protected:
   virtual void Store();
  public:

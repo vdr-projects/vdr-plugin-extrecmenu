@@ -195,9 +195,9 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         titlebuffer << char(129);
       else if(MoveCutterThread->IsCutting(filename))
         titlebuffer << char(132);
-      else if(Recording->IsNew() && (!mysetup.PatchNew || !mysetup.PatchFont))
+      else if(Recording->IsNew() && !mysetup.PatchNew)
         titlebuffer << '*';
-      else if(!Recording->IsNew() && mysetup.PatchNew && mysetup.PatchFont)
+      else if(!Recording->IsNew() && mysetup.PatchNew)
         titlebuffer << char(128);
       else titlebuffer << ' ';
      

@@ -1,6 +1,14 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2007-10-22: Version 1.1
+- fixed an issue with starting an editing process; thank to Andreas Mair for
+  the patch
+- new marker ('*') is shown despite the setup option 'Show alternative to new
+  marker' is on and 'Patch font' is off; fixed; thanks to Saxman2k from
+  vdr-portal.de for reporting
+- added option to switch off cutter queue
+
 2007-10-07: Version 1.0
 - it is now possible to cancel a moving-between-filesystems-process
 - applied changes for MainMenuHooksPatch

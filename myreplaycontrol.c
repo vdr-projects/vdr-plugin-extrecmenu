@@ -28,43 +28,45 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
 {
   if(Key!=kNone)
   {
-    if(Key==kBack)
-     return osEnd;
- 
-    if(timesearchactive)
+    if(timesearchactive && mysetup.UseCutterQueue)
     {
-      if(Key<k0 && Key>k9)
+      if(Key<k0 || Key>k9)
         timesearchactive=false;
     }
     else
     {
-      if(Key==kEditCut)
+      if(mysetup.UseCutterQueue)
       {
-        const char *filename=NowReplaying();
-
-        if(filename)
+        if(Key==kEditCut)
         {
-          if(MoveCutterThread->IsCutting(filename))
-            Skins.Message(mtError,tr("Recording already in cutter queue!"));
-          else
+          const char *filename=cReplayControl::NowReplaying();
+
+          if(filename)
           {
-            cMarks marks;
-            marks.Load(filename);
-  
-            if(!marks.Count())
-              Skins.Message(mtError,tr("No editing marks defined!"));
+            if(MoveCutterThread->IsCutting(filename))
+              Skins.Message(mtError,tr("Recording already in cutter queue!"));
             else
             {
-              MoveCutterThread->AddToCutterQueue(filename);
-              Skins.Message(mtInfo,tr("Added recording to cutter queue"));
+              cMarks marks;
+              marks.Load(filename);
+  
+              if(!marks.Count())
+                Skins.Message(mtError,tr("No editing marks defined!"));
+              else
+              {
+                MoveCutterThread->AddToCutterQueue(filename);
+                Skins.Message(mtInfo,tr("Added recording to cutter queue"));
+              }
             }
           }
+          return osContinue;
         }
-        return osContinue;
-      }
 
-      if(Key==kRed)
-        timesearchactive=true;
+        if(Key==kRed)
+          timesearchactive=true;
+      }      
+      if(Key==kBack)
+        return osEnd;
     }
   }
 
