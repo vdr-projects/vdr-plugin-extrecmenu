@@ -10,6 +10,9 @@ I want to thank to following contributors:
 - Rolf Ahrenberg <rahrenbe@cc.hut.fi> for the finnish translation
 - Patrice Staudt <staudt@engsystem.net> for the frensh translation
 - Vladimír Bárta <vladimir.barta@k2atmitec.cz> for the czech translation
+- Diego <vdr-italian@tiscali.it> for the italian translation
+- Andreas Mair <andreas@vdr-developer.org> for the true type font containg the
+  icons
 
 -------------------------------------------------------------------------------
 Description
@@ -38,14 +41,20 @@ recordings menu:
 -------------------------------------------------------------------------------
 Installation
 -------------------------------------------------------------------------------
-Installation of the plugin itselfs is like any other plugin installation. Check
-the Makefile if you use the PIN-plugin. You have to place the script
+Installation of the plugin itselfs is like any other plugin installation.
+
+In addition you have to copy the true type font in the ttf/-directory to a
+location where freetype will find it (usually /usr/share/fonts/truetype) and
+select it in the OSD setup menu of VDR so that the icons which this plugin uses
+can be displayed.
+
+Also check the Makefile if you use the PIN-plugin. You have to place the script
 'dvdarchive.sh' from the scripts/-directory within your $PATH (maybe adjust the
 permissions) for the DVDArchive-patch functionality. See the top of
 'dvdarchive.sh' for the adjustments you maybe have to take.
 
 If your /video-directory is a nfs mount, you have to mount it with the option
-'hard' to make renaming and moving of recordings work.
+'hard' to make renaming and moving of recordings possible.
 
 Check the options at the setup menu of the plugin. They are self-explaining.
 
@@ -123,4 +132,3 @@ is started to play the video dvd.
 Do you like this plugin? Support the developer! Go to the project homepage and
 make a donation over the PayPal button.
 -------------------------------------------------------------------------------
-

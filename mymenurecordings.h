@@ -54,6 +54,9 @@ class myMenuRecordings:public cOsdMenu
   ~myMenuRecordings();
   void Set(bool Refresh=false,char *current=NULL);
   virtual eOSState ProcessKey(eKeys Key);
+#ifdef USE_GRAPHTFT
+  virtual const char* MenuKind(){return"MenuExtRecordings";}
+#endif
 };
 
 // --- myMenuRenameRecording --------------------------------------------------

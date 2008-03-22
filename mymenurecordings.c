@@ -17,7 +17,6 @@
 #include "mymenurecordings.h"
 #include "mymenusetup.h"
 #include "mymenucommands.h"
-#include "patchfont.h"
 #include "tools.h"
 
 using namespace std;
@@ -37,9 +36,12 @@ class myMenuRecordingInfo:public cOsdMenu
     myMenuRecordingInfo(const cRecording *Recording,bool WithButtons = false);
     virtual void Display(void);
     virtual eOSState ProcessKey(eKeys Key);
+#ifdef USE_GRAPHTFT
+    virtual const char* MenuKind(){return "MenuExtRecording";}
+#endif
 };
 
-myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithButtons):cOsdMenu(tr("Recording info"))
+myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithButtons):cOsdMenu(trVDR("Recording info"))
 {
   recording=Recording;
   withButtons=WithButtons;
@@ -50,6 +52,10 @@ myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithB
 void myMenuRecordingInfo::Display(void)
 {
   cOsdMenu::Display();
+
+#ifdef USE_GRAPHTFT
+  cStatus::MsgOsdSetRecording(recording);
+#endif
 
   if(mysetup.UseVDRsRecInfoMenu)
   {
@@ -89,10 +95,11 @@ void myMenuRecordingInfo::Display(void)
     else
       text << tr("Size") << ": " << recmb << " MB\n";
 
-    text << tr("Priority") << ": " << recording->priority << "\n";
-    text << tr("Lifetime") << ": " << recording->lifetime << "\n";
+    text << trVDR("Priority") << ": " << recording->priority << "\n";
+    text << trVDR("Lifetime") << ": " << recording->lifetime << "\n";
 
     DisplayMenu()->SetText(text.str().c_str(),false);
+    cStatus::MsgOsdTextItem(text.str().c_str());
   }
 }
 
@@ -188,18 +195,17 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         isdvd=!access(buffer.c_str(),R_OK);
       }
     
-      // marker
       if(MoveCutterThread->IsMoving(filename))
-        titlebuffer << char(133);
+        titlebuffer << Icons::MovingRecording(); // moving recording
       else if(isdvd)
-        titlebuffer << char(129);
+        titlebuffer << Icons::DVD(); // archive dvd
       else if(MoveCutterThread->IsCutting(filename))
-        titlebuffer << char(132);
+        titlebuffer << Icons::Scissor(); // cutting recording
       else if(Recording->IsNew() && !mysetup.PatchNew)
         titlebuffer << '*';
       else if(!Recording->IsNew() && mysetup.PatchNew)
-        titlebuffer << char(128);
-      else titlebuffer << ' ';
+        titlebuffer << Icons::Continue(); // alternative to new marker / rewind / continue
+      else titlebuffer << ' '; // no icon
      
       titlebuffer << '\t';
     
@@ -229,9 +235,9 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         if(!stat(buffer.c_str(),&statbuf))
         {
           ostringstream strbuf;
-          strbuf << setw(3) << setfill(' ') << right << (int)(statbuf.st_size/12000) << "'";
-       
-          titlebuffer << myStrReplace(strbuf.str(),' ',char(131)) << '\t';
+          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'";
+          // replace leading spaces with fixed blank (right align)
+          titlebuffer << myStrReplace(strbuf.str(),' ',Icons::FixedBlank()) << '\t';
         }
         else
         {
@@ -246,10 +252,10 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
               getline(in,buffer);
           
             buffer+="'";
- 
+            // replace leading spaces with fixed blank (right align)
             while(buffer.length()<=3)
-              buffer.insert(0,1,char(131));
-         
+              buffer.insert(0,Icons::FixedBlank());
+
             titlebuffer << buffer << '\t';
         
             in.close();
@@ -300,15 +306,16 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
     newentries++;
  
   char *buffer=NULL;
-  char entries[8];
-  snprintf(entries,sizeof(entries),"%3d",totalentries);
-  strreplace(entries,' ',char(131));
+
+  ostringstream entries;
+  entries << setw(3) << totalentries;
 
   if(mysetup.ShowNewRecs)
   {
-    asprintf(&buffer,"%c\t%s (%d)%s%s%s%s%s",
-                     GetDirIsMoving()?char(134):char(130),
-                     entries,
+    asprintf(&buffer,"%s\t%s (%d)%s%s%s%s%s",
+                     GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
+                     // replace leading spaces with fixed blank (right align)
+                     myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
                      newentries,
                      (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
                      (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
@@ -318,9 +325,10 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
   }
   else
   {
-    asprintf(&buffer,"%c\t%s%s%s%s%s%s",
-                     GetDirIsMoving()?char(134):char(130),
-                     entries,
+    asprintf(&buffer,"%s\t%s%s%s%s%s%s",
+                     GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
+                     // replace leading spaces with fixed blank (right align)
+                     myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
                      (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
                      (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
                      (mysetup.ShowRecDate&&mysetup.ShowRecTime||mysetup.ShowRecTime&&mysetup.ShowRecLength||mysetup.ShowRecLength&&mysetup.ShowRecDate)?"\t":"",
@@ -331,7 +339,7 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 }
 
 // --- myMenuRecordings -------------------------------------------------------
-#define MB_PER_MINUTE 25.75 // this is just an estimate!
+#define MB_PER_MINUTE 25.75 // this is just an estimate! (taken over from VDR)
 
 bool myMenuRecordings::golastreplayed=false;
 bool myMenuRecordings::wasdvd;
@@ -340,17 +348,6 @@ int myMenuRecordings::freediskspace=0;
 
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 {
-#if VDRVERSNUM < 10503
-   // only called if plugin menu was opened
-   if(Level==0 && mysetup.PatchFont)
-   {
-     // patch font
-     if(Setup.UseSmallFont==2)
-       PatchFont(fontSml);
-     else
-       PatchFont(fontOsd);
-   }
-#endif
    // set tabs
    if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&!mysetup.ShowRecLength) // recording date and time are shown, recording length not
      SetCols(2,8,6);
@@ -360,7 +357,7 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
      SetCols(2,8,4);
    else if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
      SetCols(2,6,4);
-   else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because the details of the directories
+   else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because of the details of the directories
    {
      if(mysetup.ShowNewRecs)
        SetCols(2,8,3);
@@ -407,15 +404,6 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 myMenuRecordings::~myMenuRecordings()
 {
   free(base);
-#if VDRVERSNUM < 10503
-  if(level==0)
-  {
-    if(Setup.UseSmallFont==2)
-      cFont::SetFont(fontSml);
-    else
-      cFont::SetFont(fontOsd);
-  }
-#endif
 }
 
 int myMenuRecordings::FreeMB()
@@ -480,22 +468,23 @@ void myMenuRecordings::Title()
 
   stringstream buffer;
   if(MoveCutterThread->IsMoveListEmpty())
-    buffer << char(133);
+    buffer << Icons::MovingRecording();
+
   if(MoveCutterThread->IsCutterQueueEmpty())
-    buffer << char(132);
-  
+    buffer << Icons::Scissor();
+
   if(MoveCutterThread->IsMoveListEmpty() || MoveCutterThread->IsCutterQueueEmpty())
     buffer << ' ';
 
   if(base)
     buffer << base;
   else
-    buffer << tr("Recordings");
+    buffer << trVDR("Recordings");
     
   buffer << " ("
          << minutes/60 << ":"
          << setw(2) << setfill('0') << minutes%60 << " "
-         << tr("free")
+         << trVDR("free")
          << ")";
   
   SetTitle(buffer.str().c_str());
@@ -645,31 +634,31 @@ void myMenuRecordings::Set(bool Refresh,char *current)
 // returns the corresponding recording to an item
 cRecording *myMenuRecordings::GetRecording(myMenuRecordingsItem *Item)
 {
- cRecording *recording=Recordings.GetByName(Item->FileName());
- if(!recording)
-  Skins.Message(mtError,tr("Error while accessing recording!"));
- return recording;
+  cRecording *recording=Recordings.GetByName(Item->FileName());
+  if(!recording)
+    Skins.Message(mtError,trVDR("Error while accessing recording!"));
+  return recording;
 }
 
 // opens a subdirectory
 bool myMenuRecordings::Open()
 {
- myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
- if(item&&item->IsDirectory())
- {
-  const char *t=item->Name();
-  char *buffer=NULL;
-  if(base)
+  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+  if(item && item->IsDirectory())
   {
-   asprintf(&buffer,"%s~%s",base,t);
-   t=buffer;
+    const char *t=item->Name();
+    char *buffer=NULL;
+    if(base)
+    {
+      asprintf(&buffer,"%s~%s",base,t);
+      t=buffer;
+    }
+    AddSubMenu(new myMenuRecordings(t,level+1));
+    free(buffer);
+    return true;
   }
-  AddSubMenu(new myMenuRecordings(t,level+1));
-  free(buffer);
-  return true;
- }
 
- return false;
+  return false;
 }
 
 // plays a recording
@@ -793,18 +782,18 @@ eOSState myMenuRecordings::Play()
 // plays a recording from the beginning
 eOSState myMenuRecordings::Rewind()
 {
- if(HasSubMenu()||Count()==0)
-  return osContinue;
+  if(HasSubMenu()||Count()==0)
+    return osContinue;
 
- myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
- if(item&&!item->IsDirectory())
- {
-  cDevice::PrimaryDevice()->StopReplay();
-  cResumeFile ResumeFile(item->FileName());
-  ResumeFile.Delete();
-  return Play();
- }
- return osContinue;
+  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+  if(item&&!item->IsDirectory())
+  {
+    cDevice::PrimaryDevice()->StopReplay();
+    cResumeFile ResumeFile(item->FileName());
+    ResumeFile.Delete();
+    return Play();
+  }
+  return osContinue;
 }
 
 // delete a recording
@@ -816,12 +805,12 @@ eOSState myMenuRecordings::Delete()
   myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
   if(item&&!item->IsDirectory())
   {
-    if(Interface->Confirm(tr("Delete recording?")))
+    if(Interface->Confirm(trVDR("Delete recording?")))
     {
       cRecordControl *rc=cRecordControls::GetRecordControl(item->FileName());
       if(rc)
       {
-        if(Interface->Confirm(tr("Timer still recording - really delete?")))
+        if(Interface->Confirm(trVDR("Timer still recording - really delete?")))
         {
           cTimer *timer=rc->Timer();
           if(timer)
@@ -854,7 +843,7 @@ eOSState myMenuRecordings::Delete()
             return osBack;
         }
         else
-          Skins.Message(mtError,tr("Error while deleting recording!"));
+          Skins.Message(mtError,trVDR("Error while deleting recording!"));
       }
     }
   }
@@ -864,38 +853,38 @@ eOSState myMenuRecordings::Delete()
 // renames a recording
 eOSState myMenuRecordings::Rename()
 {
- if(HasSubMenu()||Count()==0)
-  return osContinue;
+  if(HasSubMenu()||Count()==0)
+    return osContinue;
 
- myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
- if(item)
- {
-  if(item->IsDirectory())
-   return AddSubMenu(new myMenuRenameRecording(NULL,base,item->Name()));
-  else
+  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+  if(item)
   {
-   cRecording *recording=GetRecording(item);
-   if(recording)
-    return AddSubMenu(new myMenuRenameRecording(recording,NULL,NULL));
+    if(item->IsDirectory())
+      return AddSubMenu(new myMenuRenameRecording(NULL,base,item->Name()));
+    else
+    {
+      cRecording *recording=GetRecording(item);
+      if(recording)
+        return AddSubMenu(new myMenuRenameRecording(recording,NULL,NULL));
+    }
   }
- }
- return osContinue;
+  return osContinue;
 }
 
 // edit details of a recording
 eOSState myMenuRecordings::Details()
 {
- if(HasSubMenu()||Count()==0)
-  return osContinue;
+  if(HasSubMenu()||Count()==0)
+    return osContinue;
 
- myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
- if(item&&!item->IsDirectory())
- {
-  cRecording *recording=GetRecording(item);
-  if(recording)
-   return AddSubMenu(new myMenuRecordingDetails(recording));
- }
- return osContinue;
+  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+  if(item && !item->IsDirectory())
+  {
+    cRecording *recording=GetRecording(item);
+    if(recording)
+      return AddSubMenu(new myMenuRecordingDetails(recording));
+  }
+  return osContinue;
 }
 
 // moves a recording
@@ -923,11 +912,11 @@ eOSState myMenuRecordings::MoveRec()
 // opens an info screen to a recording
 eOSState myMenuRecordings::Info(void)
 {
-  if(HasSubMenu()||Count()==0)
+  if(HasSubMenu() || Count()==0)
     return osContinue;
 
   myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
-  if(item&&!item->IsDirectory())
+  if(item && !item->IsDirectory())
   {
     cRecording *recording=GetRecording(item);
     if(mysetup.UseVDRsRecInfoMenu && (!recording || recording && !recording->Info()->Title()))
@@ -941,25 +930,26 @@ eOSState myMenuRecordings::Info(void)
 // execute a command for a recording
 eOSState myMenuRecordings::Commands(eKeys Key)
 {
- if(HasSubMenu()||Count()==0)
-  return osContinue;
- myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
- if(item&&!item->IsDirectory())
- {
-  cRecording *recording=GetRecording(item);
-  if(recording)
+  if(HasSubMenu() || Count()==0)
+    return osContinue;
+ 
+  myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+  if(item && !item->IsDirectory())
   {
-   char *parameter=NULL;
-   asprintf(&parameter,"\"%s\"",recording->FileName());
-   myMenuCommands *menu;
-   eOSState state=AddSubMenu(menu=new myMenuCommands(tr("Recording commands"),&RecordingCommands,parameter));
-   free(parameter);
-   if(Key!=kNone)
-    state=menu->ProcessKey(Key);
-   return state;
+    cRecording *recording=GetRecording(item);
+    if(recording)
+    {
+      char *parameter=NULL;
+      asprintf(&parameter,"\"%s\"",recording->FileName());
+      myMenuCommands *menu;
+      eOSState state=AddSubMenu(menu=new myMenuCommands(trVDR("Recording commands"),&RecordingCommands,parameter));
+      free(parameter);
+      if(Key!=kNone)
+        state=menu->ProcessKey(Key);
+      return state;
+    }
   }
- }
- return osContinue;
+  return osContinue;
 }
 
 // change sorting
@@ -1075,7 +1065,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
 #endif
                                 if(MoveCutterThread->IsCutting(rec->FileName()))
                                 {
-                                  if(Interface->Confirm(tr("Cancel editing?")))
+                                  if(Interface->Confirm(trVDR("Cancel editing?")))
                                   {
                                     MoveCutterThread->CancelCut(rec->FileName());
                                     Set(true);

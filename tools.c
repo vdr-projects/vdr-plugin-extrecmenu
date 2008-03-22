@@ -37,12 +37,12 @@ string myStrEscape(string S,const char *Chars)
   return S;
 }
 
-string myStrReplace(string S,char C1,char C2)
+string myStrReplace(string S,char C1,const char* C2)
 {
   string::size_type i=0;
   while((i=S.find(C1,i))!=string::npos)
   {
-    S.replace(i,1,1,C2);
+    S.replace(i,1,C2);
     i++;
   }
   return S;
@@ -69,23 +69,23 @@ void SortList::ReadConfigFile()
 
 void SortList::WriteConfigFile()
 {
- string configfile(cPlugin::ConfigDirectory());
- configfile+=CONFIGFILE;
+  string configfile(cPlugin::ConfigDirectory());
+  configfile+=CONFIGFILE;
  
- ofstream outfile(configfile.c_str());
+  ofstream outfile(configfile.c_str());
  
- for(SortListItem *item=First();item;item=Next(item))
-  outfile << item->Path() << endl;
+  for(SortListItem *item=First();item;item=Next(item))
+    outfile << item->Path() << endl;
 }
 
 bool SortList::Find(string Path)
 {
- for(SortListItem *item=First();item;item=Next(item))
- {
-  if(item->Path()==Path)
-   return true;
- }
- return false;
+  for(SortListItem *item=First();item;item=Next(item))
+  {
+   if(item->Path()==Path)
+     return true;
+  }
+  return false;
 }
 
 // --- MoveRename -------------------------------------------------------------
@@ -683,3 +683,26 @@ bool WorkerThread::Move(string From,string To)
   return false;
 }
 
+// --- Icons ------------------------------------------------------------------
+bool Icons::IsUTF8=false;
+
+void Icons::InitCharSet()
+{
+  // Taken from VDR's vdr.c
+  char *CodeSet=NULL;
+  if(setlocale(LC_CTYPE, ""))
+    CodeSet=nl_langinfo(CODESET);
+  else
+  {
+    char *LangEnv=getenv("LANG"); // last resort in case locale stuff isn't installed
+    if(LangEnv)
+    {
+      CodeSet=strchr(LangEnv,'.');
+      if(CodeSet)
+        CodeSet++; // skip the dot
+    }
+  }
+
+  if(CodeSet && strcasestr(CodeSet,"UTF-8")!=0)
+    IsUTF8=true;
+}

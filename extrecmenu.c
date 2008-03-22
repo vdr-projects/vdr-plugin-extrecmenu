@@ -11,8 +11,8 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.1";
-static const char *DESCRIPTION    = "Extended recordings menu";
+static const char *VERSION        = "1.2";
+static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
 // --- cPluginExtrecmenu ------------------------------------------------------
@@ -69,6 +69,8 @@ bool cPluginExtrecmenu::Start(void)
 {
   mySortList=new SortList;
   mySortList->ReadConfigFile();
+  
+  Icons::InitCharSet();
 
   MoveCutterThread=new WorkerThread();
 

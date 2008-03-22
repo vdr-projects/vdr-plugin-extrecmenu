@@ -45,7 +45,7 @@ myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,const char *D
   if(DirBase)
    strn0cpy(path,DirBase,sizeof(path));
  }
- Add(new cMenuEditStrItem(tr("Name"),name,sizeof(name),tr(FileNameChars)));
+ Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),tr(FileNameChars)));
  cRemote::Put(kRight);
 }
 
@@ -120,7 +120,7 @@ class myMenuNewName:public cOsdMenu
 myMenuNewName::myMenuNewName():cOsdMenu(tr("New folder"),12)
 {
  strn0cpy(name,tr("New folder"),sizeof(name));
- Add(new cMenuEditStrItem(tr("Name"),name,sizeof(name),tr(FileNameChars)));
+ Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),tr(FileNameChars)));
  cRemote::Put(kRight);
 }
 
@@ -432,69 +432,69 @@ eOSState myMenuMoveRecording::MoveRec()
 
 eOSState myMenuMoveRecording::Create()
 {
- return AddSubMenu(new myMenuNewName);
+  return AddSubMenu(new myMenuNewName);
 }
 
 eOSState myMenuMoveRecording::ProcessKey(eKeys Key)
 {
- eOSState state=cOsdMenu::ProcessKey(Key);
+  eOSState state=cOsdMenu::ProcessKey(Key);
  
- if(state==osUnknown)
- {
-  switch(Key)
+  if(state==osUnknown)
   {
-   case kRed: clearall=true;break;
-   case kYellow: return Create();
-   case kBlue: return MoveRec();
-   case kOk: return Open();
-   default: break;
+    switch(Key)
+    {
+      case kRed: clearall=true;break;
+      case kYellow: return Create();
+      case kBlue: return MoveRec();
+      case kOk: return Open();
+      default: break;
+    }
   }
- }
 
- if(newname[0]!=0)
- {
-  Add(new myMenuMoveRecordingItem(newname,level+2));
-  Display();
-  strn0cpy(newname,"",sizeof(newname));
- }
+  if(newname[0]!=0)
+  {
+    Add(new myMenuMoveRecordingItem(newname,level+2));
+    Display();
+    strn0cpy(newname,"",sizeof(newname));
+  }
 
- if(clearall)
-  return osBack;
+  if(clearall)
+    return osBack;
 
- return state;
+  return state;
 }
 
 // --- myMenuRecordingDetails -------------------------------------------------
 myMenuRecordingDetails::myMenuRecordingDetails(cRecording *Recording):cOsdMenu(tr("Details"),12)
 {
- recording=Recording;
- priority=recording->priority;
- lifetime=recording->lifetime;
+  recording=Recording;
+  priority=recording->priority;
+  lifetime=recording->lifetime;
 
- Add(new cMenuEditIntItem(tr("Priority"),&priority,0,MAXPRIORITY));
- Add(new cMenuEditIntItem(tr("Lifetime"),&lifetime,0,MAXLIFETIME));
+  Add(new cMenuEditIntItem(trVDR("Priority"),&priority,0,MAXPRIORITY));
+  Add(new cMenuEditIntItem(trVDR("Lifetime"),&lifetime,0,MAXLIFETIME));
 }
 
 eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
 {
- eOSState state=cOsdMenu::ProcessKey(Key);
- if(state==osUnknown)
- {
-  if(Key==kOk)
+  eOSState state=cOsdMenu::ProcessKey(Key);
+  if(state==osUnknown)
   {
-   char *oldname=strdup(recording->FileName());
-   char *newname=strdup(recording->FileName());
+    if(Key==kOk)
+    {
+      char *oldname=strdup(recording->FileName());
+      char *newname=strdup(recording->FileName());
 
-   sprintf(newname+strlen(newname)-9,"%02d.%02d.rec",priority,lifetime);
+      sprintf(newname+strlen(newname)-9,"%02d.%02d.rec",priority,lifetime);
 
-   if(MoveRename(oldname,newname,recording,false))
-    state=osBack;
-   else
-    state=osContinue;
+      if(MoveRename(oldname,newname,recording,false))
+        state=osBack;
+      else
+        state=osContinue;
 
-   free(oldname);
-   free(newname);
+      free(oldname);
+      free(newname);
+    }
   }
- }
- return state;
+  return state;
 }

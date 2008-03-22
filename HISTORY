@@ -1,6 +1,15 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2008-03-??: Version 1.2
+- added italian translation; thanks to Diego
+- added support for GraphTFT-plugin; thanks to Jörg Wendel for the patch
+- added support for true type fonts and UTF-8; thanks to Andreas Mair for the
+  true type font and the patch
+- removed patch font routine because it is useless now
+- added true type font containing the needed icons
+- changed i18n support to gettext
+
 2007-10-22: Version 1.1
 - fixed an issue with starting an editing process; thank to Andreas Mair for
   the patch

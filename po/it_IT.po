@@ -1,0 +1,208 @@
+# ExtRecMenu plugin language source file.
+# Copyright (C) 2008 Martin Prochnow <nordlicht@martins-kabuff.de>
+# This file is distributed under the same license as the ExtRecMenu package.
+# Alberto Carraro <bertocar@tin.it>, 2001
+# Antonio Ospite <ospite@studenti.unina.it>, 2003
+# Sean Carlos <seanc@libero.it>, 2005
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ExtRecMenu 1.2\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2008-03-22 14:57+0100\n"
+"PO-Revision-Date: 2008-03-15 16:21+0100\n"
+"Last-Translator: Sean Carlos <seanc@libero.it>\n"
+"Language-Team: <vdr@linuxtv.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Extended recordings menu"
+msgstr "Menu registrazioni esteso"
+
+msgid "Rename"
+msgstr "Rinomina"
+
+msgid "Name"
+msgstr ""
+
+msgid "Invalid filename!"
+msgstr "Nome file non valido!"
+
+msgid "Creating directories failed!"
+msgstr ""
+
+msgid "New folder"
+msgstr "Nuova cartella"
+
+msgid "Button$Cancel"
+msgstr "Annulla"
+
+msgid "Button$Create"
+msgstr "Crea"
+
+msgid "Button$Move"
+msgstr "Sposta"
+
+msgid "[base dir]"
+msgstr "[dir. base]"
+
+msgid "Target filesystem filled - try anyway?"
+msgstr "Partizione di destinazione piena - provare comunque?"
+
+msgid "Moving into own sub-directory not allowed!"
+msgstr "Spostamento all'interno di sotto directory non permesso!"
+
+msgid "Can't get filesystem information"
+msgstr "Impossibile ottenere informazioni sulla partizione"
+
+msgid "Details"
+msgstr "Dettagli"
+
+msgid "Button$Play"
+msgstr "Esegui"
+
+msgid "Button$Rewind"
+msgstr "Riavvolgi"
+
+msgid "Button$Back"
+msgstr "Indietro"
+
+msgid "Path"
+msgstr "Percorso"
+
+msgid "Channel"
+msgstr ""
+
+msgid "Size"
+msgstr "Dimensione"
+
+msgid "Error while mounting DVD!"
+msgstr "Errore durante montaggio DVD!"
+
+msgid "Button$Open"
+msgstr "Apri"
+
+msgid "Button$Edit"
+msgstr "Modifica"
+
+msgid "Button$Commands"
+msgstr "Comandi"
+
+msgid "Button$Info"
+msgstr "Info"
+
+msgid "Error while accessing recording!"
+msgstr ""
+
+#, c-format
+msgid "Please insert DVD %s"
+msgstr "Per favore inserisci DVD %s"
+
+msgid "DVD plugin is not installed!"
+msgstr "Plugin DVD non installato!"
+
+msgid "No DVD in drive!"
+msgstr "Nessun DVD nel lettore!"
+
+msgid "Recording not found on DVD!"
+msgstr "Registrazione non trovata nel DVD!"
+
+msgid "Error while linking [0-9]*.vdr!"
+msgstr "Errore creazione collegamento [0-9]*.vdr!"
+
+msgid "sudo or mount --bind / umount error (vfat system)"
+msgstr "Errore sudo o mount --bind / umount (sistema vfat)"
+
+msgid "Script 'dvdarchive.sh' not found!"
+msgstr "Script 'dvdarchive.sh non trovato!"
+
+msgid "Sort by date"
+msgstr "Ordina per data"
+
+msgid "Sort by name"
+msgstr "Ordina per nome"
+
+msgid "Cancel moving?"
+msgstr "Anullare spostamento?"
+
+msgid "Button$Rename"
+msgstr "Rinomina"
+
+msgid "Cancel editing?"
+msgstr ""
+
+msgid "Button$Delete"
+msgstr "Cancella"
+
+msgid "ascending"
+msgstr "ascendente"
+
+msgid "descending"
+msgstr "decrescente"
+
+msgid "Show recording date"
+msgstr "Mostra data registrazione"
+
+msgid "Show recording time"
+msgstr "Mostra ora registrazione"
+
+msgid "Show recording length"
+msgstr "Mostra durata registrazione"
+
+msgid "Show nr. of new recordings of a directory"
+msgstr "Mostra numero di nuove registrazioni di una directory"
+
+msgid "Show alternative to new marker"
+msgstr "Mostra alternative al nuovo marcatore"
+
+msgid "Show free disk space for each file system"
+msgstr "Mostra spazio libero per ogni partizione"
+
+msgid "Sorting"
+msgstr "Ordinamento"
+
+msgid "Hide main menu entry"
+msgstr "Nascondi voce nel menu principale"
+
+msgid "Replace original recordings menu"
+msgstr "Sostituisci menu registrazioni originale"
+
+msgid "Jump to last replayed recording"
+msgstr "Vai all'ultima registrazione riprodotta"
+
+msgid "Call plugin after playback"
+msgstr "Chiama plugin dopo esecuzione"
+
+msgid "Patch font"
+msgstr "Patch caratteri"
+
+msgid "Limit bandwidth for move recordings"
+msgstr "Limiti banda per spostamento registrazioni"
+
+msgid "Use VDR's recording info menu"
+msgstr "Utilizza menu info registrazioni di VDR"
+
+msgid "Use cutter queue"
+msgstr "Utilizza coda tagli"
+
+msgid "Recording already in cutter queue!"
+msgstr "Registrazione già presente nella coda tagli!"
+
+msgid "No editing marks defined!"
+msgstr ""
+
+msgid "Added recording to cutter queue"
+msgstr "Aggiunta registrazione alla coda tagli"
+
+msgid "Rename/Move failed!"
+msgstr "Rinominazione/Spostamento fallito!"
+
+msgid "Cutter queue not empty"
+msgstr "Coda tagli non vuota"
+
+msgid "Move recordings in progress"
+msgstr "Spostamento registrazioni in corso"
+
+msgid "Can't start editing process!"
+msgstr ""
