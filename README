@@ -1,7 +1,8 @@
 This is a "plugin" for the Video Disk Recorder (VDR).
 
-Written by:         Martin Prochnow (nordlicht@martins-kabuff.de)
-Project's homepage: http://martins-kabuff.de/extrecmenu_en.html
+Original author:     Martin Prochnow (nordlicht@martins-kabuff.de)
+Current maintainers: see project's homepage
+Project's homepage:  http://projects.vdr-developer.org/projects/show/plg-extrecmenu
 
 See the file COPYING for license information.
 
@@ -127,8 +128,3 @@ anything else, its only important that there is a second column). This
 identifies the dvd as a video dvd. If you now select such a recording in the
 list you are asked to insert the dvd and after confirming this the DVD-plugin
 is started to play the video dvd.
-
--------------------------------------------------------------------------------
-Do you like this plugin? Support the developer! Go to the project homepage and
-make a donation over the PayPal button.
--------------------------------------------------------------------------------

@@ -1,7 +1,31 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
-2008-03-??: Version 1.2
+2010-05-29: Version 1.2 [amair]
+- New homepage: http://projects.vdr-developer.org/projects/show/plg-extrecmenu
+
+2010-05-14: Version 1.2-test1-am3 [amair]
+- Support new reccmds.conf file as introduced in VDR v1.7.12.
+- Edit lifetime and priority only for PES recordings.
+- include Make.global.
+
+2009-06-28: Version 1.2-test1-am2b [amair]
+- fixed PES cutting using cutting queue (Reported by tomas @vdr-portal.de).
+- fixed some gcc warnings and errors (Based on suggestions by Zzam @vdr-portal.de).
+
+2009-06-09: Version 1.2-test1-am2a [amair]
+- Fixed access to 001.vdr/00001.ts and index.vdr/index (Length in recordings list works again).
+
+2009-06-09: Version 1.2-test1-am2 [amair]
+- Adapt cutter thread to VDR v1.7.3.
+
+2008-08-19: Version 1.2-test1-am1 [amair]
+- fixed wrong help keys if selected recording finishes cutting.
+- plugins/extrecmenu/dircmds.conf for recording directory commands (same as reccmds.conf)
+- "nice" the action thread.
+- Use LimitBandwidth setting also for cutting.
+
+2008-03-22: Version 1.2-test1 (Martin Prochnow's "final" release)
 - added italian translation; thanks to Diego
 - added support for GraphTFT-plugin; thanks to Jörg Wendel for the patch
 - added support for true type fonts and UTF-8; thanks to Andreas Mair for the
