@@ -1,5 +1,7 @@
 #include <vdr/menu.h>
 
+extern cCommands RecordingDirCommands;
+
 class mySetup
 {
  public:

@@ -5,6 +5,8 @@
 #include <vdr/menu.h>
 #include "mymenusetup.h"
 
+cCommands RecordingDirCommands;
+
 mySetup::mySetup()
 {
   mysetup.HideMainMenuEntry=0;

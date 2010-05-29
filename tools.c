@@ -282,6 +282,8 @@ void WorkerThread::Action()
 {
   CutterListItem *cutteritem=NULL;
   MoveListItem *moveitem=NULL;
+
+  SetPriority(19);
   
   while(Running())
   {
@@ -500,6 +502,9 @@ void WorkerThread::Cut(string From,string To)
       else
         lastmark=true;
     }
+
+    if(mysetup.LimitBandwidth)
+      usleep(10);
   }
   if(!Running() || cancelcut || error)
   {

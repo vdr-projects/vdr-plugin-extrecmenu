@@ -529,7 +529,7 @@ void myMenuRecordings::SetHelpKeys()
         switch(newhelpkeys)
         {
           case 0: SetHelp(NULL);break;
-          case 1: SetHelp(tr("Button$Open"),NULL,tr("Button$Edit"));break;
+          case 1: SetHelp(RecordingDirCommands.Count()?tr("Button$Commands"):tr("Button$Open"),NULL,tr("Button$Edit"));break;
           case 2: SetHelp(RecordingCommands.Count()?tr("Button$Commands"):tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),tr("Button$Info"));break;
           case 3: SetHelp(RecordingCommands.Count()?tr("Button$Commands"):tr("Button$Play"),tr("Button$Rewind"),tr("Button$Cancel"),tr("Button$Info"));break;
           case 4: SetHelp(RecordingCommands.Count()?tr("Button$Commands"):tr("Button$Play"),tr("Button$Rewind"),tr("Button$Edit"),NULL);break;
@@ -934,15 +934,24 @@ eOSState myMenuRecordings::Commands(eKeys Key)
     return osContinue;
  
   myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
-  if(item && !item->IsDirectory())
+  if(item)
   {
     cRecording *recording=GetRecording(item);
     if(recording)
     {
       char *parameter=NULL;
-      asprintf(&parameter,"\"%s\"",recording->FileName());
+      if (item->IsDirectory())
+      {
+        char *strBase=base?ExchangeChars(strdup(base), true):NULL;
+        char *strName=ExchangeChars(strdup(item->Name()), true);
+        asprintf(&parameter,"\"%s/%s/%s\"",VideoDirectory,strBase?strBase:"", strName);
+        free(strBase);
+        free(strName);
+      }
+      else
+        asprintf(&parameter,"\"%s\"",recording->FileName());
       myMenuCommands *menu;
-      eOSState state=AddSubMenu(menu=new myMenuCommands(trVDR("Recording commands"),&RecordingCommands,parameter));
+      eOSState state=AddSubMenu(menu=new myMenuCommands(trVDR("Recording commands"),item->IsDirectory() ? &RecordingDirCommands : &RecordingCommands,parameter));
       free(parameter);
       if(Key!=kNone)
         state=menu->ProcessKey(Key);
@@ -1013,15 +1022,16 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
     state=cOsdMenu::ProcessKey(Key);
     if(state==osUnknown)
     {
+      myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
+
       switch(Key)
       {
         case kOk: return Play();
-        case kRed: return (helpkeys>1 && RecordingCommands.Count())?Commands():Play();
+        case kRed: return (helpkeys>0 && item && ((item->IsDirectory() && RecordingDirCommands.Count()) || (!item->IsDirectory() && RecordingCommands.Count())))?Commands():Play();
         case kGreen: return Rewind();
         case kYellow: {
                         if(!HasSubMenu())
                         {
-                          myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
                           if(item)
                           {
                             if(item->IsDirectory())
@@ -1096,13 +1106,14 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
         default: break;
       }
     }
-    if(Recordings.StateChanged(recordingsstate) || MoveCutterThread->IsCutterQueueEmpty())
+    bool stateChanged = Recordings.StateChanged(recordingsstate);
+    if(stateChanged || MoveCutterThread->IsCutterQueueEmpty())
       Set(true);    
     
     if(!Count() && level>0)
       state=osBack;
  
-    if(!HasSubMenu() && Key!=kNone)
+    if((!HasSubMenu() && Key!=kNone) || stateChanged)
       SetHelpKeys();
   }
   return state;

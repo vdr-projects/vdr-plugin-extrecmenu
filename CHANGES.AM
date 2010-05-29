@@ -1,0 +1,7 @@
+- fixed wrong help keys if selected recording finishes cutting.
+- plugins/extrecmenu/dircmds.conf for recording directory commands (same as reccmds.conf)
+- "nice" the action thread.
+- Use LimitBandwidth setting also for cutting.
+
+TODO:
+- ioprio_set
