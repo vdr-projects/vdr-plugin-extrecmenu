@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.2-test1-am2b";
+static const char *VERSION        = "1.2-test1-am3";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -74,7 +74,7 @@ bool cPluginExtrecmenu::Start(void)
 
   MoveCutterThread=new WorkerThread();
 
-  RecordingDirCommands.Load(AddDirectory(cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "dircmds.conf"), true);
+  RecordingDirCommands.Load(AddDirectory(cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "dircmds.conf"));
 
   return true;
 }

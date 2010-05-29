@@ -5,7 +5,11 @@
 #include <vdr/menu.h>
 #include "mymenusetup.h"
 
+#if VDRVERSNUM >= 10713
+cNestedItemList RecordingDirCommands;
+#else
 cCommands RecordingDirCommands;
+#endif
 
 mySetup::mySetup()
 {

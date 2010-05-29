@@ -902,7 +902,11 @@ eOSState myMenuRecordings::Details()
   if(item && !item->IsDirectory())
   {
     cRecording *recording=GetRecording(item);
+#if VDRVERSNUM >= 10703
+    if(recording && recording->IsPesRecording())
+#else
     if(recording)
+#endif
       return AddSubMenu(new myMenuRecordingDetails(recording));
   }
   return osContinue;
@@ -1029,7 +1033,11 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
       case kRed: return Rename();
       case kGreen: return MoveRec();
       case kYellow: return Delete();
+#if VDRVERSNUM >= 10703
+      case kBlue: if(item&&!item->IsDVD()&&item->IsPesRecording())
+#else
       case kBlue: if(item&&!item->IsDVD())
+#endif
                     return Details();
                   else
                     break;
@@ -1113,7 +1121,11 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                                 else
                                 {
                                   edit=true;
+#if VDRVERSNUM >= 10703
+                                  SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),(item->IsPesRecording()&&!item->IsDVD())?tr("Details"):NULL);
+#else
                                   SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),(!item->IsDVD())?tr("Details"):NULL);
+#endif
                                 }
                               }
                             }

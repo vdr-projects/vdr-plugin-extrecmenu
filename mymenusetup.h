@@ -1,6 +1,10 @@
 #include <vdr/menu.h>
 
+#if VDRVERSNUM >= 10713
+extern cNestedItemList RecordingDirCommands;
+#else
 extern cCommands RecordingDirCommands;
+#endif
 
 class mySetup
 {

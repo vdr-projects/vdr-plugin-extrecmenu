@@ -9,20 +9,105 @@
 #include <vdr/interface.h>
 #include "mymenucommands.h"
 
+#if VDRVERSNUM >= 10713
+myMenuCommands::myMenuCommands(const char *Title,cList<cNestedItem> *_Commands,const char *Parameters):cOsdMenu(Title)
+#else
 myMenuCommands::myMenuCommands(const char *Title,cCommands *_Commands,const char *Parameters):cOsdMenu(Title)
+#endif
 {
  SetHasHotkeys();
  commands=_Commands;
+#if VDRVERSNUM >= 10713
+ result=NULL;
+ parameters=Parameters;
+ for(cNestedItem *Command=commands->First();Command;Command=commands->Next(Command)) {
+  const char *s=Command->Text();
+  if(Command->SubItems())
+   Add(new cOsdItem(hk(cString::sprintf("%s...", s))));
+  else if(Parse(s))
+   Add(new cOsdItem(hk(title)));
+ }
+#else
  parameters=Parameters?strdup(Parameters):NULL;
  for(cCommand *command=commands->First();command;command=commands->Next(command))
   Add(new cOsdItem(hk(command->Title())));
+#endif
 }
 
 myMenuCommands::~myMenuCommands()
 {
+#if VDRVERSNUM >= 10713
+ free(result);
+#else
  free(parameters);
+#endif
 }
 
+#if VDRVERSNUM >= 10713
+bool myMenuCommands::Parse(const char *s)
+{
+ const char *p=strchr(s,':');
+ if(p) {
+  int l=p-s;
+  if(l>0) {
+   char t[l+1];
+   stripspace(strn0cpy(t,s,l+1));
+   l=strlen(t);
+   if(l>1&&t[l-1]=='?') {
+    t[l-1]=0;
+    confirm=true;
+   }
+   else
+    confirm=false;
+   title=t;
+   command=skipspace(p+1);
+   return true;
+  }
+ }
+ return false;
+}
+
+eOSState myMenuCommands::Execute()
+{
+ cNestedItem *Command=commands->Get(Current());
+ if(Command) {
+  if(Command->SubItems())
+   return AddSubMenu(new myMenuCommands(Title(),Command->SubItems(),parameters));
+  if(Parse(Command->Text())) {
+   if(!confirm||Interface->Confirm(cString::sprintf("%s?",*title))) {
+    Skins.Message(mtStatus,cString::sprintf("%s...",*title));
+    free(result);
+    result=NULL;
+    cString cmdbuf;
+    if(!isempty(parameters))
+     cmdbuf=cString::sprintf("%s %s",*command,*parameters);
+    const char *cmd=*cmdbuf?*cmdbuf:*command;
+    dsyslog("executing command '%s'",cmd);
+    cPipe p;
+    if(p.Open(cmd,"r")) {
+     int l=0;
+     int c;
+     while((c=fgetc(p))!=EOF) {
+      if(l%20==0)
+       result=(char *)realloc(result,l+21);
+      result[l++]=char(c);
+     }
+     if(result)
+      result[l]=0;
+     p.Close();
+    }
+    else
+     esyslog("ERROR: can't open pipe for command '%s'",cmd);
+    Skins.Message(mtStatus,NULL);
+    if(result)
+     return AddSubMenu(new cMenuText(title,result,fontFix));
+    return osEnd;
+   }
+  }
+ }
+ return osContinue;
+}
+#else //VDRVERSNUM < 10713
 eOSState myMenuCommands::Execute()
 {
  cCommand *command=commands->Get(Current());
@@ -31,10 +116,10 @@ eOSState myMenuCommands::Execute()
   char *buffer=NULL;
   bool confirmed=true;
 #ifdef CMDSUBMENUVERSNUM
-     if (command->hasChilds()) {
-        AddSubMenu(new myMenuCommands(command->Title(), command->getChilds(), parameters));
-        return osContinue;
-        }
+  if (command->hasChilds()) {
+   AddSubMenu(new myMenuCommands(command->Title(), command->getChilds(), parameters));
+   return osContinue;
+  }
 #endif
   if(command->Confirm()) {
    asprintf(&buffer,"%s?",command->Title());
@@ -55,6 +140,8 @@ eOSState myMenuCommands::Execute()
  }
  return osContinue;
 }
+
+#endif
 
 eOSState myMenuCommands::ProcessKey(eKeys Key)
 {
