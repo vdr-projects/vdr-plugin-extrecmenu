@@ -190,7 +190,14 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       stringstream idbuffer;
     
       buffer=filename;
+#if VDRVERSNUM > 10703
+      if (isPesRecording)
+        buffer+="/001.vdr";
+      else
+        buffer+="/00001.ts";
+#else
       buffer+="/001.vdr";
+#endif
       if(access(buffer.c_str(),R_OK))
       {
         buffer=filename;
@@ -233,12 +240,19 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       if(mysetup.ShowRecLength)
       {
         buffer=filename;
+#if VDRVERSNUM > 10703
+        if (isPesRecording)
+          buffer+="/index.vdr";
+        else
+          buffer+="/index";
+#else
         buffer+="/index.vdr";
+#endif
         struct stat statbuf;
         if(!stat(buffer.c_str(),&statbuf))
         {
           ostringstream strbuf;
-          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'";
+          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'"; //TODO: 12000 still OK for TS recordings?
           // replace leading spaces with fixed blank (right align)
           titlebuffer << myStrReplace(strbuf.str(),' ',Icons::FixedBlank()) << '\t';
         }
