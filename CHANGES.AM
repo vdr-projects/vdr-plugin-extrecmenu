@@ -1,5 +1,9 @@
 Changes by Andreas Mair <andreas _AT_ vdr-developer.org>
 
+* 1.2-test1-AM2b
+- fixed PES cutting using cutting queue (Reported by tomas @vdr-portal.de).
+- fixed some gcc warnings and errors (Based on suggestions by Zzam @vdr-portal.de).
+
 * 1.2-test1-AM2a
 - Fixed access to 001.vdr/00001.ts and index.vdr/index (Length in recordings list works again).
 

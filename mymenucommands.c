@@ -9,10 +9,10 @@
 #include <vdr/interface.h>
 #include "mymenucommands.h"
 
-myMenuCommands::myMenuCommands(const char *Title,cCommands *Commands,const char *Parameters):cOsdMenu(Title)
+myMenuCommands::myMenuCommands(const char *Title,cCommands *_Commands,const char *Parameters):cOsdMenu(Title)
 {
  SetHasHotkeys();
- commands=Commands;
+ commands=_Commands;
  parameters=Parameters?strdup(Parameters):NULL;
  for(cCommand *command=commands->First();command;command=commands->Next(command))
   Add(new cOsdItem(hk(command->Title())));

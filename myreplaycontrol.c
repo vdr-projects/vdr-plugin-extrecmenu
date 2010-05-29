@@ -47,10 +47,15 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
               Skins.Message(mtError,tr("Recording already in cutter queue!"));
             else
             {
-              cMarks marks;
-              marks.Load(filename);
+              cMarks _marks;
+#if VDRVERSNUM >= 10703
+              cRecording Recording(filename);
+              _marks.Load(filename, Recording.FramesPerSecond(), Recording.IsPesRecording());
+#else
+              _marks.Load(filename);
+#endif
   
-              if(!marks.Count())
+              if(!_marks.Count())
                 Skins.Message(mtError,tr("No editing marks defined!"));
               else
               {

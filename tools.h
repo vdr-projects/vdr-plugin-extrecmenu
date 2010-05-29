@@ -5,7 +5,7 @@ class SortListItem:public cListObject
   private:
     std::string path;
   public:
-    SortListItem(std::string Path){path=Path;};
+    SortListItem(std::string _Path){path=_Path;};
     std::string Path(){return path;}
 };
 
@@ -50,7 +50,7 @@ class MoveListItem:public cListObject
     std::string from;
     std::string to;
   public:
-    MoveListItem(std::string From,std::string To){from=From;to=To;moveinprogress=false;movecanceled=false;}
+    MoveListItem(std::string _From,std::string _To){from=_From;to=_To;moveinprogress=false;movecanceled=false;}
     std::string From(){return from;}
     std::string To(){return to;}
     void SetMoveInProgress(){moveinprogress=true;}
@@ -72,8 +72,8 @@ class CutterListItem:public cListObject
     std::string filename;
     std::string newfilename;
   public:
-    CutterListItem(std::string FileName){filename=FileName;cutinprogress=false;};
-    void SetNewFileName(std::string NewFileName){newfilename=NewFileName;}
+    CutterListItem(std::string _FileName){filename=_FileName;cutinprogress=false;};
+    void SetNewFileName(std::string _NewFileName){newfilename=_NewFileName;}
     std::string FileName(){return filename;}
     std::string NewFileName(){return newfilename;}
     void SetCutInProgress(){cutinprogress=true;}

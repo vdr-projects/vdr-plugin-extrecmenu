@@ -213,10 +213,10 @@ char *myRecListItem::StripEpisodeName(char *s)
     if(SortByName)
       *s1=1;
     else
-      *(s2+1)=255;
+      *(s2+1)=(char)255;
   }
   else
-    *s1=255;
+    *s1=(char)255;
  
   if(s1 && s2 && !SortByName)
     memmove(s1+1,s2,t-s2+1);
@@ -299,7 +299,7 @@ void WorkerThread::Action()
       if(editedfilename && RemoveVideoFile(editedfilename) && MakeDirs(editedfilename,true))
       {
         char *s=strdup(editedfilename);
-        char *e=strrchr(s,'.');
+        char *e=(char*)strrchr(s,'.'); //TODO
         if(e)
         {
           if(!strcmp(e,".rec"))
@@ -494,7 +494,7 @@ void WorkerThread::Cut(string From,string To)
       lastiframe=0;
       if(cutin)
       {
-#if VDRVERSNUM >= 10703
+#if VDRVERSNUM >= 10706
         if(isPesRecording)
           cRemux::SetBrokenLink(buffer,length);
         else
@@ -510,7 +510,7 @@ void WorkerThread::Cut(string From,string To)
       error="safe_write";
       break;
     }
-    if(!toindex->Write(picturetype,tofilename->Number(),filesize))
+    if(!toindex->Write(picturetype,(uint16_t)(tofilename->Number()),filesize))
     {
       error="toindex";
       break;

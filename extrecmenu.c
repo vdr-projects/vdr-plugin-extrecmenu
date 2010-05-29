@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.2-test1-am2a";
+static const char *VERSION        = "1.2-test1-am2b";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -34,7 +34,7 @@ class cPluginExtrecmenu:public cPlugin
     virtual const char *MainMenuEntry(void){return mysetup.HideMainMenuEntry?NULL:MAINMENUENTRY;}
     virtual cOsdObject *MainMenuAction(void);
     virtual cMenuSetupPage *SetupMenu(void);
-    virtual bool SetupParse(const char *Name,const char *Value);
+    virtual bool SetupParse(const char *_Name,const char *Value);
     virtual bool Service(const char *Id,void *Data = NULL);
     virtual const char **SVDRPHelpPages(void);
     virtual cString SVDRPCommand(const char *Command,const char *Option,int &ReplyCode);
@@ -53,7 +53,7 @@ const char *cPluginExtrecmenu::CommandLineHelp(void)
   return NULL;
 }
 
-bool cPluginExtrecmenu::ProcessArgs(int argc,char *argv[])
+bool cPluginExtrecmenu::ProcessArgs(int /* argc */,char ** /* argv */)
 {
   return true;
 }
@@ -104,40 +104,40 @@ cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
   return new myMenuSetup();
 }
 
-bool cPluginExtrecmenu::SetupParse(const char *Name,const char *Value)
+bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
 {
-  if(!strcasecmp(Name,"IsOrgRecMenu"))
+  if(!strcasecmp(_Name,"IsOrgRecMenu"))
     return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
 
-  if(!strcasecmp(Name,"ShowRecDate"))
+  if(!strcasecmp(_Name,"ShowRecDate"))
     mysetup.ShowRecDate=atoi(Value);
-  else if(!strcasecmp(Name,"ShowRecTime"))
+  else if(!strcasecmp(_Name,"ShowRecTime"))
     mysetup.ShowRecTime=atoi(Value);
-  else if(!strcasecmp(Name,"ShowRecLength"))
+  else if(!strcasecmp(_Name,"ShowRecLength"))
     mysetup.ShowRecLength=atoi(Value);
-  else if(!strcasecmp(Name,"HideMainMenuEntry"))
+  else if(!strcasecmp(_Name,"HideMainMenuEntry"))
     mysetup.HideMainMenuEntry=atoi(Value);
-  else if(!strcasecmp(Name,"ReplaceOrgRecMenu"))
+  else if(!strcasecmp(_Name,"ReplaceOrgRecMenu"))
     mysetup.ReplaceOrgRecMenu=atoi(Value);
-  else if(!strcasecmp(Name,"PatchNew"))
+  else if(!strcasecmp(_Name,"PatchNew"))
     mysetup.PatchNew=atoi(Value);
-  else if(!strcasecmp(Name,"ShowNewRecs"))
+  else if(!strcasecmp(_Name,"ShowNewRecs"))
     mysetup.ShowNewRecs=atoi(Value);
-  else if(!strcasecmp(Name,"DescendSorting"))
+  else if(!strcasecmp(_Name,"DescendSorting"))
     mysetup.DescendSorting=atoi(Value);
-  else if(!strcasecmp(Name,"GoLastReplayed"))
+  else if(!strcasecmp(_Name,"GoLastReplayed"))
     mysetup.GoLastReplayed=atoi(Value);
-  else if(!strcasecmp(Name,"ReturnToPlugin"))
+  else if(!strcasecmp(_Name,"ReturnToPlugin"))
     mysetup.ReturnToPlugin=atoi(Value);
-  else if(!strcasecmp(Name,"LimitBandwidth"))
+  else if(!strcasecmp(_Name,"LimitBandwidth"))
     mysetup.LimitBandwidth=atoi(Value);
-  else if(!strcasecmp(Name,"UseVDRsRecInfoMenu"))
+  else if(!strcasecmp(_Name,"UseVDRsRecInfoMenu"))
     mysetup.UseVDRsRecInfoMenu=atoi(Value);
-  else if(!strcasecmp(Name,"PatchFont"))
+  else if(!strcasecmp(_Name,"PatchFont"))
     mysetup.PatchFont=atoi(Value);
-  else if(!strcasecmp(Name,"FileSystemFreeMB"))
+  else if(!strcasecmp(_Name,"FileSystemFreeMB"))
     mysetup.FileSystemFreeMB=atoi(Value);
-  else if(!strcasecmp(Name,"UseCutterQueue"))
+  else if(!strcasecmp(_Name,"UseCutterQueue"))
     mysetup.UseCutterQueue=atoi(Value);
   else
     return false;
@@ -165,7 +165,7 @@ const char **cPluginExtrecmenu::SVDRPHelpPages(void)
  return NULL;
 }
 
-cString cPluginExtrecmenu::SVDRPCommand(const char *Command,const char *Option,int &ReplyCode)
+cString cPluginExtrecmenu::SVDRPCommand(const char * /* Command */,const char * /* Option */,int & /* ReplyCode */)
 {
  return NULL;
 }

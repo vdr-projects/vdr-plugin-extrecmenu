@@ -285,17 +285,17 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         titlebuffer << '\t';
     
       // recording title
-      string s=Recording->Name();
-      string::size_type i=s.rfind('~');
+      string _s=Recording->Name();
+      string::size_type i=_s.rfind('~');
       if(i!=string::npos)
       {
-        titlebuffer << s.substr(i+1,s.length()-i);
-        idbuffer << s.substr(i+1,s.length()-i);
+        titlebuffer << _s.substr(i+1,_s.length()-i);
+        idbuffer << _s.substr(i+1,_s.length()-i);
       }
       else
       {
-        titlebuffer << s;
-        idbuffer << s;
+        titlebuffer << _s;
+        idbuffer << _s;
       }
     
       title=strdup(titlebuffer.str().c_str());
@@ -336,7 +336,7 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
                      newentries,
                      (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
                      (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
-                     (mysetup.ShowRecDate&&mysetup.ShowRecTime||mysetup.ShowRecTime&&mysetup.ShowRecLength||mysetup.ShowRecLength&&mysetup.ShowRecDate)?"\t":"",
+                     ((mysetup.ShowRecDate&&mysetup.ShowRecTime)||(mysetup.ShowRecTime&&mysetup.ShowRecLength)||(mysetup.ShowRecLength&&mysetup.ShowRecDate))?"\t":"",
                      (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
                      name);
   }
@@ -348,7 +348,7 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
                      myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
                      (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
                      (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
-                     (mysetup.ShowRecDate&&mysetup.ShowRecTime||mysetup.ShowRecTime&&mysetup.ShowRecLength||mysetup.ShowRecLength&&mysetup.ShowRecDate)?"\t":"",
+                     ((mysetup.ShowRecDate&&mysetup.ShowRecTime)||(mysetup.ShowRecTime&&mysetup.ShowRecLength)||(mysetup.ShowRecLength&&mysetup.ShowRecDate))?"\t":"",
                      (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
                      name);
   }
@@ -443,7 +443,7 @@ int myMenuRecordings::FreeMB()
         struct statvfs fsstat;
         if(!statvfs(path.c_str(),&fsstat))
         {
-          freediskspace=int(fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
+          freediskspace=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
 
           for(cRecording *rec=DeletedRecordings.First();rec;rec=DeletedRecordings.Next(rec))
           {
@@ -560,13 +560,13 @@ void myMenuRecordings::SetHelpKeys()
 }
 
 // create the menu list
-void myMenuRecordings::Set(bool Refresh,char *current)
+void myMenuRecordings::Set(bool Refresh,char *_current)
 {
-  const char *lastreplayed=current?current:myReplayControl::LastReplayed();
+  const char *lastreplayed=_current?_current:myReplayControl::LastReplayed();
 
   cThreadLock RecordingsLock(&Recordings);
 
-  if(Refresh && !current)
+  if(Refresh && !_current)
   {
     fsid=0;
     myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
@@ -682,7 +682,7 @@ bool myMenuRecordings::Open()
 eOSState myMenuRecordings::Play()
 {
   char *msg=NULL;
-  char *name=NULL;
+  const char *name=NULL;
 
   char path[MaxFileName];
 
@@ -940,7 +940,7 @@ eOSState myMenuRecordings::Info(void)
   if(item && !item->IsDirectory())
   {
     cRecording *recording=GetRecording(item);
-    if(mysetup.UseVDRsRecInfoMenu && (!recording || recording && !recording->Info()->Title()))
+    if(mysetup.UseVDRsRecInfoMenu && (!recording || (recording && !recording->Info()->Title())))
       return osContinue;
     else
       return AddSubMenu(new myMenuRecordingInfo(recording,true));
