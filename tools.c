@@ -2,6 +2,7 @@
  * See the README file for copyright information and how to reach the author.
  */
 
+#include <langinfo.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -376,9 +377,39 @@ void WorkerThread::Cut(string From,string To)
   cMarks frommarks,tomarks;
   cMark *mark;
   const char *error=NULL;
-  uchar filenumber,picturetype,buffer[MAXFRAMESIZE];
-  int fileoffset,length,index,currentfilenumber=0,filesize=0,lastiframe=0;
+  uchar buffer[MAXFRAMESIZE];
+  int index,currentfilenumber=0,filesize=0,lastiframe=0;
   bool lastmark=false,cutin=true;
+  off_t maxVideoFileSize=MEGABYTE(Setup.MaxVideoFileSize);
+
+#if VDRVERSNUM >= 10703
+  bool isPesRecording;
+  uint16_t filenumber;
+  off_t fileoffset;
+  int length;
+  bool picturetype;
+
+  cRecording Recording(From.c_str());
+  isPesRecording=Recording.IsPesRecording();
+  if(frommarks.Load(From.c_str(),Recording.FramesPerSecond(),isPesRecording) && frommarks.Count())
+  {
+    fromfilename=new cFileName(From.c_str(),false,true,isPesRecording);
+    tofilename=new cFileName(To.c_str(),true,false,isPesRecording);
+    fromindex=new cIndexFile(From.c_str(),false,isPesRecording);
+    toindex=new cIndexFile(To.c_str(),true,isPesRecording);
+    tomarks.Load(To.c_str(),Recording.FramesPerSecond(),isPesRecording);
+    if(isPesRecording && maxVideoFileSize > MEGABYTE(MAXVIDEOFILESIZEPES))
+      maxVideoFileSize=MEGABYTE(MAXVIDEOFILESIZEPES);
+  }
+  else
+  {
+    esyslog("[extrecmenu] no editing marks found for %s",From.c_str());
+    return;
+  }
+#else
+  uchar filenumber;
+  int fileoffset,length;
+  uchar picturetype;
 
   if(frommarks.Load(From.c_str()) && frommarks.Count())
   {
@@ -393,6 +424,8 @@ void WorkerThread::Cut(string From,string To)
     esyslog("[extrecmenu] no editing marks found for %s",From.c_str());
     return;
   }
+#endif
+
 
   if((mark=frommarks.First())!=NULL)
   {
@@ -440,11 +473,15 @@ void WorkerThread::Cut(string From,string To)
       error="fromfile";
       break;
     }
+#if VDRVERSNUM >= 10703
+    if(picturetype)
+#else
     if(picturetype==I_FRAME)
+#endif
     {
       if(lastmark)
         break;
-      if(filesize > MEGABYTE(Setup.MaxVideoFileSize))
+      if(filesize > maxVideoFileSize)
       {
         tofile=tofilename->NextFile();
         if(!tofile)
@@ -457,7 +494,14 @@ void WorkerThread::Cut(string From,string To)
       lastiframe=0;
       if(cutin)
       {
+#if VDRVERSNUM >= 10703
+        if(isPesRecording)
+          cRemux::SetBrokenLink(buffer,length);
+        else
+          TsSetTeiOnBrokenPackets(buffer,length);
+#else
         cRemux::SetBrokenLink(buffer,length);
+#endif
         cutin=false;
       }
     }

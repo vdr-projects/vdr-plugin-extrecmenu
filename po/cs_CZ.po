@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2008-03-22 14:57+0100\n"
+"POT-Creation-Date: 2008-08-13 08:38+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Vladimír Bárta <vladimir.barta@k2atmitec.cz>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -20,9 +20,6 @@ msgstr "Roz¹íøené menu nahrávek"
 
 msgid "Rename"
 msgstr "Pøejmenovat"
-
-msgid "Name"
-msgstr ""
 
 msgid "Invalid filename!"
 msgstr "Chybné jméno souboru!"
@@ -66,6 +63,9 @@ msgstr "Na zaèátek"
 msgid "Button$Back"
 msgstr "Zpìt"
 
+msgid "Name"
+msgstr ""
+
 msgid "Path"
 msgstr "Cesta"
 
@@ -78,20 +78,17 @@ msgstr "Velikost"
 msgid "Error while mounting DVD!"
 msgstr "Chyba bìhem pøipojování DVD!"
 
+msgid "Button$Commands"
+msgstr "Pøíkazy"
+
 msgid "Button$Open"
 msgstr "Otevøít"
 
 msgid "Button$Edit"
 msgstr "Editovat"
 
-msgid "Button$Commands"
-msgstr "Pøíkazy"
-
 msgid "Button$Info"
 msgstr "Info"
-
-msgid "Error while accessing recording!"
-msgstr ""
 
 #, c-format
 msgid "Please insert DVD %s"
@@ -126,9 +123,6 @@ msgstr "Pøeru¹it pøesouvání?"
 
 msgid "Button$Rename"
 msgstr "Pøejmenovat"
-
-msgid "Cancel editing?"
-msgstr ""
 
 msgid "Button$Delete"
 msgstr "Smazat"

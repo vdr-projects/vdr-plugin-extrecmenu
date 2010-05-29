@@ -146,6 +146,9 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
   dirismoving=true;
   name=NULL;
   filename=Recording->FileName();
+#if VDRVERSNUM >= 10703
+  isPesRecording=Recording->IsPesRecording();
+#endif
 
   // get the level of this recording
   level=0;
@@ -287,7 +290,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
     else
     {
       if(Level>level) // any other
-        title="";
+        title=strdup("");
     }
   }
   SetText(title);
@@ -789,7 +792,11 @@ eOSState myMenuRecordings::Rewind()
   if(item&&!item->IsDirectory())
   {
     cDevice::PrimaryDevice()->StopReplay();
+#if VDRVERSNUM >= 10703
+    cResumeFile ResumeFile(item->FileName(), item->IsPesRecording());
+#else
     cResumeFile ResumeFile(item->FileName());
+#endif
     ResumeFile.Delete();
     return Play();
   }

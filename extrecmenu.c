@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.2-test1-am1";
+static const char *VERSION        = "1.2-test1-am2";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 

@@ -4,6 +4,7 @@ class myMenuRecordingsItem:public cOsdItem
   private:
     bool dirismoving;
     bool isdvd;
+    bool isPesRecording;
     int level,isdirectory;
     int totalentries,newentries;
     char *title;
@@ -16,6 +17,7 @@ class myMenuRecordingsItem:public cOsdItem
     const char *FileName(){return filename;}
     const char *Name(){return name;}
     bool IsDirectory(){return name!=NULL;}
+    bool IsPesRecording(void) const { return isPesRecording; }
     void IncrementCounter(bool IsNew);
     bool IsDVD(){return isdvd;}
     void SetDirIsMoving(bool moving){dirismoving=moving;}

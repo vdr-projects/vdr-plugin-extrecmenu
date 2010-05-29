@@ -1,3 +1,9 @@
+Changes by Andreas Mair <andreas _AT_ vdr-developer.org>
+
+* 1.2-test1-AM2
+- Adapt cutter thread to VDR v1.7.3.
+
+* 1.2-test1-AM1
 - fixed wrong help keys if selected recording finishes cutting.
 - plugins/extrecmenu/dircmds.conf for recording directory commands (same as reccmds.conf)
 - "nice" the action thread.

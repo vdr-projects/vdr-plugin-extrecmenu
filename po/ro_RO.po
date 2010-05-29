@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2008-03-22 14:57+0100\n"
+"POT-Creation-Date: 2008-08-13 08:38+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Lucian Muresan <lucianm@users.sourceforge.net>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -20,9 +20,6 @@ msgid "Extended recordings menu"
 msgstr ""
 
 msgid "Rename"
-msgstr ""
-
-msgid "Name"
 msgstr ""
 
 msgid "Invalid filename!"
@@ -67,6 +64,9 @@ msgstr ""
 msgid "Button$Back"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
 msgid "Path"
 msgstr ""
 
@@ -79,19 +79,16 @@ msgstr ""
 msgid "Error while mounting DVD!"
 msgstr ""
 
+msgid "Button$Commands"
+msgstr ""
+
 msgid "Button$Open"
 msgstr ""
 
 msgid "Button$Edit"
 msgstr ""
 
-msgid "Button$Commands"
-msgstr ""
-
 msgid "Button$Info"
-msgstr ""
-
-msgid "Error while accessing recording!"
 msgstr ""
 
 #, c-format
@@ -126,9 +123,6 @@ msgid "Cancel moving?"
 msgstr ""
 
 msgid "Button$Rename"
-msgstr ""
-
-msgid "Cancel editing?"
 msgstr ""
 
 msgid "Button$Delete"

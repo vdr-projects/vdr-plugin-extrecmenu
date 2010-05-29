@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2008-03-22 14:57+0100\n"
+"POT-Creation-Date: 2008-08-13 08:38+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Klaus Schmidinger <kls@cadsoft.de>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -20,9 +20,6 @@ msgstr "Erweitertes Aufzeichnungs-Menü"
 
 msgid "Rename"
 msgstr "Umbenennen"
-
-msgid "Name"
-msgstr ""
 
 msgid "Invalid filename!"
 msgstr "Ungültiger Dateiname!"
@@ -66,6 +63,9 @@ msgstr "Anfang"
 msgid "Button$Back"
 msgstr "Zurück"
 
+msgid "Name"
+msgstr "Name"
+
 msgid "Path"
 msgstr "Pfad"
 
@@ -78,20 +78,17 @@ msgstr "Größe"
 msgid "Error while mounting DVD!"
 msgstr "Fehler beim Einhängen der DVD!"
 
+msgid "Button$Commands"
+msgstr "Befehle"
+
 msgid "Button$Open"
 msgstr "Öffnen"
 
 msgid "Button$Edit"
 msgstr "Editieren"
 
-msgid "Button$Commands"
-msgstr "Befehle"
-
 msgid "Button$Info"
 msgstr "Info"
-
-msgid "Error while accessing recording!"
-msgstr ""
 
 #, c-format
 msgid "Please insert DVD %s"
@@ -126,9 +123,6 @@ msgstr "Verschieben abbrechen?"
 
 msgid "Button$Rename"
 msgstr "Umbenennen"
-
-msgid "Cancel editing?"
-msgstr ""
 
 msgid "Button$Delete"
 msgstr "Löschen"
