@@ -9,15 +9,15 @@
 #include <vdr/interface.h>
 #include "mymenucommands.h"
 
-#if VDRVERSNUM >= 10713
-myMenuCommands::myMenuCommands(const char *Title,cList<cNestedItem> *_Commands,const char *Parameters):cOsdMenu(Title)
+#if VDRVERSNUM > 10713
+myMenuCommands::myMenuCommands(const char *_Title,cList<cNestedItem> *_Commands,const char *Parameters):cOsdMenu(_Title)
 #else
-myMenuCommands::myMenuCommands(const char *Title,cCommands *_Commands,const char *Parameters):cOsdMenu(Title)
+myMenuCommands::myMenuCommands(const char *_Title,cCommands *_Commands, const char *Parameters):cOsdMenu(_Title)
 #endif
 {
  SetHasHotkeys();
  commands=_Commands;
-#if VDRVERSNUM >= 10713
+#if VDRVERSNUM > 10713
  result=NULL;
  parameters=Parameters;
  for(cNestedItem *Command=commands->First();Command;Command=commands->Next(Command)) {
@@ -36,14 +36,14 @@ myMenuCommands::myMenuCommands(const char *Title,cCommands *_Commands,const char
 
 myMenuCommands::~myMenuCommands()
 {
-#if VDRVERSNUM >= 10713
+#if VDRVERSNUM > 10713
  free(result);
 #else
  free(parameters);
 #endif
 }
 
-#if VDRVERSNUM >= 10713
+#if VDRVERSNUM > 10713
 bool myMenuCommands::Parse(const char *s)
 {
  const char *p=strchr(s,':');
@@ -66,7 +66,9 @@ bool myMenuCommands::Parse(const char *s)
  }
  return false;
 }
+#endif
 
+#if VDRVERSNUM > 10713
 eOSState myMenuCommands::Execute()
 {
  cNestedItem *Command=commands->Get(Current());
@@ -107,32 +109,38 @@ eOSState myMenuCommands::Execute()
  }
  return osContinue;
 }
-#else //VDRVERSNUM < 10713
+#else
 eOSState myMenuCommands::Execute()
 {
  cCommand *command=commands->Get(Current());
  if(command)
  {
   char *buffer=NULL;
-  bool confirmed=true;
+  bool confirmed=false;
 #ifdef CMDSUBMENUVERSNUM
-  if (command->hasChilds()) {
+  if (command->hasChilds())
+  {
    AddSubMenu(new myMenuCommands(command->Title(), command->getChilds(), parameters));
    return osContinue;
   }
 #endif
-  if(command->Confirm()) {
-   asprintf(&buffer,"%s?",command->Title());
-   confirmed=Interface->Confirm(buffer);
-   free(buffer);
+  if(command->Confirm())
+  {
+   if(asprintf(&buffer,"%s?",command->Title())!=-1)
+   {
+    confirmed=Interface->Confirm(buffer);
+    free(buffer);
+   }
   }
   if(confirmed)
   {
-   asprintf(&buffer, "%s...",command->Title());
-   Skins.Message(mtStatus,buffer);
-   free(buffer);
+   if(asprintf(&buffer, "%s...",command->Title())!=-1)
+   {
+    Skins.Message(mtStatus,buffer);
+    free(buffer);
+   }
    const char *Result=command->Execute(parameters);
-   Skins.Message(mtStatus, NULL);
+   Skins.Message(mtStatus,NULL);
    if(Result)
     return AddSubMenu(new cMenuText(command->Title(),Result,fontFix));
    return osEnd;
@@ -140,7 +148,6 @@ eOSState myMenuCommands::Execute()
  }
  return osContinue;
 }
-
 #endif
 
 eOSState myMenuCommands::ProcessKey(eKeys Key)

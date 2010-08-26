@@ -6,12 +6,21 @@
 #include <vdr/plugin.h>
 #include "mymenusetup.h"
 #include "mymenurecordings.h"
-#include "i18n.h"
 #include "tools.h"
+
+#if defined(APIVERSNUM)
+#  if APIVERSNUM < 10600
+#    error "VDR-1.6.0 API version or greater is required!"
+#  else
+#    if APIVERSNUM >= 10700 && APIVERSNUM < 10714
+#      error "VDR-1.7.14 API version or greater is required!"
+#    endif
+#  endif
+#endif
 
 using namespace std;
 
-static const char *VERSION        = "1.2";
+static const char *VERSION        = "1.2.1pre";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -60,8 +69,6 @@ bool cPluginExtrecmenu::ProcessArgs(int /* argc */,char ** /* argv */)
 
 bool cPluginExtrecmenu::Initialize(void)
 {
-  RegisterI18n(Phrases);
- 
   return true;
 }
 
@@ -69,7 +76,7 @@ bool cPluginExtrecmenu::Start(void)
 {
   mySortList=new SortList;
   mySortList->ReadConfigFile();
-  
+
   Icons::InitCharSet();
 
   MoveCutterThread=new WorkerThread();
@@ -115,6 +122,8 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
     mysetup.ShowRecTime=atoi(Value);
   else if(!strcasecmp(_Name,"ShowRecLength"))
     mysetup.ShowRecLength=atoi(Value);
+  else if(!strcasecmp(_Name,"ShowRecRating"))
+    mysetup.ShowRecRating=atoi(Value);
   else if(!strcasecmp(_Name,"HideMainMenuEntry"))
     mysetup.HideMainMenuEntry=atoi(Value);
   else if(!strcasecmp(_Name,"ReplaceOrgRecMenu"))

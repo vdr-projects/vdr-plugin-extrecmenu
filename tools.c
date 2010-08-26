@@ -54,7 +54,7 @@ void SortList::ReadConfigFile()
 {
   string configfile(cPlugin::ConfigDirectory());
   configfile+=CONFIGFILE;
- 
+
   ifstream in(configfile.c_str());
   if(in)
   {
@@ -72,9 +72,9 @@ void SortList::WriteConfigFile()
 {
   string configfile(cPlugin::ConfigDirectory());
   configfile+=CONFIGFILE;
- 
+
   ofstream outfile(configfile.c_str());
- 
+
   for(SortListItem *item=First();item;item=Next(item))
     outfile << item->Path() << endl;
 }
@@ -101,13 +101,13 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
   if(Recording)
   {
     isyslog("[extrecmenu] moving %s to %s",OldName,NewName);
-  
+
     if(!MakeDirs(NewName,true))
     {
       Skins.Message(mtError,tr("Creating directories failed!"));
       return false;
     }
-    
+
     if(rename(OldName,NewName)==-1)
     {
       remove(NewName); // remove created directory
@@ -119,24 +119,30 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
     cThreadLock RecordingsLock(&Recordings);
     Recordings.DelByName(OldName);
     Recordings.AddByName(NewName);
-  
+
     // set user command for '-r'-option of VDR
-    asprintf(&buf,"%s \"%s\"",Move?"move":"rename",*strescape(OldName,"'\\\"$"));
-    cRecordingUserCommand::InvokeCommand(buf,NewName);
-    free(buf);
+    if(-1!=asprintf(&buf,"%s \"%s\"",Move?"move":"rename",*strescape(OldName,"'\\\"$")))
+    {
+      cRecordingUserCommand::InvokeCommand(buf,NewName);
+      free(buf);
+    }
+    buf=NULL;
   }
   else
   {
     // is the new path within the old?
-    asprintf(&buf,"%s/",OldName); // we have to append a / to make sure that we search for a directory
-    if(!strncmp(buf,NewName,strlen(buf)))
+    if(-1!=asprintf(&buf,"%s/",OldName)) // we have to append a / to make sure that we search for a directory
     {
-      Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
+      if(!strncmp(buf,NewName,strlen(buf)))
+      {
+        Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
+        free(buf);
+        return false;
+      }
       free(buf);
-      return false;
     }
-    free(buf);
- 
+    buf=NULL;
+
     myRecList *list=new myRecList();
     for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
       list->Add(new myRecListItem(recording));
@@ -147,27 +153,33 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
       if(!strncmp(OldName,item->recording->FileName(),strlen(OldName)))
       {
         buf=strdup(OldName+strlen(VideoDirectory)+1);
-        buf=ExchangeChars(buf,false);
-    
-        if(strcmp(item->recording->Name(),buf))
+        if(buf)
         {
+          buf=ExchangeChars(buf,false);
+
+          if(strcmp(item->recording->Name(),buf))
+          {
+            free(buf);
+            if(-1!=asprintf(&buf,"%s%s",NewName,item->recording->FileName()+strlen(OldName)))
+            {
+              if(!MakeDirs(buf,true))
+              {
+                Skins.Message(mtError,tr("Creating directories failed!"));
+                free(buf);
+                delete list;
+                return false;
+              }
+              if(MoveRename(item->recording->FileName(),buf,item->recording,Move)==false)
+              {
+                free(buf);
+                delete list;
+                return false;
+              }
+            }
+            buf=NULL;
+          }
           free(buf);
-          asprintf(&buf,"%s%s",NewName,item->recording->FileName()+strlen(OldName));
-          if(!MakeDirs(buf,true))
-          {
-            Skins.Message(mtError,tr("Creating directories failed!"));
-            free(buf);
-            delete list;
-            return false;
-          }
-          if(MoveRename(item->recording->FileName(),buf,item->recording,Move)==false)
-          {
-            free(buf);
-            delete list;
-            return false;
-          }
         }
-        free(buf);
       }
       item=list->Next(item);
     }
@@ -217,7 +229,7 @@ char *myRecListItem::StripEpisodeName(char *s)
   }
   else
     *s1=(char)255;
- 
+
   if(s1 && s2 && !SortByName)
     memmove(s1+1,s2,t-s2+1);
 
@@ -227,7 +239,7 @@ char *myRecListItem::StripEpisodeName(char *s)
 int myRecListItem::Compare(const cListObject &ListObject)const
 {
   myRecListItem *item=(myRecListItem*)&ListObject;
- 
+
   char *s1=StripEpisodeName(strdup(filename+strlen(VideoDirectory)));
   char *s2=StripEpisodeName(strdup(item->filename+strlen(VideoDirectory)));
 
@@ -236,10 +248,10 @@ int myRecListItem::Compare(const cListObject &ListObject)const
     compare=strcasecmp(s2,s1);
   else
     compare=strcasecmp(s1,s2);
- 
+
   free(s1);
   free(s2);
- 
+
   return compare;
 }
 
@@ -256,7 +268,7 @@ WorkerThread::WorkerThread():cThread("extrecmenu worker thread")
   cancelmove=cancelcut=false;
   CutterQueue=new CutterList();
   MoveBetweenFileSystemsList=new MoveList();
-  
+
   Start();
 }
 
@@ -275,7 +287,7 @@ const char *WorkerThread::Working()
 
   if(MoveBetweenFileSystemsList->First()!=NULL)
     return tr("Move recordings in progress");
-  
+
   return NULL;
 }
 
@@ -285,13 +297,21 @@ void WorkerThread::Action()
   MoveListItem *moveitem=NULL;
 
   SetPriority(19);
-  
+
   while(Running())
   {
     if((cutteritem=CutterQueue->First())!=NULL)
     {
       cutteritem->SetCutInProgress();
 
+#ifdef USE_VDR_CUTTER
+#if VDRVERSNUM > 10713
+      if(!CutRecording(cutteritem->FileName().c_str()))
+#else
+      if (!cCutter::Start(cutteritem->FileName().c_str()))
+        Skins.QueueMessage(mtError,tr("Can't start editing process!"));
+#endif
+#else
       // create filename for edited recording, check for recordings with this name, if exists -> delete recording
       // (based upon VDR's code (cutter.c))
       cRecording rec(cutteritem->FileName().c_str());
@@ -316,8 +336,9 @@ void WorkerThread::Action()
       }
       else
         Skins.QueueMessage(mtError,tr("Can't start editing process!"));
+#endif
       CutterQueue->Del(cutteritem);
-      
+
       Recordings.ChangeState();
     }
 
@@ -329,10 +350,10 @@ void WorkerThread::Action()
       else
         // error occured -> empty move queue
         MoveBetweenFileSystemsList->Clear();
-      
+
       Recordings.ChangeState();
     }
-    
+
     sleep(1);
   }
 }
@@ -362,12 +383,13 @@ void WorkerThread::CancelCut(string Path)
         cancelcut=true;
       else
         CutterQueue->Del(item);
-      
+
       return;
     }
   }
 }
 
+#ifndef USE_VDR_CUTTER
 // this based mainly upon VDR's code (cutter.c)
 void WorkerThread::Cut(string From,string To)
 {
@@ -382,7 +404,7 @@ void WorkerThread::Cut(string From,string To)
   bool lastmark=false,cutin=true;
   off_t maxVideoFileSize=MEGABYTE(Setup.MaxVideoFileSize);
 
-#if VDRVERSNUM >= 10703
+#if VDRVERSNUM > 10713
   bool isPesRecording;
   uint16_t filenumber;
   off_t fileoffset;
@@ -425,7 +447,6 @@ void WorkerThread::Cut(string From,string To)
     return;
   }
 #endif
-
 
   if((mark=frommarks.First())!=NULL)
   {
@@ -473,7 +494,7 @@ void WorkerThread::Cut(string From,string To)
       error="fromfile";
       break;
     }
-#if VDRVERSNUM >= 10703
+#if VDRVERSNUM > 10713
     if(picturetype)
 #else
     if(picturetype==I_FRAME)
@@ -494,7 +515,7 @@ void WorkerThread::Cut(string From,string To)
       lastiframe=0;
       if(cutin)
       {
-#if VDRVERSNUM >= 10706
+#if VDRVERSNUM > 10713
         if(isPesRecording)
           cRemux::SetBrokenLink(buffer,length);
         else
@@ -572,6 +593,7 @@ void WorkerThread::Cut(string From,string To)
   delete fromindex;
   delete toindex;
 }
+#endif
 
 bool WorkerThread::IsMoving(string Path)
 {
@@ -596,7 +618,7 @@ void WorkerThread::CancelMove(string Path)
       }
       else
         MoveBetweenFileSystemsList->Del(item);
-      
+
       return;
     }
   }
@@ -615,13 +637,13 @@ bool WorkerThread::Move(string From,string To)
     Skins.QueueMessage(mtError,tr("Creating directories failed!"));
     return false;
   }
-  
+
   isyslog("[extrecmenu] moving '%s' to '%s'",From.c_str(),To.c_str());
-    
+
   DIR *dir=NULL;
   struct dirent *entry;
   int infile=-1,outfile=-1;
-  
+
   if((dir=opendir(From.c_str()))!=NULL)
   {
     bool ok=true;
@@ -631,7 +653,7 @@ bool WorkerThread::Move(string From,string To)
       string from,to;
       from=From+"/"+entry->d_name;
       to=To+"/"+entry->d_name;
-      
+
       AssertFreeDiskSpace(-1);
 
       struct stat st;
@@ -648,25 +670,25 @@ bool WorkerThread::Move(string From,string To)
             while(sz_read>0 && (sz_read=read(infile,buf,BUFFERSIZE))>0)
             {
               AssertFreeDiskSpace(-1);
-              
+
               sz_write=0;
               do
               {
                 if(cancelmove || !Running())
                 {
                   cancelmove=false;
-                  
+
                   close(infile);
                   close(outfile);
                   closedir(dir);
-                  
+
                   isyslog("[extrecmenu] moving canceled");
-                  
+
                   RemoveVideoFile(To.c_str());
-                  
+
                   return true;
                 }
-                
+
                 if((sz=write(outfile,buf+sz_write,sz_read-sz_write))<0)
                 {
                   close(infile);
@@ -680,7 +702,7 @@ bool WorkerThread::Move(string From,string To)
                 sz_write+=sz;
               }
               while(sz_write<sz_read);
-              
+
               if(mysetup.LimitBandwidth)
                 usleep(10);
             }

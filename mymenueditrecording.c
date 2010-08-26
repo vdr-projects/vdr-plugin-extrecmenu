@@ -30,13 +30,13 @@ myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,const char *D
   {
    strn0cpy(name,++p,sizeof(name));
    strn0cpy(path,recording->Name(),sizeof(path));
-   
+
    p=strrchr(path,'~');
    if(p)
     *p=0;
   }
   else
-   strn0cpy(name,recording->Name(),sizeof(name));  
+   strn0cpy(name,recording->Name(),sizeof(name));
  }
  else
  {
@@ -45,7 +45,7 @@ myMenuRenameRecording::myMenuRenameRecording(cRecording *Recording,const char *D
   if(DirBase)
    strn0cpy(path,DirBase,sizeof(path));
  }
- Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),tr(FileNameChars)));
+ Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),trVDR(FileNameChars)));
  cRemote::Put(kRight);
 }
 
@@ -75,26 +75,36 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
       }
 
       if(isdir)
-        asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname);
+      {
+        if(-1==asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname))
+          oldname=NULL;
+      }
       else
         oldname=strdup(recording->FileName());
 
-      asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/'));
-
-      if(!MakeDirs(newname,true))
-        Skins.Message(mtError,tr("Creating directories failed!"));
-      else
+      if(oldname)
       {
-        if(MoveRename(oldname,newname,isdir?NULL:recording,false))
-          state=osBack;
-        else
+        if(-1==asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/')))
+          newname=NULL;
+
+        if(newname)
         {
-          cRemote::Put(kRight);
-          state=osContinue;
+          if(!MakeDirs(newname,true))
+            Skins.Message(mtError,tr("Creating directories failed!"));
+          else
+          {
+            if(MoveRename(oldname,newname,isdir?NULL:recording,false))
+              state=osBack;
+            else
+            {
+              cRemote::Put(kRight);
+              state=osContinue;
+            }
+          }
+          free(newname);
         }
+        free(oldname);
       }
-      free(oldname);
-      free(newname);
       free(tmppath);
       free(tmpname);
     }
@@ -120,14 +130,14 @@ class myMenuNewName:public cOsdMenu
 myMenuNewName::myMenuNewName():cOsdMenu(tr("New folder"),12)
 {
  strn0cpy(name,tr("New folder"),sizeof(name));
- Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),tr(FileNameChars)));
+ Add(new cMenuEditStrItem(trVDR("Name"),name,sizeof(name),trVDR(FileNameChars)));
  cRemote::Put(kRight);
 }
 
 eOSState myMenuNewName::ProcessKey(eKeys Key)
 {
  eOSState state=cOsdMenu::ProcessKey(Key);
- 
+
  if(state==osContinue)
  {
   if(Key==kOk)
@@ -147,7 +157,7 @@ eOSState myMenuNewName::ProcessKey(eKeys Key)
   if(Key==kBack)
    state=osBack;
  }
- 
+
  return state;
 }
 
@@ -211,7 +221,7 @@ myMenuMoveRecording::myMenuMoveRecording(cRecording *Recording,const char *DirBa
  strn0cpy(newname,"",sizeof(newname));
  recording=Recording;
  base=Base?strdup(Base):NULL;
- 
+
  level=Level;
  Set();
  SetHelp(tr("Button$Cancel"),NULL,tr("Button$Create"),tr("Button$Move"));
@@ -290,143 +300,165 @@ eOSState myMenuMoveRecording::MoveRec()
   char *dir=NULL;
   char *tmpdirbase=dirbase?ExchangeChars(strdup(dirbase),true):NULL;
   char *tmpdirname=dirname?ExchangeChars(strdup(dirname),true):NULL;
- 
+
   eOSState state=osContinue;
 
   if(dirname)
-    asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname);
+  {
+    if(-1==asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname))
+      oldname=NULL;
+  }
   else
     oldname=strdup(recording->FileName());
 
-  myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
-  if(item)
+  if(oldname)
   {
-    if(strcmp(tr("[base dir]"),item->Text()))
+    myMenuMoveRecordingItem *item=(myMenuMoveRecordingItem*)Get(Current());
+    if(item)
+    {
+      if(strcmp(tr("[base dir]"),item->Text()))
+      {
+        if(dirname)
+        {
+          if(-1==asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text()))
+            dir=NULL;
+        }
+        else  // needed for move recording menu
+        {
+          const char *p=strrchr(recording->Name(),'~');
+          if(-1==asprintf(&dir,"%s%s%s~%s",base?base:"",base?"~":"",item->Text(),p?p+1:recording->Name()))
+            dir=NULL;
+        }
+      }
+      else
+      {
+        if(!dirname)
+        {
+          const char *p=strrchr(recording->Name(),'~');
+          if(-1==asprintf(&dir,"%s",p?++p:recording->Name()))
+            dir=NULL;
+        }
+      }
+    }
+    else
     {
       if(dirname)
-        asprintf(&dir,"%s%s%s",base?base:"",base?"~":"",item->Text());
-      else  // needed for move recording menu
+      {
+        if(-1==asprintf(&dir,"%s",base))
+          dir=NULL;
+      }
+      else
       {
         const char *p=strrchr(recording->Name(),'~');
-        asprintf(&dir,"%s%s%s~%s",base?base:"",base?"~":"",item->Text(),p?p+1:recording->Name());
+        if(-1==asprintf(&dir,"%s~%s",base,p?p:recording->Name()))
+          dir=NULL;
       }
     }
-    else
+    if(dir)
+      dir=ExchangeChars(dir,true);
+
+    if(-1==asprintf(&_newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/')))
+      _newname=NULL;
+
+    if(_newname)
     {
-      if(!dirname)
+      // getting existing part of target path
+      string path=_newname;
+      string::size_type pos=string::npos;
+      do
+        pos=path.rfind('/',pos)-1;
+      while(access(path.substr(0,pos+1).c_str(),R_OK));
+
+      path=path.substr(0,pos+1);
+
+      struct stat stat1,stat2;
+      stat(oldname,&stat1);
+      stat(path.c_str(),&stat2);
+      // are source and target at the same filesystem?
+      if(stat1.st_dev==stat2.st_dev)
       {
-        const char *p=strrchr(recording->Name(),'~');
-        asprintf(&dir,"%s",p?++p:recording->Name());
-      }
-    }
-  }
-  else
-  {
-    if(dirname)
-      asprintf(&dir,"%s",base);
-    else
-    {
-      const char *p=strrchr(recording->Name(),'~');
-      asprintf(&dir,"%s~%s",base,p?p:recording->Name());
-    }
-  }
-  if(dir)
-    dir=ExchangeChars(dir,true);
- 
-  asprintf(&_newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/'));
-
-  // getting existing part of target path
-  string path=_newname;
-  string::size_type pos=string::npos;
-  do
-    pos=path.rfind('/',pos)-1;
-  while(access(path.substr(0,pos+1).c_str(),R_OK));
-  
-  path=path.substr(0,pos+1);
-
-  struct stat stat1,stat2;
-  stat(oldname,&stat1);
-  stat(path.c_str(),&stat2);
-  // are source and target at the same filesystem?
-  if(stat1.st_dev==stat2.st_dev)
-  {
-    if(MoveRename(oldname,_newname,dirname?NULL:recording,true))
-    {
-      clearall=true;
-      state=osBack;
-    }
-  }
-  else
-  {
-    struct statvfs fsstat;
-    if(!statvfs(path.c_str(),&fsstat))
-    {
-      int freemb=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
-      int recmb=0;
-
-      // moving a single recording
-      if(recording)
-      {
-        recmb=DirSizeMB(recording->FileName());
-        if(freemb-recmb > 0  || Interface->Confirm(tr("Target filesystem filled - try anyway?")))
+        if(MoveRename(oldname,_newname,dirname?NULL:recording,true))
         {
-          MoveCutterThread->AddToMoveList(oldname,_newname);
           clearall=true;
           state=osBack;
         }
       }
-      // moving a directory
       else
       {
-        string buf=oldname;
-        buf+="/";
-        if(!buf.compare(0,buf.length(),_newname))
-          Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
-        else
+        struct statvfs fsstat;
+        if(!statvfs(path.c_str(),&fsstat))
         {
-          cThreadLock RecordingsLock(&Recordings);
-          for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
-          {
-            if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
-              recmb+=DirSizeMB(rec->FileName());
-          }
+          int freemb=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
+          int recmb=0;
 
-          if(freemb-recmb > 0  || Interface->Confirm(tr("Target filesystem filled - try anyway?")))
+          // moving a single recording
+          if(recording)
           {
-            for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
+            recmb=DirSizeMB(recording->FileName());
+            if(freemb-recmb > 0  || Interface->Confirm(tr("Target filesystem filled - try anyway?")))
             {
-              if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
+              MoveCutterThread->AddToMoveList(oldname,_newname);
+              clearall=true;
+              state=osBack;
+            }
+          }
+          // moving a directory
+          else
+          {
+            string buf=oldname;
+            buf+="/";
+            if(!buf.compare(0,buf.length(),_newname))
+              Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
+            else
+            {
+              cThreadLock RecordingsLock(&Recordings);
+              for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
               {
-                char *_buf=ExchangeChars(strdup(oldname+strlen(VideoDirectory)+1),false);
-              
-                if(strcmp(rec->Name(),_buf))
+                if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
+                  recmb+=DirSizeMB(rec->FileName());
+              }
+
+              if(freemb-recmb > 0  || Interface->Confirm(tr("Target filesystem filled - try anyway?")))
+              {
+                for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
                 {
-                  free(_buf);
-                  asprintf(&_buf,"%s%s",_newname,rec->FileName()+strlen(oldname));
-                
-                  MoveCutterThread->AddToMoveList(rec->FileName(),_buf);
+                  if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
+                  {
+                    char *_buf=ExchangeChars(strdup(oldname+strlen(VideoDirectory)+1),false);
+
+                    if(strcmp(rec->Name(),_buf))
+                    {
+                      free(_buf);
+                      if(-1==asprintf(&_buf,"%s%s",_newname,rec->FileName()+strlen(oldname)))
+                        _buf=NULL;
+
+                      if(_buf)
+                        MoveCutterThread->AddToMoveList(rec->FileName(),_buf);
+                    }
+                    free(_buf);
+                    _buf=NULL;
+                  }
                 }
-                free(_buf);
+                clearall=true;
+                state=osBack;
               }
             }
-            clearall=true;
-            state=osBack;
           }
         }
+        else
+        {
+          Skins.Message(mtError,tr("Can't get filesystem information"));
+          esyslog("[extrecmenu] %s",strerror(errno));
+        }
       }
+      free(_newname);
     }
-    else
-    {
-      Skins.Message(mtError,tr("Can't get filesystem information"));
-      esyslog("[extrecmenu] %s",strerror(errno));
-    }
+    free(oldname);
   }
-  free(oldname);
-  free(_newname);
   free(dir);
   free(tmpdirbase);
   free(tmpdirname);
- 
+
   return state;
 }
 
@@ -438,7 +470,7 @@ eOSState myMenuMoveRecording::Create()
 eOSState myMenuMoveRecording::ProcessKey(eKeys Key)
 {
   eOSState state=cOsdMenu::ProcessKey(Key);
- 
+
   if(state==osUnknown)
   {
     switch(Key)
@@ -482,19 +514,75 @@ eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
   {
     if(Key==kOk)
     {
-      char *oldname=strdup(recording->FileName());
-      char *_newname=strdup(recording->FileName());
+      if((priority!=recording->priority)||(lifetime!=recording->lifetime))
+      {
+#if VDRVERSNUM > 10713
+        if(recording->IsPesRecording())
+#endif
+        {
+          char *oldname=strdup(recording->FileName());
+          char *_newname=strdup(recording->FileName());
 
-      sprintf(_newname+strlen(_newname)-9,"%02d.%02d.rec",priority,lifetime);
+          sprintf(_newname+strlen(_newname)-9,"%02d.%02d.rec",priority,lifetime);
 
-      if(MoveRename(oldname,_newname,recording,false))
-        state=osBack;
+          if(MoveRename(oldname,_newname,recording,false))
+            state=osBack;
+          else
+            state=osContinue;
+
+          free(oldname);
+          free(_newname);
+        }
+#if VDRVERSNUM > 10713
+        else
+        {
+          cString buffer = cString::sprintf("P %d\nL %d", priority, lifetime);
+          if(ModifyInfo(recording,*buffer))
+          {
+            cString fileName = recording->FileName();
+            Recordings.Del(recording);
+            Recordings.AddByName(*fileName);
+            state=osBack;
+          }
+          else
+            state=osContinue;
+        }
+#endif
+      }
       else
-        state=osContinue;
-
-      free(oldname);
-      free(_newname);
+        state=osBack;
     }
   }
   return state;
+}
+
+#define INFOFILE_PES "info.vdr"
+#define INFOFILE_TS "info"
+bool myMenuRecordingDetails::ModifyInfo(cRecording *Recording, const char *Info)
+{ //This has been taken from remotetimers-0.1.3, written by Frank Schmirler <vdrdev@schmirler.de>
+
+  // check for write access as cRecording::WriteInfo() always returns true
+  // TODO: writing may still fail as access() doesn't use the effective UID
+#if VDRVERSNUM > 10713
+  cString InfoFileName=cString::sprintf(Recording->IsPesRecording()?"%s/"INFOFILE_PES:"%s/"INFOFILE_TS,Recording->FileName());
+#else
+  cString InfoFileName=cString::sprintf("%s/"INFOFILE_PES,Recording->FileName());
+#endif
+  if(access(InfoFileName,W_OK)==0)
+  {
+    FILE *f=fmemopen((void *)Info,strlen(Info)*sizeof(char),"r");
+    if(f)
+    {
+      // Casting const away is nasty, but what the heck?
+      // The Recordings thread is locked and the object is going to be deleted anyway.
+      if(((cRecordingInfo *)Recording->Info())->Read(f)&&Recording->WriteInfo())
+        return true;
+      esyslog("[extrecmenu] error in info string '%s'",Info);
+    }
+    else
+      esyslog("[extrecmenu] error in fmemopen: %m");
+  }
+  else
+    esyslog("[extrecmenu] '%s' not writeable: %m",*InfoFileName);
+  return false;
 }

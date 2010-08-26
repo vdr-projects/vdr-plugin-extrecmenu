@@ -74,7 +74,7 @@ void myMenuRecordingInfo::Display(void)
       if(recording->Info()->Description())
         text << recording->Info()->Description() << "\n\n";
     }
- 
+
     string recname=recording->Name();
     string::size_type i=recname.rfind('~');
     if(i!=string::npos)
@@ -82,7 +82,7 @@ void myMenuRecordingInfo::Display(void)
            << tr("Path") << ": " << recname.substr(0,i) << "\n";
     else
       text << tr("Name") << ": " << recname << "\n";
- 
+
     cChannel *chan=Channels.GetByChannelID(((cRecordingInfo*)recording->Info())->ChannelID());
     if(chan)
       text << tr("Channel") << ": " << *ChannelString(chan,0) << "\n";
@@ -143,13 +143,15 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
   totalentries=newentries=0;
   isdvd=false;
+  ishdd=false;
   dirismoving=true;
   name=NULL;
   filename=Recording->FileName();
-#if VDRVERSNUM >= 10703
+#if VDRVERSNUM > 10713
   isPesRecording=Recording->IsPesRecording();
+#else
+  isPesRecording=true;
 #endif
-
   // get the level of this recording
   level=0;
   const char *s=Recording->Name();
@@ -188,27 +190,29 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       string buffer;
       stringstream titlebuffer;
       stringstream idbuffer;
-    
+
       buffer=filename;
-#if VDRVERSNUM > 10703
       if (isPesRecording)
         buffer+="/001.vdr";
       else
         buffer+="/00001.ts";
-#else
-      buffer+="/001.vdr";
-#endif
+
       if(access(buffer.c_str(),R_OK))
       {
         buffer=filename;
         buffer+="/dvd.vdr";
         isdvd=!access(buffer.c_str(),R_OK);
+        buffer=filename;
+        buffer+="/hdd.vdr";
+        ishdd=!access(buffer.c_str(),R_OK);
       }
-    
+
       if(MoveCutterThread->IsMoving(filename))
         titlebuffer << Icons::MovingRecording(); // moving recording
       else if(isdvd)
         titlebuffer << Icons::DVD(); // archive dvd
+      else if(ishdd)
+        titlebuffer << Icons::HDD(); // archive hdd
       else if(MoveCutterThread->IsCutting(filename))
         titlebuffer << Icons::Scissor(); // cutting recording
       else if(Recording->IsNew() && !mysetup.PatchNew)
@@ -216,23 +220,23 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       else if(!Recording->IsNew() && mysetup.PatchNew)
         titlebuffer << Icons::Continue(); // alternative to new marker / rewind / continue
       else titlebuffer << ' '; // no icon
-     
+
       titlebuffer << '\t';
-    
+
       // date and time of recording
       struct tm tm_r;
       struct tm *t=localtime_r(&Recording->start,&tm_r);
-     
+
       if(mysetup.ShowRecDate)
         titlebuffer << setw(2) << setfill('0') << t->tm_mday << '.'
                     << setw(2) << setfill('0') << t->tm_mon+1 << '.'
                     << setw(2) << setfill('0') << t->tm_year%100 << '\t';
-     
+
       if(mysetup.ShowRecTime)
         titlebuffer << setw(2) << setfill('0') << t->tm_hour << '.'
                     << setw(2) << setfill('0') << t->tm_min << '\t';
-      
-      
+
+
       idbuffer << t->tm_mday << t->tm_mon << t->tm_year
                << t->tm_hour << t->tm_min;
 
@@ -240,14 +244,11 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       if(mysetup.ShowRecLength)
       {
         buffer=filename;
-#if VDRVERSNUM > 10703
         if (isPesRecording)
           buffer+="/index.vdr";
         else
           buffer+="/index";
-#else
-        buffer+="/index.vdr";
-#endif
+
         struct stat statbuf;
         if(!stat(buffer.c_str(),&statbuf))
         {
@@ -261,29 +262,72 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
           // get recording length from file 'length.vdr'
           buffer=filename;
           buffer+="/length.vdr";
- 
+
           ifstream in(buffer.c_str());
           if(in)
           {
             if(!in.eof())
               getline(in,buffer);
-          
+
             buffer+="'";
             // replace leading spaces with fixed blank (right align)
             while(buffer.length()<=3)
               buffer.insert(0,Icons::FixedBlank());
 
             titlebuffer << buffer << '\t';
-        
+
             in.close();
           }
           else
             titlebuffer << '\t';
         }
       }
-      if(!mysetup.ShowRecDate && !mysetup.ShowRecTime && !mysetup.ShowRecLength)
+
+      // recording rating
+      if(mysetup.ShowRecRating)
+      {
+        // get recording rating from file 'rated.vdr'
+        buffer=filename;
+        buffer+="/rated.vdr";
+
+        ifstream in(buffer.c_str());
+        if(in)
+        {
+          if(!in.eof())
+            getline(in,buffer);
+          int rated=atoi(buffer.c_str());
+          buffer="";
+          if (rated>10)
+            rated=10;
+
+          int cstar=0;
+          if (rated>0) {
+            while (rated>1) {
+              buffer += Icons::StarFull();
+              rated = rated-2;
+              cstar++;
+            }
+            if (rated>0) {
+              buffer += Icons::StarHalf();
+              rated--;
+              cstar++;
+            }
+          }
+          while (cstar<5) {
+            buffer += Icons::FixedBlank();
+            cstar++;
+          }
+          titlebuffer << buffer;
+
+          in.close();
+        }
+
         titlebuffer << '\t';
-    
+      }
+
+      if(!mysetup.ShowRecDate && !mysetup.ShowRecTime && !mysetup.ShowRecLength && !mysetup.ShowRecRating)
+        titlebuffer << '\t';
+
       // recording title
       string _s=Recording->Name();
       string::size_type i=_s.rfind('~');
@@ -297,7 +341,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         titlebuffer << _s;
         idbuffer << _s;
       }
-    
+
       title=strdup(titlebuffer.str().c_str());
       uniqid=idbuffer.str();
     }
@@ -321,7 +365,7 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
   totalentries++;
   if(IsNew)
     newentries++;
- 
+
   char *buffer=NULL;
 
   ostringstream entries;
@@ -329,30 +373,33 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 
   if(mysetup.ShowNewRecs)
   {
-    asprintf(&buffer,"%s\t%s (%d)%s%s%s%s%s",
-                     GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
-                     // replace leading spaces with fixed blank (right align)
-                     myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
-                     newentries,
-                     (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
-                     (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
-                     ((mysetup.ShowRecDate&&mysetup.ShowRecTime)||(mysetup.ShowRecTime&&mysetup.ShowRecLength)||(mysetup.ShowRecLength&&mysetup.ShowRecDate))?"\t":"",
-                     (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
-                     name);
+    if(-1==asprintf(&buffer,"%s\t%s (%d)%s%s%s%s%s",
+                            GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
+                            // replace leading spaces with fixed blank (right align)
+                            myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
+                            newentries,
+                            mysetup.ShowRecDate||mysetup.ShowOnlyRecs?"\t":"",
+                            mysetup.ShowRecTime?"\t":"",
+                            mysetup.ShowRecLength?"\t":"",
+                            mysetup.ShowRecRating?"\t":"",
+                            name))
+      buffer=NULL;
   }
   else
   {
-    asprintf(&buffer,"%s\t%s%s%s%s%s%s",
-                     GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
-                     // replace leading spaces with fixed blank (right align)
-                     myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
-                     (!mysetup.ShowRecDate&&!mysetup.ShowRecTime&&!mysetup.ShowRecLength)?"\t":"",
-                     (mysetup.ShowRecDate||mysetup.ShowRecTime||mysetup.ShowRecLength)?"\t":"",
-                     ((mysetup.ShowRecDate&&mysetup.ShowRecTime)||(mysetup.ShowRecTime&&mysetup.ShowRecLength)||(mysetup.ShowRecLength&&mysetup.ShowRecDate))?"\t":"",
-                     (mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength)?"\t":"",
-                     name);
+    if(-1==asprintf(&buffer,"%s\t%s%s%s%s%s%s",
+                            GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
+                            // replace leading spaces with fixed blank (right align)
+                            myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
+                            mysetup.ShowRecDate||mysetup.ShowOnlyRecs?"\t":"",
+                            mysetup.ShowRecTime?"\t":"",
+                            mysetup.ShowRecLength?"\t":"",
+                            mysetup.ShowRecRating?"\t":"",
+                            name))
+      buffer=NULL;
   }
-  SetText(buffer,false);
+  if(buffer)
+    SetText(buffer,false);
 }
 
 // --- myMenuRecordings -------------------------------------------------------
@@ -360,27 +407,52 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 
 bool myMenuRecordings::golastreplayed=false;
 bool myMenuRecordings::wasdvd;
+bool myMenuRecordings::washdd;
 dev_t myMenuRecordings::fsid=0;
 int myMenuRecordings::freediskspace=0;
 
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 {
-   // set tabs
-   if(mysetup.ShowRecDate&&mysetup.ShowRecTime&&!mysetup.ShowRecLength) // recording date and time are shown, recording length not
-     SetCols(2,8,6);
-   else if(mysetup.ShowRecDate&&mysetup.ShowRecTime) // all details are shown
-     SetCols(2,8,6,4);
-   else if(mysetup.ShowRecDate&&!mysetup.ShowRecTime) // recording time is not shown
-     SetCols(2,8,4);
-   else if(!mysetup.ShowRecDate&&mysetup.ShowRecTime&&mysetup.ShowRecLength) // recording date is not shown
-     SetCols(2,6,4);
-   else // recording date and time are not shown; even if recording length should be not shown we must set two tabs because of the details of the directories
-   {
-     if(mysetup.ShowNewRecs)
-       SetCols(2,8,3);
-     else
-       SetCols(2,4,3);
-   }
+  mysetup.ShowOnlyRecs=false;
+  int c[5],i=0;
+  for (i=0; i<5; i++) c[i]=0;
+
+  // set first tab to 2
+  i=0;
+  c[i]=2;//2;
+
+  if(mysetup.ShowRecDate)
+  {
+    i++;
+    c[i]=8;
+  }
+  if(mysetup.ShowRecTime)
+  {
+    i++;
+    c[i]=6;
+  }
+  if(mysetup.ShowRecLength)
+  {
+    i++;
+    c[i]=4;
+  }
+  if(mysetup.ShowRecRating)
+  {
+    i++;
+    c[i]=8;//5;
+  }
+  if(i==0)
+  { // only icon and name colums: add column for number of recordings in folders
+    i++;
+    c[i]=(mysetup.ShowNewRecs?9:3);
+    mysetup.ShowOnlyRecs=true;
+  }
+  else
+  { // make the first column wide enough
+    c[1]=std::max(c[1],(mysetup.ShowNewRecs?9:3));
+  }
+
+  SetCols(c[0], c[1], c[2], c[3], c[4]);
 
   edit=false;
   level=Level;
@@ -394,23 +466,44 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
   if(wasdvd&&!cControl::Control())
   {
     char *cmd=NULL;
-    asprintf(&cmd,"dvdarchive.sh umount \"%s\"",*strescape(myReplayControl::LastReplayed(),"'\\\"$"));
-    isyslog("[extrecmenu] calling %s to unmount dvd",cmd);
-    int result=SystemExec(cmd);
-    if(result)
+    if(-1!=asprintf(&cmd,"dvdarchive.sh umount \"%s\"",*strescape(myReplayControl::LastReplayed(),"'\\\"$")))
     {
-      result=result/256;
-      if(result==1)
-        Skins.Message(mtError,tr("Error while mounting DVD!"));
+      isyslog("[extrecmenu] calling %s to unmount dvd",cmd);
+      int result=SystemExec(cmd);
+      if(result)
+      {
+        result=result/256;
+        if(result==1)
+          Skins.Message(mtError,tr("Error while mounting DVD!"));
+      }
+      isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
+      free(cmd);
     }
-    isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
-    free(cmd);
 
     wasdvd=false;
   }
+  if(washdd&&!cControl::Control())
+  {
+    char *cmd=NULL;
+    if(-1!=asprintf(&cmd,"hddarchive.sh umount \"%s\"",*strescape(myReplayControl::LastReplayed(),"'\\\"$")))
+    {
+      isyslog("[extrecmenu] calling %s to unmount Archive-HDD",cmd);
+      int result=SystemExec(cmd);
+      if(result)
+      {
+        result=result/256;
+        if(result==1)
+          Skins.Message(mtError,tr("Error while mounting Archive-HDD!"));
+      }
+      isyslog("[extrecmenu] hddarchive.sh returns %d",result);
+      free(cmd);
+    }
+
+    washdd=false;
+  }
 
   Set();
- 
+
   if(myReplayControl::LastReplayed())
     Open();
 
@@ -439,7 +532,7 @@ int myMenuRecordings::FreeMB()
       if(statdir.st_dev!=fsid)
       {
         fsid=statdir.st_dev;
-    
+
         struct statvfs fsstat;
         if(!statvfs(path.c_str(),&fsstat))
         {
@@ -452,7 +545,7 @@ int myMenuRecordings::FreeMB()
               if(statdir.st_dev==fsid)
                 freediskspace+=DirSizeMB(rec->FileName());
             }
-          } 
+          }
         }
         else
         {
@@ -497,13 +590,13 @@ void myMenuRecordings::Title()
     buffer << base;
   else
     buffer << trVDR("Recordings");
-    
+
   buffer << " ("
          << minutes/60 << ":"
          << setw(2) << setfill('0') << minutes%60 << " "
          << trVDR("free")
          << ")";
-  
+
   SetTitle(buffer.str().c_str());
 }
 
@@ -577,9 +670,9 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
         lastreplayed=recording->FileName();
     }
   }
- 
+
   Clear();
- 
+
   // create my own recordings list from VDR's
   myRecList *list=new myRecList();
   for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
@@ -599,7 +692,7 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
     if(!base||(strstr(listitem->recording->Name(),base)==listitem->recording->Name()&&listitem->recording->Name()[strlen(base)]=='~'))
     {
       myMenuRecordingsItem *recitem=new myMenuRecordingsItem(listitem->recording,level);
-#ifdef WITHPINPLUGIN
+#ifdef USE_PINPLUGIN
       bool hidepinprotectedrecs=false;
       cPlugin *pinplugin=cPluginManager::GetPlugin("pin");
       if(pinplugin)
@@ -623,7 +716,7 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
       {
         if(!MoveCutterThread->IsMoving(recording->FileName()))
           lastitem->SetDirIsMoving(false);
-        
+
         if(lastitem->IsDirectory())
           lastitem->IncrementCounter(recording->IsNew());
         if(lastreplayed && !strcmp(lastreplayed,recording->FileName()))
@@ -634,7 +727,7 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
             if(recitem && !recitem->IsDirectory() && !cControl::Control() && !mysetup.GoLastReplayed)
               golastreplayed=false;
           }
-          if(recitem&&!recitem->IsDirectory()&&recitem->IsDVD()&&!cControl::Control())
+          if(recitem&&!recitem->IsDirectory()&&(recitem->IsDVD()||recitem->IsHDD())&&!cControl::Control())
             cReplayControl::ClearLastReplayed(cReplayControl::LastReplayed());
         }
       }
@@ -667,10 +760,12 @@ bool myMenuRecordings::Open()
     char *buffer=NULL;
     if(base)
     {
-      asprintf(&buffer,"%s~%s",base,t);
+      if(-1==asprintf(&buffer,"%s~%s",base,t))
+        buffer=NULL;
       t=buffer;
     }
-    AddSubMenu(new myMenuRecordings(t,level+1));
+    if(t)
+      AddSubMenu(new myMenuRecordings(t,level+1));
     free(buffer);
     return true;
   }
@@ -689,7 +784,7 @@ eOSState myMenuRecordings::Play()
   myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
   if(item)
   {
-#ifdef WITHPINPLUGIN
+#ifdef USE_PINPLUGIN
     if(cStatus::MsgReplayProtected(GetRecording(item),item->Name(),base,item->IsDirectory())==true)
       return osContinue;
 #endif
@@ -700,89 +795,165 @@ eOSState myMenuRecordings::Play()
       cRecording *recording=GetRecording(item);
       if(recording)
       {
-        if(item->IsDVD())
+        if(item->IsHDD())
+        {
+          char hddnr[BUFSIZ];
+          char *buffer=NULL;
+          FILE *f;
+
+          if(-1!=asprintf(&buffer,"%s/hdd.vdr",recording->FileName()))
+          {
+            if((f=fopen(buffer,"r"))!=NULL)
+            {
+              // get the hdd id
+              if(fgets(hddnr,sizeof(hddnr),f))
+              {
+                char *p=strchr(hddnr,'\n');
+                if(p)
+                  *p=0;
+              }
+              fclose(f);
+            }
+            free(buffer);
+            buffer=NULL;
+
+            if(-1!=asprintf(&msg,tr("Please attach Archive-HDD %s"),hddnr))
+            {
+              if(Interface->Confirm(msg))
+              {
+                free(msg);
+                // recording is an archive hdd
+                strcpy(path,recording->FileName());
+                name=strrchr(path,'/')+1;
+                if(-1!=asprintf(&msg,"hddarchive.sh mount \"%s\" '%s'",*strescape(path,"'"),*strescape(name,"'\\\"$")))
+                {
+                  isyslog("[extrecmenu] calling %s to mount Archive-HDD",msg);
+                  int result=SystemExec(msg);
+                  isyslog("[extrecmenu] hddarchive.sh returns %d",result);
+                  free(msg);
+                  msg=NULL;
+                  if(result)
+                  {
+                    result=result/256;
+                    if(result==1)
+                      Skins.Message(mtError,tr("Error while mounting Archive-HDD!"));
+                    if(result==3)
+                      Skins.Message(mtError,tr("Recording not found on Archive-HDD!"));
+                    if(result==4)
+                      Skins.Message(mtError,tr("Error while linking [0-9]*.vdr!"));
+                    if(result==5)
+                      Skins.Message(mtError,tr("sudo or mount --bind / umount error (vfat system)"));
+                    if(result==127)
+                      Skins.Message(mtError,tr("Script 'hddarchive.sh' not found!"));
+                    return osContinue;
+                  }
+                  washdd=true;
+                }
+                msg=NULL;
+              }
+              else
+              {
+                free(msg);
+                return osContinue;
+              }
+            }
+            msg=NULL;
+          }
+          buffer=NULL;
+        } else if(item->IsDVD())
         {
           bool isvideodvd=false;
           char dvdnr[BUFSIZ];
           char *buffer=NULL;
           FILE *f;
-      
-          asprintf(&buffer,"%s/dvd.vdr",recording->FileName());
-          if((f=fopen(buffer,"r"))!=NULL)
-          {
-            // get the dvd id
-            if(fgets(dvdnr,sizeof(dvdnr),f))
-            {
-              char *p=strchr(dvdnr,'\n');
-              if(p)
-                *p=0;
-            }
-            // determine if dvd is a video dvd
-            char tmp[BUFSIZ];
-            if(fgets(tmp,sizeof(dvdnr),f))
-            isvideodvd=true;
-        
-            fclose(f);
-          }
-          free(buffer);
 
-          asprintf(&msg,tr("Please insert DVD %s"),dvdnr);
-          if(Interface->Confirm(msg))
+          if(-1!=asprintf(&buffer,"%s/dvd.vdr",recording->FileName()))
           {
-            free(msg);
-            // recording is a video dvd
-            if(isvideodvd)
+            if((f=fopen(buffer,"r"))!=NULL)
             {
-              cPlugin *plugin=cPluginManager::GetPlugin("dvd");
-              if(plugin)
+              // get the dvd id
+              if(fgets(dvdnr,sizeof(dvdnr),f))
               {
-                cOsdObject *osd=plugin->MainMenuAction();
-                delete osd;
-                osd=NULL;
-                return osEnd;            
+                char *p=strchr(dvdnr,'\n');
+                if(p)
+                  *p=0;
+              }
+              // determine if dvd is a video dvd
+              char tmp[BUFSIZ];
+              if(fgets(tmp,sizeof(dvdnr),f))
+                isvideodvd=true;
+
+              fclose(f);
+            }
+            free(buffer);
+            buffer=NULL;
+
+            if(-1!=asprintf(&msg,tr("Please insert DVD %s"),dvdnr))
+            {
+              if(Interface->Confirm(msg))
+              {
+                free(msg);
+                msg=NULL;
+                // recording is a video dvd
+                if(isvideodvd)
+                {
+                  cPlugin *plugin=cPluginManager::GetPlugin("dvd");
+                  if(plugin)
+                  {
+                    cOsdObject *osd=plugin->MainMenuAction();
+                    delete osd;
+                    osd=NULL;
+                    return osEnd;
+                  }
+                  else
+                  {
+                    Skins.Message(mtError,tr("DVD plugin is not installed!"));
+                    return osContinue;
+                  }
+                }
+                // recording is an archive dvd
+                else
+                {
+                  strcpy(path,recording->FileName());
+                  name=strrchr(path,'/')+1;
+                  if(-1!=asprintf(&msg,"dvdarchive.sh mount \"%s\" '%s'",*strescape(path,"'"),*strescape(name,"'\\\"$")))
+                  {
+                    isyslog("[extrecmenu] calling %s to mount dvd",msg);
+                    int result=SystemExec(msg);
+                    isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
+                    free(msg);
+                    msg=NULL;
+                    if(result)
+                    {
+                      result=result/256;
+                      if(result==1)
+                        Skins.Message(mtError,tr("Error while mounting DVD!"));
+                      if(result==2)
+                        Skins.Message(mtError,tr("No DVD in drive!"));
+                      if(result==3)
+                        Skins.Message(mtError,tr("Recording not found on DVD!"));
+                      if(result==4)
+                        Skins.Message(mtError,tr("Error while linking [0-9]*.vdr!"));
+                      if(result==5)
+                        Skins.Message(mtError,tr("sudo or mount --bind / umount error (vfat system)"));
+                      if(result==127)
+                        Skins.Message(mtError,tr("Script 'dvdarchive.sh' not found!"));
+                      return osContinue;
+                    }
+                    wasdvd=true;
+                  }
+                  msg=NULL;
+                }
               }
               else
               {
-                Skins.Message(mtError,tr("DVD plugin is not installed!"));
+                free(msg);
                 return osContinue;
               }
             }
-            // recording is an archive dvd
-            else
-            {
-              strcpy(path,recording->FileName());
-              name=strrchr(path,'/')+1;
-              asprintf(&msg,"dvdarchive.sh mount \"%s\" '%s'",*strescape(path,"'"),*strescape(name,"'\\\"$"));
- 
-              isyslog("[extrecmenu] calling %s to mount dvd",msg);
-              int result=SystemExec(msg);
-              isyslog("[extrecmenu] dvdarchive.sh returns %d",result);
-              free(msg);
-              if(result)
-              {
-                result=result/256;
-                if(result==1)
-                  Skins.Message(mtError,tr("Error while mounting DVD!"));
-                if(result==2)
-                  Skins.Message(mtError,tr("No DVD in drive!"));
-                if(result==3)
-                  Skins.Message(mtError,tr("Recording not found on DVD!"));
-                if(result==4)
-                  Skins.Message(mtError,tr("Error while linking [0-9]*.vdr!"));
-                if(result==5)
-                  Skins.Message(mtError,tr("sudo or mount --bind / umount error (vfat system)"));
-                if(result==127)
-                  Skins.Message(mtError,tr("Script 'dvdarchive.sh' not found!"));
-                return osContinue;
-              }
-              wasdvd=true;
-            }
+            msg=NULL;
           }
-          else
-          {
-            free(msg);
-            return osContinue;
-          }
+          buffer=NULL;
         }
         golastreplayed=true;
         myReplayControl::SetRecording(recording->FileName(),recording->Title());
@@ -806,7 +977,7 @@ eOSState myMenuRecordings::Rewind()
   if(item&&!item->IsDirectory())
   {
     cDevice::PrimaryDevice()->StopReplay();
-#if VDRVERSNUM >= 10703
+#if VDRVERSNUM > 10713
     cResumeFile ResumeFile(item->FileName(), item->IsPesRecording());
 #else
     cResumeFile ResumeFile(item->FileName());
@@ -902,11 +1073,7 @@ eOSState myMenuRecordings::Details()
   if(item && !item->IsDirectory())
   {
     cRecording *recording=GetRecording(item);
-#if VDRVERSNUM >= 10703
-    if(recording && recording->IsPesRecording())
-#else
     if(recording)
-#endif
       return AddSubMenu(new myMenuRecordingDetails(recording));
   }
   return osContinue;
@@ -957,7 +1124,7 @@ eOSState myMenuRecordings::Commands(eKeys Key)
 {
   if(HasSubMenu() || Count()==0)
     return osContinue;
- 
+
   myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
   if(item)
   {
@@ -969,14 +1136,18 @@ eOSState myMenuRecordings::Commands(eKeys Key)
       {
         char *strBase=base?ExchangeChars(strdup(base), true):NULL;
         char *strName=ExchangeChars(strdup(item->Name()), true);
-        asprintf(&parameter,"\"%s/%s/%s\"",VideoDirectory,strBase?strBase:"", strName);
+        if(-1==asprintf(&parameter,"\"%s/%s/%s\"",VideoDirectory,strBase?strBase:"", strName))
+          parameter=NULL;
         free(strBase);
         free(strName);
       }
       else
-        asprintf(&parameter,"\"%s\"",recording->FileName());
+      {
+        if(-1==asprintf(&parameter,"\"%s\"",recording->FileName()))
+          parameter=NULL;
+      }
       myMenuCommands *menu;
-      eOSState state=AddSubMenu(menu=new myMenuCommands(trVDR("Recording commands"),item->IsDirectory() ? &RecordingDirCommands : &RecordingCommands,parameter));
+      eOSState state=AddSubMenu(menu=new myMenuCommands(trVDR("Recording commands"),item->IsDirectory() ? &RecordingDirCommands : &RecordingCommands,parameter?parameter:""));
       free(parameter);
       if(Key!=kNone)
         state=menu->ProcessKey(Key);
@@ -1007,12 +1178,12 @@ eOSState myMenuRecordings::ChangeSorting()
       return osContinue;
     }
   }
-  mySortList->Add(new SortListItem(path)); 
+  mySortList->Add(new SortListItem(path));
   mySortList->WriteConfigFile();
   Set(true);
 
   Skins.Message(mtInfo,tr("Sort by name"),1);
- 
+
   return osContinue;
 }
 
@@ -1023,7 +1194,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
   if(edit)
   {
     myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
-    if(Key==kRed || Key==kGreen || Key==kYellow || (!item->IsDVD() && Key==kBlue) || Key==kBack)
+    if(Key==kRed || Key==kGreen || Key==kYellow || (!item->IsDVD() && !item->IsHDD() && Key==kBlue) || Key==kBack)
     {
       edit=false;
       helpkeys=-1;
@@ -1033,11 +1204,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
       case kRed: return Rename();
       case kGreen: return MoveRec();
       case kYellow: return Delete();
-#if VDRVERSNUM >= 10703
-      case kBlue: if(item&&!item->IsDVD()&&item->IsPesRecording())
-#else
-      case kBlue: if(item&&!item->IsDVD())
-#endif
+      case kBlue: if(item&&!item->IsDVD()&&!item->IsHDD())
                     return Details();
                   else
                     break;
@@ -1098,7 +1265,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                               cRecording *rec=GetRecording(item);
                               if(rec)
                               {
-#ifdef WITHPINPLUGIN
+#ifdef USE_PINPLUGIN
                                 if(cStatus::MsgReplayProtected(rec,item->Name(),base,item->IsDirectory())==true)
                                   break;
 #endif
@@ -1121,11 +1288,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                                 else
                                 {
                                   edit=true;
-#if VDRVERSNUM >= 10703
-                                  SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),(item->IsPesRecording()&&!item->IsDVD())?tr("Details"):NULL);
-#else
-                                  SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),(!item->IsDVD())?tr("Details"):NULL);
-#endif
+                                  SetHelp(tr("Button$Rename"),tr("Button$Move"),tr("Button$Delete"),!item->IsDVD()&&!item->IsHDD()?tr("Details"):NULL);
                                 }
                               }
                             }
@@ -1141,11 +1304,11 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
     }
     bool stateChanged = Recordings.StateChanged(recordingsstate);
     if(stateChanged || MoveCutterThread->IsCutterQueueEmpty())
-      Set(true);    
-    
+      Set(true);
+
     if(!Count() && level>0)
       state=osBack;
- 
+
     if((!HasSubMenu() && Key!=kNone) || stateChanged)
       SetHelpKeys();
   }

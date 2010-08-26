@@ -4,6 +4,7 @@ class myMenuRecordingsItem:public cOsdItem
   private:
     bool dirismoving;
     bool isdvd;
+    bool ishdd;
     bool isPesRecording;
     int level,isdirectory;
     int totalentries,newentries;
@@ -20,6 +21,7 @@ class myMenuRecordingsItem:public cOsdItem
     bool IsPesRecording(void) const { return isPesRecording; }
     void IncrementCounter(bool IsNew);
     bool IsDVD(){return isdvd;}
+    bool IsHDD(){return ishdd;}
     void SetDirIsMoving(bool moving){dirismoving=moving;}
     bool GetDirIsMoving(){return dirismoving;}
     const char *UniqID(){return uniqid.length()?uniqid.c_str():"";}
@@ -31,6 +33,7 @@ class myMenuRecordings:public cOsdMenu
  private:
   bool edit;
   static bool wasdvd;
+  static bool washdd;
   static bool golastreplayed;
   static dev_t fsid;
   static int freediskspace;
@@ -107,4 +110,5 @@ class myMenuRecordingDetails:public cOsdMenu
  public:
   myMenuRecordingDetails(cRecording *Recording);
   virtual eOSState ProcessKey(eKeys Key);
+  static bool ModifyInfo(cRecording *Recording, const char *Info);
 };

@@ -1,6 +1,22 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2010-xx-xx: Version 1.2.1
+- [amair] Merged following changes from v1.3-devel head (Submitted by Joe_D @vdr-portal.de).
+- [amair] Lifetime and priority for TS recording can be edited again.
+- [amair] Use international characters for renaming recordings and creating directories like VDR.
+- [amair] Don't use the VDR cutter by default as this crashes VDR (Can be enabled by defining USE_VDR_CUTTER).
+- [amair] Updated Italian translation (Submitted by Diego Pierotto).
+- [amair] Enable support for PIN plugin if USE_PINPLUGIN is set to "1" in Make.config.
+- [amair] Reorganiced contrib directory.
+- [amair] Fixed compiler warnings and errors.
+- [amair] Use VDR's cutting feature (Submitted by Helmut Auer).
+- [amair] Added HDD archive feature (Submitted by Carsten Siebholz).
+- [amair] Updated VDRSymbols font to version 20100612.
+- [amair] Included Rating patch (Submitted by Carsten Siebholz).
+- [amair] Remove obsolete i18n files and scripts.
+- [amair] Require at least VDR v1.6.0 or v1.7.14.
+
 2010-05-29: Version 1.2 [amair]
 - New homepage: http://projects.vdr-developer.org/projects/show/plg-extrecmenu
 

@@ -5,7 +5,7 @@
 #include <vdr/menu.h>
 #include "mymenusetup.h"
 
-#if VDRVERSNUM >= 10713
+#if VDRVERSNUM > 10713
 cNestedItemList RecordingDirCommands;
 #else
 cCommands RecordingDirCommands;
@@ -19,7 +19,9 @@ mySetup::mySetup()
   mysetup.ShowRecDate=1;
   mysetup.ShowRecTime=1;
   mysetup.ShowRecLength=0;
+  mysetup.ShowRecRating=0;
   mysetup.ShowNewRecs=1;
+  mysetup.ShowOnlyRecs=false;
   mysetup.DescendSorting=0;
   mysetup.GoLastReplayed=0;
   mysetup.ReturnToPlugin=1;
@@ -35,13 +37,14 @@ mySetup mysetup;
 myMenuSetup::myMenuSetup()
 {
   SetCols(36);
-  
+
   hidemainmenuentry=mysetup.HideMainMenuEntry;
   patchnew=mysetup.PatchNew;
   replaceorgrecmenu=mysetup.ReplaceOrgRecMenu;
   showrecdate=mysetup.ShowRecDate;
   showrectime=mysetup.ShowRecTime;
   showreclength=mysetup.ShowRecLength;
+  showrecrating=mysetup.ShowRecRating;
   shownewrecs=mysetup.ShowNewRecs;
   descendsorting=mysetup.DescendSorting;
   golastreplayed=mysetup.GoLastReplayed;
@@ -51,13 +54,14 @@ myMenuSetup::myMenuSetup()
   patchfont=mysetup.PatchFont;
   filesystemfreemb=mysetup.FileSystemFreeMB;
   usecutterqueue=mysetup.UseCutterQueue;
- 
+
   sortingtypetexts[0]=tr("ascending");
   sortingtypetexts[1]=tr("descending");
- 
+
   Add(new cMenuEditBoolItem(tr("Show recording date"),&showrecdate));
   Add(new cMenuEditBoolItem(tr("Show recording time"),&showrectime));
   Add(new cMenuEditBoolItem(tr("Show recording length"),&showreclength));
+  Add(new cMenuEditBoolItem(tr("Show recording rating"),&showrecrating));
   Add(new cMenuEditBoolItem(tr("Show nr. of new recordings of a directory"),&shownewrecs));
   Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
   Add(new cMenuEditBoolItem(tr("Show free disk space for each file system"),&filesystemfreemb));
@@ -68,9 +72,6 @@ myMenuSetup::myMenuSetup()
 #endif
   Add(new cMenuEditBoolItem(tr("Jump to last replayed recording"),&golastreplayed));
   Add(new cMenuEditBoolItem(tr("Call plugin after playback"),&returntoplugin));
-#if VDRVERSNUM < 10503
-  Add(new cMenuEditBoolItem(tr("Patch font"),&patchfont));
-#endif
   Add(new cMenuEditBoolItem(tr("Limit bandwidth for move recordings"),&limitbandwidth));
   Add(new cMenuEditBoolItem(tr("Use VDR's recording info menu"),&usevdrsrecinfomenu));
   Add(new cMenuEditBoolItem(tr("Use cutter queue"),&usecutterqueue));
@@ -84,6 +85,7 @@ void myMenuSetup::Store()
   SetupStore("ShowRecDate",mysetup.ShowRecDate=showrecdate);
   SetupStore("ShowRecTime",mysetup.ShowRecTime=showrectime);
   SetupStore("ShowRecLength",mysetup.ShowRecLength=showreclength);
+  SetupStore("ShowRecRating",mysetup.ShowRecRating=showrecrating);
   SetupStore("ShowNewRecs",mysetup.ShowNewRecs=shownewrecs);
   SetupStore("DescendSorting",mysetup.DescendSorting=descendsorting);
   SetupStore("GoLastReplayed",mysetup.GoLastReplayed=golastreplayed);

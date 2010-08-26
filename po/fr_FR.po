@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2008-08-13 08:38+0200\n"
+"POT-Creation-Date: 2010-06-17 20:39+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Nicolas Huillard <nhuillard@e-dition.fr>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -81,6 +81,9 @@ msgstr "Taille"
 msgid "Error while mounting DVD!"
 msgstr "Erreur lors du montage du DVD!"
 
+msgid "Error while mounting Archive-HDD!"
+msgstr ""
+
 msgid "Button$Commands"
 msgstr "Commande"
 
@@ -94,6 +97,22 @@ msgid "Button$Info"
 msgstr "Info"
 
 #, c-format
+msgid "Please attach Archive-HDD %s"
+msgstr ""
+
+msgid "Recording not found on Archive-HDD!"
+msgstr ""
+
+msgid "Error while linking [0-9]*.vdr!"
+msgstr "Erreur lors de la création des racourcis [0-9]*.vdr!"
+
+msgid "sudo or mount --bind / umount error (vfat system)"
+msgstr "Erreur sudo ou mount --bind / umount (Systeme VFAT)"
+
+msgid "Script 'hddarchive.sh' not found!"
+msgstr ""
+
+#, c-format
 msgid "Please insert DVD %s"
 msgstr "Mettez le DVD %s dans le lecteur"
 
@@ -105,12 +124,6 @@ msgstr "Pas de DVD dans le lecteur!"
 
 msgid "Recording not found on DVD!"
 msgstr "Il n'y a pas d'enregistrement sur le DVD!"
-
-msgid "Error while linking [0-9]*.vdr!"
-msgstr "Erreur lors de la création des racourcis [0-9]*.vdr!"
-
-msgid "sudo or mount --bind / umount error (vfat system)"
-msgstr "Erreur sudo ou mount --bind / umount (Systeme VFAT)"
 
 msgid "Script 'dvdarchive.sh' not found!"
 msgstr "Impossible de trouver le script 'dvdarchive.sh'!"
@@ -145,6 +158,9 @@ msgstr "Afficher l'heure d'enregistrement"
 msgid "Show recording length"
 msgstr "Afficher la longeur de l'enregistrement"
 
+msgid "Show recording rating"
+msgstr ""
+
 msgid "Show nr. of new recordings of a directory"
 msgstr "Afficher le nombre de nouveaux enregistrements dans les dossiers"
 
@@ -168,9 +184,6 @@ msgstr "Retour au dernier enregistrement lu"
 
 msgid "Call plugin after playback"
 msgstr "Après la lecture démarer le plugin"
-
-msgid "Patch font"
-msgstr "Patch des police"
 
 msgid "Limit bandwidth for move recordings"
 msgstr "Limiter la bande passante lors du déplacement"
@@ -201,3 +214,6 @@ msgstr "Des enregistrements sont en déplacement"
 
 msgid "Can't start editing process!"
 msgstr ""
+
+#~ msgid "Patch font"
+#~ msgstr "Patch des police"

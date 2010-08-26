@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2008-08-13 08:38+0200\n"
+"POT-Creation-Date: 2010-06-17 20:39+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Rolf Ahrenberg <rahrenbe@cc.hut.fi>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -81,6 +81,9 @@ msgstr "Koko"
 msgid "Error while mounting DVD!"
 msgstr "DVD:n avaaminen epäonnistui!"
 
+msgid "Error while mounting Archive-HDD!"
+msgstr ""
+
 msgid "Button$Commands"
 msgstr "Komennot"
 
@@ -94,6 +97,22 @@ msgid "Button$Info"
 msgstr "Tiedot"
 
 #, c-format
+msgid "Please attach Archive-HDD %s"
+msgstr ""
+
+msgid "Recording not found on Archive-HDD!"
+msgstr ""
+
+msgid "Error while linking [0-9]*.vdr!"
+msgstr "Tiedostojen [0-9]*.vdr linkittäminen epäonnistui!"
+
+msgid "sudo or mount --bind / umount error (vfat system)"
+msgstr "Sudo tai mount --bind / umount -komento epäonnistui (VFAT)!"
+
+msgid "Script 'hddarchive.sh' not found!"
+msgstr ""
+
+#, c-format
 msgid "Please insert DVD %s"
 msgstr "Laita DVD %s asemaan"
 
@@ -105,12 +124,6 @@ msgstr "Asemassa ei ole DVD-levyä!"
 
 msgid "Recording not found on DVD!"
 msgstr "Tallennetta ei löydy DVD:ltä!"
-
-msgid "Error while linking [0-9]*.vdr!"
-msgstr "Tiedostojen [0-9]*.vdr linkittäminen epäonnistui!"
-
-msgid "sudo or mount --bind / umount error (vfat system)"
-msgstr "Sudo tai mount --bind / umount -komento epäonnistui (VFAT)!"
 
 msgid "Script 'dvdarchive.sh' not found!"
 msgstr "'dvdarchive.sh'-skriptiä ei löydetä!"
@@ -145,6 +158,9 @@ msgstr "Näytä tallenteen ajankohta"
 msgid "Show recording length"
 msgstr "Näytä tallenteen kesto"
 
+msgid "Show recording rating"
+msgstr ""
+
 msgid "Show nr. of new recordings of a directory"
 msgstr "Näytä uusien tallenteiden lukumäärä"
 
@@ -168,9 +184,6 @@ msgstr "Siirry viimeksi toistettuun tallenteeseen"
 
 msgid "Call plugin after playback"
 msgstr "Avaa laajennos toiston loputtua"
-
-msgid "Patch font"
-msgstr "Käytä paikattua kirjasinta"
 
 msgid "Limit bandwidth for move recordings"
 msgstr "Rajoita tallenteiden siirtokaistaa"
@@ -201,3 +214,6 @@ msgstr "Tallenteiden siirto käynnissä"
 
 msgid "Can't start editing process!"
 msgstr ""
+
+#~ msgid "Patch font"
+#~ msgstr "Käytä paikattua kirjasinta"

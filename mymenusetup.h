@@ -6,6 +6,7 @@ extern cNestedItemList RecordingDirCommands;
 extern cCommands RecordingDirCommands;
 #endif
 
+
 class mySetup
 {
  public:
@@ -13,9 +14,11 @@ class mySetup
   int ShowRecDate;
   int ShowRecTime;
   int ShowRecLength;
+  int ShowRecRating;
   int HideMainMenuEntry;
   int ReplaceOrgRecMenu;
   int PatchNew;
+  int ShowOnlyRecs;
   int ShowNewRecs;
   int DescendSorting;
   int GoLastReplayed;
@@ -36,6 +39,7 @@ class myMenuSetup:public cMenuSetupPage
   int showrecdate;
   int showrectime;
   int showreclength;
+  int showrecrating;
   int hidemainmenuentry;
   int replaceorgrecmenu;
   int patchnew;

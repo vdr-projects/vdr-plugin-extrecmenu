@@ -48,13 +48,12 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
             else
             {
               cMarks _marks;
-#if VDRVERSNUM >= 10703
+              #if VDRVERSNUM > 10713
               cRecording Recording(filename);
-              _marks.Load(filename, Recording.FramesPerSecond(), Recording.IsPesRecording());
-#else
-              _marks.Load(filename);
-#endif
-  
+               _marks.Load(filename, Recording.FramesPerSecond(), Recording.IsPesRecording());
+              #else
+               _marks.Load(filename);
+              #endif
               if(!_marks.Count())
                 Skins.Message(mtError,tr("No editing marks defined!"));
               else
@@ -69,7 +68,7 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
 
         if(Key==kRed)
           timesearchactive=true;
-      }      
+      }
       if(Key==kBack)
         return osEnd;
     }

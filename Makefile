@@ -34,6 +34,10 @@ TMPDIR = /tmp
 
 -include $(VDRDIR)/Make.config
 
+ifdef USE_PINPLUGIN
+DEFINES += -DUSE_PINPLUGIN
+endif
+
 ### The version number of VDR's plugin API (taken from VDR's "config.h"):
 
 APIVERSION = $(shell sed -ne '/define APIVERSION/s/^.*"\(.*\)".*$$/\1/p' $(VDRDIR)/config.h)
@@ -51,8 +55,7 @@ DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 ### The object files (add further files here):
 
-OBJS = $(PLUGIN).o mymenurecordings.o mymenueditrecording.o myreplaycontrol.o \
-       mymenucommands.o mymenusetup.o tools.o i18n.o
+OBJS = $(PLUGIN).o mymenurecordings.o mymenueditrecording.o myreplaycontrol.o mymenucommands.o mymenusetup.o tools.o
 
 ### The main target:
 
@@ -87,7 +90,7 @@ $(I18Npot): $(wildcard *.c)
 	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<see README>' -o $@ $^
 
 %.po: $(I18Npot)
-	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
+	msgmerge -U --no-wrap --no-location --backup=none --no-fuzzy-matching -q $@ $<
 	@touch $@
 
 $(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo

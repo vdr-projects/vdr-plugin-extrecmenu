@@ -137,4 +137,7 @@ class Icons
     static const char* New(){return IsUTF8?"\ue010":"\x90";}
     static const char* Repititive_timer(){return IsUTF8?"\ue011":"\x91";}
     static const char* Running(){return IsUTF8?"\ue012":"\x92";}
+    static const char* HDD(){return IsUTF8?"\ue01c":"\x9c";}
+    static const char* StarFull(){return IsUTF8?"\ue018":"\x98";}
+    static const char* StarHalf(){return IsUTF8?"\ue019":"\x99";}
 };
