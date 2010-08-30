@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 #
-# Version 2.1 2006-06-02
+# Version 2.3-beta 2006-07-14
 #
 # Author:	Mike Constabel
-# VDR-Portal:	vejoun
-# EMail:	vejoun @ toppoint.de
-# WWW:          http://www.constabel.net/vdr/scripts.htm
+# VDR-Portal.de:	vejoun
+# EMail:		vejoun at toppoint dot de
+# WWW:          	http://www.constabel.net/vdr/scripts.de.htm
 #
-# ---> CONFIGURATION AT LINE 79 <---
+# ---> CONFIGURATION AT LINE 83 <---
 #
 # MANUAL:
 # -------
@@ -35,7 +35,7 @@
 # You find isodetect.c in the extrecmenu plugin source package.
 #
 # 4.
-# Tools needed:   mount, awk, find, test, stat
+# Tools needed:   mount, awk, find, test, stat, sed
 # Optional tools: isodetect
 #
 # 5.
@@ -59,20 +59,37 @@
 #
 # HISTORY:
 # --------
-# 2.1 - Fixed bug in testing if dvd is mounted
+# 2006-07-14: Version 2.3-beta
+#
+# - should be compatible with ash, busybox
+#   stays beta until someone confirm this or 2.4 comes        
+#
+# 2006-06-13: Version 2.2      
+#
+# - at mount, if third parameter is not given, take last part of path     
+#
+# Version 2.1
+#
+# - Fixed bug in testing if dvd is mounted
 #     - more DEBUG=1 output
 #
-# 2.0 - more logging
+# Version 2.0
+#
+# - more logging
 #     - check if mountpoint and device exists
 #     - Debug Log in file $DEBUGLOG if $DEBUG is 1, for easier error reporting
 #
-# 1.9 - use "sudo mount --bind" for mounting if filesystem is vfat
+# Version 1.9
+#
+# - use "sudo mount --bind" for mounting if filesystem is vfat 
 #     - automatic fallback to 'sudo' and 'mount --bind' if filesystem is vfat
 #     - mounting more failure tolerant
 #     - added MANUAL part in script
 #     - length.vdr creation, you must not use it ;)
 #
-# 1.8 - remove sudo, is not necessary
+# Version 1.8
+#
+# - remove sudo, is not necessary
 #     - on mount, if already mounted try to umount first
 #     - logging per syslog, see $SYSLOG
 #
@@ -81,31 +98,36 @@
 #<Configuration>
 
 # Mountpoint, the same as in fstab
-MOUNTPOINT="/media/cdrom" # no trailing '/'
+MOUNTPOINT="/media/brenner" # no trailing '/'
 
 # Eject DVD for exit-codes 2 and 3 (no or wrong dvd). 1 = yes, 0 = no.
-EJECTWRONG=0
+EJECTWRONG=1
 
 # Eject DVD after unmounting. 1 = yes, 0 = no.
 EJECTUMOUNT=0
 
 # Log warnings/errors in syslog. 1 = yes, 0 = no.
-SYSLOG=0
+SYSLOG=1
 
 # Create a length.vdr after mounting the dvd for the played recording. 1 = yes, 0 = no.
 # Only for non-vfat and with index.vdr only on dvd.
-GETLENGTH=0
+GETLENGTH=1
 
 # Put debug infos in file $DEBUGLOG. Only if $DEBUG=1.
 DEBUG=0
 DEBUGLOG="/tmp/dvdarchive.sh-debug.log"
 
 #</Configuration>
+
+# read config file
+. /etc/vdr/dvdarchive.conf
+
 #
 # No changes needed after this mark
 
 # Remove trailing slash
-MOUNTPOINT=${MOUNTPOINT/%\/}
+MOUNTPOINT="$(echo "${MOUNTPOINT}" | sed -e 's/\/$//')"
+
 if [ -L "$MOUNTPOINT" ]; then
 	MOUNTPOINTT="$(find "$MOUNTPOINT" -printf "%l")"
 else
@@ -122,6 +144,10 @@ fi
 ACTION="$1"
 REC="$2"
 NAME="$3"
+
+if [ "$ACTION" = "mount" -a -z "$NAME" ]; then
+	NAME="basename ${REC})"
+fi
 
 # function to print help
 call() {
@@ -167,8 +193,8 @@ log() {
 
 # Some checks before doing something
 [ "$ACTION" = "mount" -o "$ACTION" = "umount" ] || { call; exit 10; }
-[ -z "$REC" ] && { call; exit 10; }
-[ "$ACTION" = mount -a -z "$NAME" ] && { call; exit 10; }
+[ -z "$REC" -o ! -d "$REC" ] && { call; exit 10; }
+[ "$ACTION" = "mount" -a -z "$NAME" ] && { call; exit 10; }
 [ ! -d "$MOUNTPOINT" ] && { log error "Mountpoint $MOUNTPOINT doesn't exist"; exit 10; }
 [ ! -e "$DEVICE" ] && { log error "Device $DEVICE doesn't exist"; exit 10; }
 
@@ -187,8 +213,7 @@ mount)
 	if mount | egrep -q " $MOUNTPOINTT "; then
 		# check if dvd is in use
 		if mount | egrep -q "^$DEVICET"; then
-			log error "dvd in use (at: check if dvd is in use)"
-			exit 1
+			log warning "dvd in use (at: check if dvd is in use)"
 		fi
 		# if already mountet, try to umount
 		log warning "dvd already mounted, try to umount"
@@ -216,10 +241,14 @@ mount)
 	if [ "$(stat -f -c %T "$REC")" != "vfat" ]; then
 		# link index.vdr if not exist
 		if [ ! -e "${REC}/index.vdr" ]; then
-			cp -s "${DIR}/index.vdr" "${REC}/" || { log error "could not link index.vdr (at: link index.vdr from dvd to disk)"; }
+			ln -s "${DIR}/index.vdr" "${REC}/index.vdr" || { log error "could not link index.vdr (at: link index.vdr from dvd to disk)"; }
 		fi
 		# link [0-9]*.vdr files
-		cp -s "${DIR}"/[0-9]*.vdr "${REC}/"
+		#cp -s "${DIR}"/[0-9]*.vdr "${REC}/"
+		#find "${DIR}"/ -name "[0-9]*.vdr" -exec ln -s "${REC}/$(basename "{}")"
+		for FILE in "${DIR}/"[0-9]*.vdr; do
+			ln -s "$FILE" "${REC}/$(basename "$FILE")"
+		done
 		# error while linking [0-9]*.vdr files?
 		if [ $? -ne 0 ]; then
 			log error "error while linking [0-9]*.vdr"

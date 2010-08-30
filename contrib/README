@@ -8,7 +8,19 @@ isodetect.c
 Checks, if a dvd is in the drive. Used optionally by dvdarchive.sh
 Compile with 'gcc isodetect.c -o isodetect'
 
-vdr-1.3.43-extrecmenu.diff
+MainMenuHooks-v1_0.patch
 -------------------------------------------------------------------------------
 A patch to replace VDR's recordings menu with the plugin
-Apply with 'patch < vdr-1.3.43.extrecmenu.diff'
+Apply with 'patch < MainMenuHooks-v1_0.patch' in VDR's source directory
+
+hddarchive
+-------------------------------------------------------------------------------
+see hddarchive/README
+
+rating
+-------------------------------------------------------------------------------
+see rating/README.
+
+reclist
+-------------------------------------------------------------------------------
+see reclist/README
