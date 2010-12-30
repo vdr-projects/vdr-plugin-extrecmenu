@@ -253,7 +253,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         if(!stat(buffer.c_str(),&statbuf))
         {
           ostringstream strbuf;
-          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'"; //TODO: 12000 still OK for TS recordings?
+          strbuf << setw(3) << (int)(statbuf.st_size/480/Recording->FramesPerSecond()) << "'";
           // replace leading spaces with fixed blank (right align)
           titlebuffer << myStrReplace(strbuf.str(),' ',Icons::FixedBlank()) << '\t';
         }
