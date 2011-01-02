@@ -1300,6 +1300,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
                         }
                       }
                       break;
+        case kInfo:
         case kBlue: return Info();
         case k1...k9: return Commands(Key);
         case k0: return ChangeSorting();
