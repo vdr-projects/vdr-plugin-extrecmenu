@@ -131,6 +131,8 @@ eOSState myMenuCommands::Execute()
     confirmed=Interface->Confirm(buffer);
     free(buffer);
    }
+  } else {
+    confirmed=true;
   }
   if(confirmed)
   {
