@@ -253,7 +253,11 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         if(!stat(buffer.c_str(),&statbuf))
         {
           ostringstream strbuf;
+#if APIVERSNUM >= 10714
           strbuf << setw(3) << (int)(statbuf.st_size/480/Recording->FramesPerSecond()) << "'";
+#else
+          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'";
+#endif
           // replace leading spaces with fixed blank (right align)
           titlebuffer << myStrReplace(strbuf.str(),' ',Icons::FixedBlank()) << '\t';
         }
