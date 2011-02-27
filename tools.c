@@ -400,14 +400,14 @@ void WorkerThread::Cut(string From,string To)
   cMark *mark;
   const char *error=NULL;
   uchar buffer[MAXFRAMESIZE];
-  int index,currentfilenumber=0,filesize=0,lastiframe=0;
+  int index,currentfilenumber=0,lastiframe=0;
   bool lastmark=false,cutin=true;
   off_t maxVideoFileSize=MEGABYTE(Setup.MaxVideoFileSize);
 
 #if VDRVERSNUM > 10713
   bool isPesRecording;
   uint16_t filenumber;
-  off_t fileoffset;
+  off_t fileoffset,filesize=0;
   int length;
   bool picturetype;
 
@@ -430,7 +430,7 @@ void WorkerThread::Cut(string From,string To)
   }
 #else
   uchar filenumber;
-  int fileoffset,length;
+  int fileoffset,length,filesize=0;
   uchar picturetype;
 
   if(frommarks.Load(From.c_str()) && frommarks.Count())
