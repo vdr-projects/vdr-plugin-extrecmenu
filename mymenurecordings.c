@@ -176,11 +176,10 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
           break;
       }
     }
-    title=MALLOC(char,s-p+3);
-    *title='\t';
-    *(title+1)='\t';
-    strn0cpy(title+2,p,s-p+1);
-    name=strdup(title+2);
+    title=MALLOC(char,s-p+1);
+    strn0cpy(title,p,s-p+1);
+    name=strdup(title);
+
     uniqid=name;
   }
   else
@@ -191,6 +190,15 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       stringstream titlebuffer;
       stringstream idbuffer;
 
+      // date and time of recording
+      struct tm tm_r;
+      struct tm *t=localtime_r(&Recording->start,&tm_r);
+
+      idbuffer << t->tm_mday << t->tm_mon << t->tm_year
+               << t->tm_hour << t->tm_min;
+
+
+      // display symbol
       buffer=filename;
       if (isPesRecording)
         buffer+="/001.vdr";
@@ -209,10 +217,10 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
       if(MoveCutterThread->IsMoving(filename))
         titlebuffer << Icons::MovingRecording(); // moving recording
-      else if(isdvd)
-        titlebuffer << Icons::DVD(); // archive dvd
       else if(ishdd)
         titlebuffer << Icons::HDD(); // archive hdd
+      else if(isdvd)
+        titlebuffer << Icons::DVD(); // archive dvd
       else if(MoveCutterThread->IsCutting(filename))
         titlebuffer << Icons::Scissor(); // cutting recording
       else if(Recording->IsNew() && !mysetup.PatchNew)
@@ -223,49 +231,98 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
       titlebuffer << '\t';
 
-      // date and time of recording
-      struct tm tm_r;
-      struct tm *t=localtime_r(&Recording->start,&tm_r);
 
-      if(mysetup.ShowRecDate)
-        titlebuffer << setw(2) << setfill('0') << t->tm_mday << '.'
-                    << setw(2) << setfill('0') << t->tm_mon+1 << '.'
-                    << setw(2) << setfill('0') << t->tm_year%100 << '\t';
+      // loop all columns and write each output to ostringstream
+      for (int i=0; i<MAX_RECLIST_COLUMNS; i++) {
+        ostringstream sbuffer;
 
-      if(mysetup.ShowRecTime)
-        titlebuffer << setw(2) << setfill('0') << t->tm_hour << '.'
-                    << setw(2) << setfill('0') << t->tm_min << '\t';
-
-
-      idbuffer << t->tm_mday << t->tm_mon << t->tm_year
-               << t->tm_hour << t->tm_min;
-
-      // recording length
-      if(mysetup.ShowRecLength)
-      {
-        buffer=filename;
-        if (isPesRecording)
-          buffer+="/index.vdr";
-        else
-          buffer+="/index";
-
-        struct stat statbuf;
-        if(!stat(buffer.c_str(),&statbuf))
-        {
-          ostringstream strbuf;
-#if APIVERSNUM >= 10714
-          strbuf << setw(3) << (int)(statbuf.st_size/480/Recording->FramesPerSecond()) << "'";
-#else
-          strbuf << setw(3) << (int)(statbuf.st_size/12000) << "'";
-#endif
-          // replace leading spaces with fixed blank (right align)
-          titlebuffer << myStrReplace(strbuf.str(),' ',Icons::FixedBlank()) << '\t';
+        if(mysetup.RecListColumn[i].Type == COLTYPE_DATE) {
+          sbuffer << setw(2) << setfill('0') << t->tm_mday << '.'
+                  << setw(2) << setfill('0') << t->tm_mon+1 << '.'
+                  << setw(2) << setfill('0') << t->tm_year%100;
         }
-        else
-        {
-          // get recording length from file 'length.vdr'
+
+        if(mysetup.RecListColumn[i].Type == COLTYPE_TIME) {
+          sbuffer << setw(2) << setfill('0') << t->tm_hour << '.'
+                  << setw(2) << setfill('0') << t->tm_min;
+        }
+
+        if(mysetup.RecListColumn[i].Type == COLTYPE_DATETIME) {
+          sbuffer << setw(2) << setfill('0') << t->tm_mday << '.'
+                  << setw(2) << setfill('0') << t->tm_mon+1 << '.'
+                  << setw(2) << setfill('0') << t->tm_year%100;
+          sbuffer << Icons::FixedBlank();
+          sbuffer << setw(2) << setfill('0') << t->tm_hour << '.'
+                  << setw(2) << setfill('0') << t->tm_min;
+        }
+
+        if(mysetup.RecListColumn[i].Type == COLTYPE_LENGTH) {
           buffer=filename;
-          buffer+="/length.vdr";
+          if (isPesRecording)
+            buffer+="/index.vdr";
+          else
+            buffer+="/index";
+
+          struct stat statbuf;
+          if(!stat(buffer.c_str(),&statbuf))
+          {
+#if APIVERSNUM >= 10714
+            sbuffer << (int)(statbuf.st_size/480/Recording->FramesPerSecond()) << "'";
+#else
+            sbuffer << (int)(statbuf.st_size/12000) << "'";
+#endif
+          }
+          else
+          {
+            // get recording length from file 'length.vdr'
+            buffer=filename;
+            buffer+="/length.vdr";
+
+            ifstream in(buffer.c_str());
+            if(in)
+            {
+              if(!in.eof())
+                getline(in,buffer);
+              sbuffer << buffer << "'";
+              in.close();
+            }
+          }
+        }
+
+        if(mysetup.RecListColumn[i].Type == COLTYPE_RATING) {
+          // get recording rating from file 'rated.vdr'
+          buffer=filename;
+          buffer+="/rated.vdr";
+
+          ifstream in(buffer.c_str());
+          if(in)
+          {
+            if(!in.eof())
+              getline(in,buffer);
+            int rated=atoi(buffer.c_str());
+            if (rated>10)
+              rated=10;
+
+            if (rated>0) {
+              while (rated>1) {
+                sbuffer << Icons::StarFull();
+                rated = rated-2;
+              }
+              if (rated>0) {
+                sbuffer << Icons::StarHalf();
+                rated--;
+              }
+            }
+            in.close();
+          }
+        }
+
+        if(mysetup.RecListColumn[i].Type == COLTYPE_FILE ||
+           mysetup.RecListColumn[i].Type == COLTYPE_FILETHENCOMMAND) {
+          // get content from file
+          buffer=filename;
+          buffer+="/";
+          buffer+=mysetup.RecListColumn[i].Op1;
 
           ifstream in(buffer.c_str());
           if(in)
@@ -273,64 +330,80 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
             if(!in.eof())
               getline(in,buffer);
 
-            buffer+="'";
-            // replace leading spaces with fixed blank (right align)
-            while(buffer.length()<=3)
-              buffer.insert(0,Icons::FixedBlank());
-
-            titlebuffer << buffer << '\t';
-
+            // cut to maximum width
+            buffer = buffer.substr(0, mysetup.RecListColumn[i].Width);
+            sbuffer << buffer;
             in.close();
           }
           else
-            titlebuffer << '\t';
-        }
-      }
+          {
+            if(mysetup.RecListColumn[i].Type == COLTYPE_FILETHENCOMMAND) {
+              // execute the command given by Op2
+              char result [1024];
+              strcpy(result, mysetup.RecListColumn[i].Op2);
+              strcat(result, " \"");
+              strcat(result, filename);
+              strcat(result, "\"");
+              FILE *fp = popen(result, "r");
+              int read = fread(result, 1, sizeof(result), fp);
+              pclose (fp);
 
-      // recording rating
-      if(mysetup.ShowRecRating)
-      {
-        // get recording rating from file 'rated.vdr'
-        buffer=filename;
-        buffer+="/rated.vdr";
+              if(read>0) {
+                // use output of command
+                // strip trailing whitespaces
+                result[read]=0;
+                while (strlen(result)>0 && 
+                       (result[strlen(result)-1]==0x0a || result[strlen(result)-1]==0x0d || result[strlen(result)-1]==' ')) {
+                  result[strlen(result)-1]=0;
+                }
+                result[mysetup.RecListColumn[i].Width]=0;
+                sbuffer << result;
+              } else {
+                // retry reading the file (useful when the execution of the command created the file)
+                buffer=filename;
+                buffer+="/";
+                buffer+=mysetup.RecListColumn[i].Op1;
 
-        ifstream in(buffer.c_str());
-        if(in)
-        {
-          if(!in.eof())
-            getline(in,buffer);
-          int rated=atoi(buffer.c_str());
-          buffer="";
-          if (rated>10)
-            rated=10;
+                ifstream in(buffer.c_str());
+                if(in)
+                {
+                  if(!in.eof())
+                    getline(in,buffer);
 
-          int cstar=0;
-          if (rated>0) {
-            while (rated>1) {
-              buffer += Icons::StarFull();
-              rated = rated-2;
-              cstar++;
-            }
-            if (rated>0) {
-              buffer += Icons::StarHalf();
-              rated--;
-              cstar++;
+                  // cut to maximum width
+                  buffer = buffer.substr(0, mysetup.RecListColumn[i].Width);
+                  sbuffer << buffer;
+                  in.close();
+                }
+              }
             }
           }
-          while (cstar<5) {
-            buffer += Icons::FixedBlank();
-            cstar++;
-          }
-          titlebuffer << buffer;
-
-          in.close();
         }
 
-        titlebuffer << '\t';
-      }
+        // adjust alignment
+        int iLeftBlanks=0;
+        switch (mysetup.RecListColumn[i].Align) {
+          case 1:
+            // center alignment
+            iLeftBlanks = (mysetup.RecListColumn[i].Width - strlen(sbuffer.str().c_str())) / 2; // sbuffer.width()) / 2;
+            break;
+          case 2:
+            // right alignment
+            iLeftBlanks = (mysetup.RecListColumn[i].Width - strlen(sbuffer.str().c_str())); // sbuffer.width());
+            break;
+          default:
+            // left alignment
+            break;
+        }
 
-      if(!mysetup.ShowRecDate && !mysetup.ShowRecTime && !mysetup.ShowRecLength && !mysetup.ShowRecRating)
-        titlebuffer << '\t';
+        if(iLeftBlanks>0) {
+          for (int j=0; j<iLeftBlanks; j++) {
+            titlebuffer << Icons::FixedBlank();
+          }
+        }
+
+        titlebuffer << sbuffer.str() << '\t';
+      } // loop all columns
 
       // recording title
       string _s=Recording->Name();
@@ -373,32 +446,24 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
   char *buffer=NULL;
 
   ostringstream entries;
-  entries << setw(3) << totalentries;
+  entries << setw(mysetup.RecsPerDir+1) << totalentries;
 
   if(mysetup.ShowNewRecs)
   {
-    if(-1==asprintf(&buffer,"%s\t%s (%d)%s%s%s%s%s",
+    if(-1==asprintf(&buffer,"%s\t%s\t(%d)\t\t\t%s",
                             GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
                             // replace leading spaces with fixed blank (right align)
                             myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
                             newentries,
-                            mysetup.ShowRecDate||mysetup.ShowOnlyRecs?"\t":"",
-                            mysetup.ShowRecTime?"\t":"",
-                            mysetup.ShowRecLength?"\t":"",
-                            mysetup.ShowRecRating?"\t":"",
                             name))
       buffer=NULL;
   }
   else
   {
-    if(-1==asprintf(&buffer,"%s\t%s%s%s%s%s%s",
+    if(-1==asprintf(&buffer,"%s\t%s\t\t\t\t%s",
                             GetDirIsMoving()?Icons::MovingDirectory():Icons::Directory(),
                             // replace leading spaces with fixed blank (right align)
                             myStrReplace(entries.str(),' ',Icons::FixedBlank()).c_str(),
-                            mysetup.ShowRecDate||mysetup.ShowOnlyRecs?"\t":"",
-                            mysetup.ShowRecTime?"\t":"",
-                            mysetup.ShowRecLength?"\t":"",
-                            mysetup.ShowRecRating?"\t":"",
                             name))
       buffer=NULL;
   }
@@ -417,46 +482,27 @@ int myMenuRecordings::freediskspace=0;
 
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 {
-  mysetup.ShowOnlyRecs=false;
-  int c[5],i=0;
-  for (i=0; i<5; i++) c[i]=0;
+  int c[MAX_RECLIST_COLUMNS],i=0;
 
-  // set first tab to 2
-  i=0;
-  c[i]=2;//2;
-
-  if(mysetup.ShowRecDate)
-  {
-    i++;
-    c[i]=8;
-  }
-  if(mysetup.ShowRecTime)
-  {
-    i++;
-    c[i]=6;
-  }
-  if(mysetup.ShowRecLength)
-  {
-    i++;
-    c[i]=4;
-  }
-  if(mysetup.ShowRecRating)
-  {
-    i++;
-    c[i]=8;//5;
-  }
-  if(i==0)
-  { // only icon and name colums: add column for number of recordings in folders
-    i++;
-    c[i]=(mysetup.ShowNewRecs?9:3);
-    mysetup.ShowOnlyRecs=true;
-  }
-  else
-  { // make the first column wide enough
-    c[1]=std::max(c[1],(mysetup.ShowNewRecs?9:3));
+  for (i=0; i<MAX_RECLIST_COLUMNS; i++) {
+    c[i] = 1;
+    if ((mysetup.RecListColumn[i].Type != COLTYPE_NONE) &&
+        (mysetup.RecListColumn[i].Width > 0)) {
+      c[i] = mysetup.RecListColumn[i].Width+1;
+    }
   }
 
-  SetCols(c[0], c[1], c[2], c[3], c[4]);
+  // widen the first column if there isn't enough space for the number of recordings in a direcory
+  if (c[0] < mysetup.RecsPerDir+1) {
+    c[0] = mysetup.RecsPerDir+1;
+  }
+  // widen the second column if the number of new recordings should be displayed and
+  // there isn't enough space for the number of new recordings in a direcory
+  if (mysetup.ShowNewRecs && c[1] < mysetup.RecsPerDir+3) {
+    c[1] = mysetup.RecsPerDir+3;
+  }
+
+  SetCols(2, c[0], c[1], c[2], c[3]);
 
   edit=false;
   level=Level;
@@ -662,7 +708,6 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
   const char *lastreplayed=_current?_current:myReplayControl::LastReplayed();
 
   cThreadLock RecordingsLock(&Recordings);
-
   if(Refresh && !_current)
   {
     fsid=0;

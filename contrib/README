@@ -24,3 +24,7 @@ see rating/README.
 reclist
 -------------------------------------------------------------------------------
 see reclist/README
+
+vdr-getcountryfrominfo.sh + vdr-getyearfrominfo.sh
+-------------------------------------------------------------------------------
+sample scripts to get the country/year out of the info file

@@ -113,17 +113,105 @@ cMenuSetupPage *cPluginExtrecmenu::SetupMenu(void)
 
 bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
 {
+  bool rc = true;
+
   if(!strcasecmp(_Name,"IsOrgRecMenu"))
     return (mysetup.ReplaceOrgRecMenu==false); // vdr-replace patch
 
-  if(!strcasecmp(_Name,"ShowRecDate"))
-    mysetup.ShowRecDate=atoi(Value);
-  else if(!strcasecmp(_Name,"ShowRecTime"))
-    mysetup.ShowRecTime=atoi(Value);
-  else if(!strcasecmp(_Name,"ShowRecLength"))
-    mysetup.ShowRecLength=atoi(Value);
-  else if(!strcasecmp(_Name,"ShowRecRating"))
-    mysetup.ShowRecRating=atoi(Value);
+  if(!strncasecmp(_Name,"RecListColumn.", 14)) {
+    char *tmp=NULL;
+    for (int i=0; i<MAX_RECLIST_COLUMNS; i++) {
+
+      if(asprintf(&tmp,"RecListColumn.%d", i) == -1) {
+        rc = false;
+      } else {
+        if (!strcasecmp(_Name,tmp)) {
+
+          const char *m;
+
+          // get 'Name' from config line
+          m  = strstr(Value, "name=");
+          if(m) {
+            char *tmp = strdup(m + 5);
+            if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
+            STRN0CPY(mysetup.RecListColumn[i].Name, tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+
+          // get 'Type' from config line
+          m  = strstr(Value, "type=");
+          if(m) {
+            char *tmp = strdup(m + 5);
+            if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
+            mysetup.RecListColumn[i].Type=atoi(tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+
+          // get 'Width' from config line
+          m  = strstr(Value, "width=");
+          if(m) {
+            char *tmp = strdup(m + 6);
+            if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
+            mysetup.RecListColumn[i].Width=atoi(tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+
+          // get 'Align' from config line
+          m  = strstr(Value, "align=");
+          if(m) {
+            char *tmp = strdup(m + 7);
+            if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
+            mysetup.RecListColumn[i].Align=atoi(tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+
+          // get 'Op1' from config line
+          m  = strstr(Value, "op1=");
+          if(m) {
+            char *tmp = strdup(m + 4);
+            if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
+            STRN0CPY(mysetup.RecListColumn[i].Op1, tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+
+          // get 'Op2' from config line
+          m  = strstr(Value, "op2=");
+          if(m) {
+            char *tmp = strdup(m + 4);
+            STRN0CPY(mysetup.RecListColumn[i].Op2, tmp);
+            free(tmp);
+          } else {
+            mysetup.RecListColumn[i].Type = COLTYPE_NONE;
+            rc = false;
+            break;
+          }
+          break;
+        } else {
+        }
+        free(tmp);
+      }
+    }
+  }
   else if(!strcasecmp(_Name,"HideMainMenuEntry"))
     mysetup.HideMainMenuEntry=atoi(Value);
   else if(!strcasecmp(_Name,"ReplaceOrgRecMenu"))
@@ -132,6 +220,8 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
     mysetup.PatchNew=atoi(Value);
   else if(!strcasecmp(_Name,"ShowNewRecs"))
     mysetup.ShowNewRecs=atoi(Value);
+  else if(!strcasecmp(_Name,"RecsPerDir"))
+    mysetup.RecsPerDir=atoi(Value);
   else if(!strcasecmp(_Name,"DescendSorting"))
     mysetup.DescendSorting=atoi(Value);
   else if(!strcasecmp(_Name,"GoLastReplayed"))
@@ -149,8 +239,9 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
   else if(!strcasecmp(_Name,"UseCutterQueue"))
     mysetup.UseCutterQueue=atoi(Value);
   else
-    return false;
-  return true;
+    rc = false;
+
+  return rc;
 }
 
 bool cPluginExtrecmenu::Service(const char *Id,void *Data)

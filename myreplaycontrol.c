@@ -50,7 +50,7 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
               cMarks _marks;
               #if VDRVERSNUM > 10713
               cRecording Recording(filename);
-               _marks.Load(filename, Recording.FramesPerSecond(), Recording.IsPesRecording());
+              _marks.Load(filename, Recording.FramesPerSecond(), Recording.IsPesRecording());
               #else
                _marks.Load(filename);
               #endif

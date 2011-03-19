@@ -9,10 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-06-17 20:39+0200\n"
+"POT-Creation-Date: 2011-03-19 10:34+0100\n"
 "PO-Revision-Date: 2010-08-07 23:10+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -151,20 +152,14 @@ msgstr "crescente"
 msgid "descending"
 msgstr "decrescente"
 
-msgid "Show recording date"
-msgstr "Mostra data registrazione"
-
-msgid "Show recording time"
-msgstr "Mostra ora registrazione"
-
-msgid "Show recording length"
-msgstr "Mostra durata registrazione"
-
-msgid "Show recording rating"
-msgstr "Mostra valutazione registrazione"
-
 msgid "Show nr. of new recordings of a directory"
 msgstr "Mostra num. nuove reg. directory"
+
+msgid "Maximum number of recordings per directory"
+msgstr ""
+
+msgid "Items to show in recording list"
+msgstr ""
 
 msgid "Show alternative to new marker"
 msgstr "Mostra opzioni nuovo marcatore"
@@ -196,6 +191,69 @@ msgstr "Utilizza menu info reg. di VDR"
 msgid "Use cutter queue"
 msgstr "Utilizza coda tagli"
 
+msgid "--none--"
+msgstr ""
+
+msgid "Blank"
+msgstr ""
+
+msgid "Date of Recording"
+msgstr ""
+
+msgid "Time of Recording"
+msgstr ""
+
+msgid "Date and Time of Recording"
+msgstr ""
+
+msgid "Length of Recording"
+msgstr ""
+
+msgid "Rating of Recording"
+msgstr ""
+
+msgid "Content of File"
+msgstr ""
+
+msgid "Content of File, then Result of a Command"
+msgstr ""
+
+msgid "left"
+msgstr ""
+
+msgid "center"
+msgstr ""
+
+msgid "right"
+msgstr ""
+
+msgid "Icon"
+msgstr ""
+
+msgid "(fixed to the first position)"
+msgstr ""
+
+msgid "Item"
+msgstr ""
+
+msgid "Width"
+msgstr ""
+
+msgid "Alignment"
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "Command"
+msgstr ""
+
+msgid "Name of the recording"
+msgstr ""
+
+msgid "(fixed to the last position)"
+msgstr ""
+
 msgid "Recording already in cutter queue!"
 msgstr "Registrazione già presente nella coda tagli!"
 
@@ -216,3 +274,15 @@ msgstr "Spostamento registrazioni in corso"
 
 msgid "Can't start editing process!"
 msgstr "Impossibile avviare il processo di modifica!"
+
+#~ msgid "Show recording date"
+#~ msgstr "Mostra data registrazione"
+
+#~ msgid "Show recording time"
+#~ msgstr "Mostra ora registrazione"
+
+#~ msgid "Show recording length"
+#~ msgstr "Mostra durata registrazione"
+
+#~ msgid "Show recording rating"
+#~ msgstr "Mostra valutazione registrazione"

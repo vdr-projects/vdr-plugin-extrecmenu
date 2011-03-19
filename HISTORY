@@ -1,9 +1,10 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
-2010-xx-xx: Version 1.2.1
+2011-xx-xx: Version 1.2.1
+- [sibbi] added ability to configure items that should be shown in recording list.
 - [amair] Merged following changes from v1.3-devel head (Submitted by Joe_D @vdr-portal.de).
-- [amair] Lifetime and priority for TS recording can be edited again.
+- [amair] Lifetime and priority for TS recordings can be edited again.
 - [amair] Use international characters for renaming recordings and creating directories like VDR.
 - [amair] Don't use the VDR cutter by default as this crashes VDR (Can be enabled by defining USE_VDR_CUTTER).
 - [amair] Updated Italian translation (Submitted by Diego Pierotto).
