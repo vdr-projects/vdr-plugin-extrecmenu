@@ -16,16 +16,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "Extended recordings menu"
-msgstr "MenÃº extendido de grabaciones"
+msgstr "Menú extendido de grabaciones"
 
 msgid "Rename"
 msgstr "Renombrar"
 
 msgid "Invalid filename!"
-msgstr "Â¡Fichero invÃ¡lido!"
+msgstr "¡Fichero inválido!"
 
 msgid "Creating directories failed!"
-msgstr "Â¡La creaciÃ³n de directorios ha fallado!"
+msgstr "¡La creación de directorios ha fallado!"
 
 msgid "New folder"
 msgstr "Carpeta nueva"
@@ -43,43 +43,43 @@ msgid "[base dir]"
 msgstr "[directorio base]"
 
 msgid "Target filesystem filled - try anyway?"
-msgstr "ParticiÃ³n de destino llena - Â¿intentar de nuevo?"
+msgstr "Partición de destino llena - ¿intentar de nuevo?"
 
 msgid "Moving into own sub-directory not allowed!"
-msgstr "No estÃ¡ permitido mover dentro del propio subdirectorio"
+msgstr "No está permitido mover dentro del propio subdirectorio"
 
 msgid "Can't get filesystem information"
-msgstr "No se puede acceder a la informaciÃ³n de la particiÃ³n"
+msgstr "No se puede acceder a la información de la partición"
 
 msgid "Details"
 msgstr "Detalles"
 
 msgid "Button$Play"
-msgstr "Play"
+msgstr "Reproducir"
 
 msgid "Button$Rewind"
 msgstr "Rebobinar"
 
 msgid "Button$Back"
-msgstr "AtrÃ¡s"
+msgstr "Atrás"
 
 msgid "Name"
 msgstr "Nombre"
 
 msgid "Path"
-msgstr "Path"
+msgstr "Ruta/Camino"
 
 msgid "Channel"
 msgstr "Canal"
 
 msgid "Size"
-msgstr "TamaÃ±o"
+msgstr "Tamaño"
 
 msgid "Error while mounting DVD!"
-msgstr "Â¡Error al montar DVD!"
+msgstr "¡Error al montar DVD!"
 
 msgid "Error while mounting Archive-HDD!"
-msgstr "Â¡Error al montar Archivo-HDD!"
+msgstr "¡Error al montar Archivo-HDD!"
 
 msgid "Button$Commands"
 msgstr "Comandos"
@@ -91,17 +91,17 @@ msgid "Button$Edit"
 msgstr "Modificar"
 
 msgid "Button$Info"
-msgstr "InformaciÃ³n"
+msgstr "Información"
 
 #, c-format
 msgid "Please attach Archive-HDD %s"
 msgstr "Por favor adjunte Archivo-HDD %s"
 
 msgid "Recording not found on Archive-HDD!"
-msgstr "GrabaciÃ³n no encontrada en Archivo-HDD"
+msgstr "Grabación no encontrada en Archivo-HDD"
 
 msgid "Error while linking [0-9]*.vdr!"
-msgstr "Â¡Error al enlazar [0-9]*.vdr!"
+msgstr "¡Error al enlazar [0-9]*.vdr!"
 
 msgid "sudo or mount --bind / umount error (vfat system)"
 msgstr "Error sudo or mount --bind / umount (sistema vfat)"
@@ -114,13 +114,13 @@ msgid "Please insert DVD %s"
 msgstr "Por favor, inserte DVD %s"
 
 msgid "DVD plugin is not installed!"
-msgstr "Â¡El plugin DVD no estÃ¡ instalado!"
+msgstr "¡El plugin DVD no está instalado!"
 
 msgid "No DVD in drive!"
-msgstr "Â¡NingÃºn DVD en el lector!"
+msgstr "¡Ningún DVD en el lector!"
 
 msgid "Recording not found on DVD!"
-msgstr "Â¡GrabaciÃ³n no encontrada en el DVD!"
+msgstr "¡Grabación no encontrada en el DVD!"
 
 msgid "Script 'dvdarchive.sh' not found!"
 msgstr "No se encuentra el script 'dvdarchive.sh'"
@@ -132,7 +132,7 @@ msgid "Sort by name"
 msgstr "Ordenar por nombre"
 
 msgid "Cancel moving?"
-msgstr "Â¿Cancelar mover?"
+msgstr "¿Cancelar mover?"
 
 msgid "Button$Rename"
 msgstr "Renombrar"
@@ -141,68 +141,136 @@ msgid "Button$Delete"
 msgstr "Borrar"
 
 msgid "ascending"
-msgstr "Subir"
+msgstr "Ascendente"
 
 msgid "descending"
-msgstr "Bajar"
+msgstr "Descendente"
 
 msgid "Show recording date"
-msgstr "Mostrar la fecha de la grabaciÃ³n"
+msgstr "Mostrar la fecha de la grabación"
 
 msgid "Show recording rating"
-msgstr "Mostrar las estadÃ­sticas de la grabaciÃ³n"
+msgstr "Mostrar clasificación de la grabación"
 
 msgid "Show nr. of new recordings of a directory"
-msgstr "Mostrar el nÃºmero de nuevas grabaciones en el directorio"
+msgstr "Mostrar el número de nuevas grabaciones"
+
+msgid "Maximum number of recordings per directory"
+msgstr "Número máximo de grabaciones por directorio"
+
+msgid "Items to show in recording list"
+msgstr "Elementos a mostrar en la lista de grabaciones"
 
 msgid "Show alternative to new marker"
 msgstr "Mostrar alternativas al nuevo marcador"
 
 msgid "Show free disk space for each file system"
-msgstr "Mostrar espacio libre del disco para cada sistema de archivos"
+msgstr "Mostrar espacio libre de particiones"
 
 msgid "Sorting"
-msgstr "Ordenando"
+msgstr "Orden de la lista"
 
 msgid "Hide main menu entry"
-msgstr "Ocultar en menÃº principal"
+msgstr "Ocultar en menú principal"
 
 msgid "Replace original recordings menu"
-msgstr "Reemplazar el menÃº original de grabaciones"
+msgstr "Reemplazar el menú original de grabaciones"
 
 msgid "Jump to last replayed recording"
-msgstr "Saltar a la Ãºltima grabaciÃ³n reproducida"
+msgstr "Saltar a la última grabación reproducida"
 
 msgid "Call plugin after playback"
-msgstr "Llamar al plugin despuÃ©s de reproducir"
+msgstr "Llamar al plugin después de reproducir"
 
 msgid "Limit bandwidth for move recordings"
-msgstr "Ancho de banda lÃ­mite para mover grabaciones"
+msgstr "Ancho de banda límite para mover grabaciones"
 
 msgid "Use VDR's recording info menu"
-msgstr "Usar el menÃº de informaciÃ³n del VDR"
+msgstr "Usar el menú de información del VDR"
 
 msgid "Use cutter queue"
 msgstr "Usar cola para recortar"
 
 msgid "Recording already in cutter queue!"
-msgstr "Â¡La grabaciÃ³n estÃ¡ en la cola de recortado!"
+msgstr "¡La grabación está en la cola de recortado!"
 
 msgid "No editing marks defined!"
-msgstr "No definidas marcas de ediciÃ³n"
+msgstr "No definidas marcas de edición"
 
 msgid "Added recording to cutter queue"
-msgstr "GrabaciÃ³n aÃ±adida a la cola de recortado"
+msgstr "Grabación añadida a la cola de recortado"
 
 msgid "Rename/Move failed!"
-msgstr "Â¡Renombrar/Mover ha fallado!"
+msgstr "¡Renombrar/Mover ha fallado!"
 
 msgid "Cutter queue not empty"
-msgstr "La cola de recortado no estÃ¡ vacÃ­a"
+msgstr "La cola de recortado no está vacía"
 
 msgid "Move recordings in progress"
-msgstr "Se estÃ¡ moviendo la grabaciÃ³n"
+msgstr "Se está moviendo la grabación"
 
 msgid "Can't start editing process!"
-msgstr "Â¡No se puede iniciar el proceso de ediciÃ³n!"
+msgstr "¡No se puede iniciar el proceso de edición!"
 
+msgid "--none--"
+msgstr "--nada--"
+
+msgid "Blank"
+msgstr "Vacío"
+
+msgid "Date of Recording"
+msgstr "Fecha de la grabación"
+
+msgid "Time of Recording"
+msgstr "Hora de la grabación"
+
+msgid "Date and Time of Recording"
+msgstr "Fecha y hora de la grabación"
+
+msgid "Length of Recording"
+msgstr "Duración de la grabación"
+
+msgid "Rating of Recording"
+msgstr "Clasificación de la grabación"
+
+msgid "Content of File"
+msgstr "Contenido del archivo"
+
+msgid "Content of File, then Result of a Command"
+msgstr "Contenido del archivo, resultado del un comando"
+
+msgid "left"
+msgstr "izquierda"
+
+msgid "center"
+msgstr "centro"
+
+msgid "right"
+msgstr "derecha"
+
+msgid "Icon"
+msgstr "Símbolo"
+
+msgid "(fixed to the first position)"
+msgstr "(fijado en la primera posición)"
+
+msgid "Item"
+msgstr "Elemento"
+
+msgid "Width"
+msgstr "Ancho"
+
+msgid "Alignment"
+msgstr "Alineación"
+
+msgid "Filename"
+msgstr "Nombre archivo"
+
+msgid "Command"
+msgstr "Comando"
+
+msgid "Name of the recording"
+msgstr "Nombre de la grabación"
+
+msgid "(fixed to the last position)"
+msgstr "(fijado en la última posición)"
