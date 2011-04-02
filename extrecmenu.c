@@ -171,7 +171,7 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
           // get 'Align' from config line
           m  = strstr(Value, "align=");
           if(m) {
-            char *tmp = strdup(m + 7);
+            char *tmp = strdup(m + 6);
             if(strchr(tmp, ',')) *strchr(tmp, ',') = 0;
             mysetup.RecListColumn[i].Align=atoi(tmp);
             free(tmp);
