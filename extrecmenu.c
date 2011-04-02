@@ -81,7 +81,11 @@ bool cPluginExtrecmenu::Start(void)
 
   MoveCutterThread=new WorkerThread();
 
+#if VDRVERSNUM >= 10713
   RecordingDirCommands.Load(AddDirectory(cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "dircmds.conf"));
+#else
+  RecordingDirCommands.Load(AddDirectory(cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "dircmds.conf"), true);
+#endif
 
   return true;
 }
