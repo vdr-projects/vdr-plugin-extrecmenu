@@ -36,40 +36,22 @@ mySetup::mySetup()
   mysetup.PatchNew=1;
   mysetup.ReplaceOrgRecMenu=0;
 
-  mysetup.RecListColumn[0].Type = COLTYPE_DATETIME;
+  for(int i=0; i<MAX_RECLIST_COLUMNS; i++)
+    mysetup.RecListColumn[0].Type = COLTYPE_NONE;
+
+  mysetup.RecListColumn[0].Type = COLTYPE_DATE;
   STRN0CPY(mysetup.RecListColumn[0].Name, "");
-  mysetup.RecListColumn[0].Width = 14; // DD.MM.YY HH:MM
-  mysetup.RecListColumn[0].Align = 0;
+  mysetup.RecListColumn[0].Width = recListDefaultValues[mysetup.RecListColumn[0].Type].Width;
+  mysetup.RecListColumn[0].Align = recListDefaultValues[mysetup.RecListColumn[0].Type].Align;
   STRN0CPY(mysetup.RecListColumn[0].Op1, "");
   STRN0CPY(mysetup.RecListColumn[0].Op2, "");
 
-  mysetup.RecListColumn[1].Type = COLTYPE_LENGTH;
+  mysetup.RecListColumn[1].Type = COLTYPE_TIME;
   STRN0CPY(mysetup.RecListColumn[1].Name, "");
-  mysetup.RecListColumn[1].Width = 4; // use 3 digits + '. eg: 123'
-  mysetup.RecListColumn[1].Align = 2;
+  mysetup.RecListColumn[1].Width = recListDefaultValues[mysetup.RecListColumn[1].Type].Width;
+  mysetup.RecListColumn[1].Align = recListDefaultValues[mysetup.RecListColumn[1].Type].Align;
   STRN0CPY(mysetup.RecListColumn[1].Op1, "");
   STRN0CPY(mysetup.RecListColumn[1].Op2, "");
-
-  mysetup.RecListColumn[2].Type = COLTYPE_RATING;
-  STRN0CPY(mysetup.RecListColumn[2].Name, "");
-  mysetup.RecListColumn[2].Width = 7; // use 7 instead of 5, because Star (1825) is wider than FixedBlank (1300)  => 5*1825 / 1300 = 7.01
-  mysetup.RecListColumn[2].Align = 0;
-  STRN0CPY(mysetup.RecListColumn[2].Op1, "");
-  STRN0CPY(mysetup.RecListColumn[2].Op2, "");
-
-  mysetup.RecListColumn[3].Type = COLTYPE_FILETHENCOMMAND;
-  STRN0CPY(mysetup.RecListColumn[3].Name, "Country");
-  mysetup.RecListColumn[3].Width = 5;
-  mysetup.RecListColumn[3].Align = 0;
-  STRN0CPY(mysetup.RecListColumn[3].Op1, "country.vdr");
-  STRN0CPY(mysetup.RecListColumn[3].Op2, "/usr/local/bin/vdr-getcountryfrominfo.sh");
-
-//  mysetup.RecListColumn[4].Type = COLTYPE_FILETHENCOMMAND;
-//  STRN0CPY(mysetup.RecListColumn[4].Name, "Year");
-//  mysetup.RecListColumn[4].Width = 4;
-//  mysetup.RecListColumn[4].Align = 0;
-//  STRN0CPY(mysetup.RecListColumn[4].Op1, "year.vdr");
-//  STRN0CPY(mysetup.RecListColumn[4].Op2, "/usr/local/bin/vdr-getyearfrominfo.sh");
 
   mysetup.ShowNewRecs=1;
   mysetup.RecsPerDir=2;
