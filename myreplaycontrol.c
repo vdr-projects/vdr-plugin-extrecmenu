@@ -16,16 +16,19 @@ using namespace std;
 myReplayControl::myReplayControl()
 {
   timesearchactive=false;
+  lastState = osUnknown;
 }
 
 myReplayControl::~myReplayControl()
 {
-  if(mysetup.ReturnToPlugin)
+  if(lastState == osRecordings && mysetup.ReturnToPlugin)
     cRemote::CallPlugin("extrecmenu");
 }
 
 eOSState myReplayControl::ProcessKey(eKeys Key)
 {
+  lastState = osUnknown;
+
   if(Key!=kNone)
   {
     if(timesearchactive && mysetup.UseCutterQueue)
@@ -69,10 +72,11 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
         if(Key==kRed)
           timesearchactive=true;
       }
-      if(Key==kBack)
-        return osEnd;
     }
   }
 
-  return cReplayControl::ProcessKey(Key);
+  lastState = cReplayControl::ProcessKey(Key);
+  if(lastState == osRecordings && mysetup.ReturnToPlugin == 0)
+    lastState = osEnd;
+  return lastState;
 }
