@@ -733,30 +733,36 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
     path+=base;
   list->Sort(mySortList->Find(path));
 
+#ifdef USE_PINPLUGIN
+   bool hidepinprotectedrecs=false;
+   cPlugin *pinplugin=cPluginManager::GetPlugin("pin");
+   if(pinplugin)
+     hidepinprotectedrecs=pinplugin->SetupParse("hideProtectedRecordings","1");
+#endif
+
   char *lastitemtext=NULL;
   myMenuRecordingsItem *lastitem=NULL;
   for(myRecListItem *listitem=list->First();listitem;listitem=list->Next(listitem))
   {
     cRecording *recording=listitem->recording;
-    if(!base||(strstr(listitem->recording->Name(),base)==listitem->recording->Name()&&listitem->recording->Name()[strlen(base)]=='~'))
+    if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
     {
-      myMenuRecordingsItem *recitem=new myMenuRecordingsItem(listitem->recording,level);
-#ifdef USE_PINPLUGIN
-      bool hidepinprotectedrecs=false;
-      cPlugin *pinplugin=cPluginManager::GetPlugin("pin");
-      if(pinplugin)
-        hidepinprotectedrecs=pinplugin->SetupParse("hideProtectedRecordings","1");
-
-      if((*recitem->UniqID() && ((!lastitem || strcmp(recitem->UniqID(),lastitemtext)))) &&
-         !((cStatus::MsgReplayProtected(GetRecording(recitem),recitem->Name(),base,recitem->IsDirectory(),true)) && hidepinprotectedrecs))
-#else
-      if(*recitem->UniqID() && ((!lastitem || strcmp(recitem->UniqID(),lastitemtext))))
-#endif
+      myMenuRecordingsItem *recitem=new myMenuRecordingsItem(recording,level);
+      if(*recitem->UniqID() && (!lastitem || strcmp(recitem->UniqID(),lastitemtext)))
       {
-        Add(recitem);
-        lastitem=recitem;
-        free(lastitemtext);
-        lastitemtext=strdup(lastitem->UniqID());
+#ifdef USE_PINPLUGIN
+        if(!(hidepinprotectedrecs && cStatus::MsgReplayProtected(recording,recitem->Name(),base,recitem->IsDirectory(),true)))
+				{
+#endif
+          Add(recitem);
+          lastitem=recitem;
+          free(lastitemtext);
+          lastitemtext=strdup(lastitem->UniqID());
+#ifdef USE_PINPLUGIN
+				}
+				else
+					lastitem=NULL;
+#endif
       }
       else
         delete recitem;
