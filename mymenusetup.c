@@ -313,9 +313,6 @@ eOSState myMenuSetupColumns::ProcessKey(eKeys Key) {
   }
 
   if (state == osUnknown) {
-    if (HasSubMenu())
-      return osContinue;
-/*
     switch (Key) {
       case kOk:
         return osBack;
@@ -323,7 +320,6 @@ eOSState myMenuSetupColumns::ProcessKey(eKeys Key) {
       default:
         break;
     }
-*/
   }
 
   return state;
