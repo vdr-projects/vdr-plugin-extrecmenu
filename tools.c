@@ -13,6 +13,10 @@
 #include "tools.h"
 #include "mymenusetup.h"
 
+#if VDRVERSNUM > 10715
+#	define USE_VDR_CUTTER
+#endif
+
 using namespace std;
 extern bool VfatFileSytem;
 
@@ -309,8 +313,8 @@ void WorkerThread::Action()
       if(!CutRecording(cutteritem->FileName().c_str()))
 #else
       if (!cCutter::Start(cutteritem->FileName().c_str()))
-        Skins.QueueMessage(mtError,tr("Can't start editing process!"));
 #endif
+        Skins.QueueMessage(mtError,tr("Can't start editing process!"));
 #else
       // create filename for edited recording, check for recordings with this name, if exists -> delete recording
       // (based upon VDR's code (cutter.c))

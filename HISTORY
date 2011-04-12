@@ -7,7 +7,7 @@ VDR Plugin 'extrecmenu' Revision History
 - [amair] Merged following changes from v1.3-devel head (Submitted by Joe_D @vdr-portal.de).
 - [amair] Lifetime and priority for TS recordings can be edited again.
 - [amair] Use international characters for renaming recordings and creating directories like VDR.
-- [amair] Don't use the VDR cutter by default as this crashes VDR (Can be enabled by defining USE_VDR_CUTTER).
+- [amair] Use the VDR cutter by default if VDR >= 1.7.16.
 - [amair] Updated Italian translation (Submitted by Diego Pierotto).
 - [amair] Enable support for PIN plugin if USE_PINPLUGIN is set to "1" in Make.config.
 - [amair] Reorganiced contrib directory.
