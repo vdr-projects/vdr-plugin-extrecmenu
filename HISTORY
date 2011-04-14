@@ -1,20 +1,22 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
-2011-xx-xx: Version 1.2.1
+2011-04-15: Version 1.2.1
 - [amair] Reducing I/O priority for cut/move thread (if VDR >= 1.7.6 is used).
 - [amair] Fixed counting of hidden recordings if PIN plugin is used (Bug #421).
+- [amair] Change default view for recordings menu to match VDR's recordings menu.
+- [amair] "Call plugin after playback" option only changes BACK/EXIT key, BLUE key always jumps to LiveTV (suggested by Brougs78 @vdr-portal.de)
 - [amair] Ignore comments in dircmds.conf (Submitted by TomG @vdr-portal.de).
+- [amair] Updated Spanish translation (See #616).
 - [sibbi] Added ability to configure items that should be shown in recording list.
 - [amair] Merged following changes from v1.3-devel head (Submitted by Joe_D @vdr-portal.de).
 - [amair] Lifetime and priority for TS recordings can be edited again.
 - [amair] Use international characters for renaming recordings and creating directories like VDR.
-- [amair] Don't use the VDR cutter by default as it has some usability issues (Can be enabled by defining USE_VDR_CUTTER).
 - [amair] Updated Italian translation (Submitted by Diego Pierotto).
 - [amair] Enable support for PIN plugin if USE_PINPLUGIN is set to "1" in Make.config.
 - [amair] Reorganiced contrib directory.
 - [amair] Fixed compiler warnings and errors.
-- [amair] Use VDR's cutting feature (Submitted by Helmut Auer).
+- [amair] Optinally use VDR's cutting feature (Submitted by Helmut Auer) (Must be enabled by defining EXTRECMENU_USE_VDR_CUTTER as it has some usability issues).
 - [amair] Added HDD archive feature (Submitted by Carsten Siebholz).
 - [amair] Updated VDRSymbols font to version 20100612.
 - [amair] Included Rating patch (Submitted by Carsten Siebholz).
