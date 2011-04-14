@@ -38,6 +38,10 @@ ifdef USE_PINPLUGIN
 DEFINES += -DUSE_PINPLUGIN
 endif
 
+ifdef EXTRECMENU_USE_VDR_CUTTER
+DEFINES += -DUSE_VDR_CUTTER
+endif
+
 ### The version number of VDR's plugin API (taken from VDR's "config.h"):
 
 APIVERSION = $(shell sed -ne '/define APIVERSION/s/^.*"\(.*\)".*$$/\1/p' $(VDRDIR)/config.h)
