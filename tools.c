@@ -13,10 +13,6 @@
 #include "tools.h"
 #include "mymenusetup.h"
 
-#if VDRVERSNUM > 10715
-#	define USE_VDR_CUTTER
-#endif
-
 using namespace std;
 extern bool VfatFileSytem;
 
