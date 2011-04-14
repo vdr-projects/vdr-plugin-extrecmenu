@@ -297,6 +297,9 @@ void WorkerThread::Action()
   MoveListItem *moveitem=NULL;
 
   SetPriority(19);
+#if VDRVERSNUM >= 10706
+	SetIOPriority(7);
+#endif
 
   while(Running())
   {

@@ -2,6 +2,7 @@ VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
 2011-xx-xx: Version 1.2.1
+- [amair] Reducing I/O priority for cut/move thread (if VDR >= 1.7.6 is used).
 - [amair] Fixed counting of hidden recordings if PIN plugin is used (Bug #421).
 - [amair] Ignore comments in dircmds.conf (Submitted by TomG @vdr-portal.de).
 - [sibbi] Added ability to configure items that should be shown in recording list.
