@@ -2,7 +2,7 @@ class myReplayControl:public cReplayControl
 {
  private:
    bool timesearchactive;
-   eOSState lastState;
+   bool fCallPlugin;
  public:
    myReplayControl();
    ~myReplayControl();
