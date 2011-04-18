@@ -559,15 +559,26 @@ eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
 #define INFOFILE_PES "info.vdr"
 #define INFOFILE_TS "info"
 bool myMenuRecordingDetails::ModifyInfo(cRecording *Recording, const char *Info)
-{ //This has been taken from remotetimers-0.1.3, written by Frank Schmirler <vdrdev@schmirler.de>
+{ //This has been taken from remotetimers-0.1.5, written by Frank Schmirler <vdrdev@schmirler.de>
 
-  // check for write access as cRecording::WriteInfo() always returns true
-  // TODO: writing may still fail as access() doesn't use the effective UID
 #if VDRVERSNUM > 10713
   cString InfoFileName=cString::sprintf(Recording->IsPesRecording()?"%s/"INFOFILE_PES:"%s/"INFOFILE_TS,Recording->FileName());
+	FILE *f = fopen(InfoFileName, "a");
+	if (f)
+	{
+		fprintf(f, "%s\n", Info);
+		fclose(f);
+		// Casting const away is nasty, but what the heck?
+		// The Recordings thread is locked and the object is going to be deleted anyway.
+		if (((cRecordingInfo *)Recording->Info())->Read() && Recording->WriteInfo())
+			return true;
+		esyslog("[extrecmenu] Failed to update '%s'", *InfoFileName);
+	}
+	else
+		esyslog("[extrecmenu] writing to '%s' failed: %m", *InfoFileName);
 #else
   cString InfoFileName=cString::sprintf("%s/"INFOFILE_PES,Recording->FileName());
-#endif
+  // check for write access as cRecording::WriteInfo() always returns true
   if(access(InfoFileName,W_OK)==0)
   {
     FILE *f=fmemopen((void *)Info,strlen(Info)*sizeof(char),"r");
@@ -584,5 +595,6 @@ bool myMenuRecordingDetails::ModifyInfo(cRecording *Recording, const char *Info)
   }
   else
     esyslog("[extrecmenu] '%s' not writeable: %m",*InfoFileName);
+#endif
   return false;
 }
