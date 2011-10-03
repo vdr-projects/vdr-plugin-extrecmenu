@@ -456,7 +456,11 @@ void WorkerThread::Cut(string From,string To)
     if(!(fromfile=fromfilename->Open()) || !(tofile=tofilename->Open()))
       return;
     fromfile->SetReadAhead(MEGABYTE(20));
+#if VDRVERSNUM > 10720
+    index=mark->Position();
+#else
     index=mark->position;
+#endif
     mark=frommarks.Next(mark);
     tomarks.Add(0);
     tomarks.Save();
@@ -543,7 +547,11 @@ void WorkerThread::Cut(string From,string To)
     if(!lastiframe)
       lastiframe=toindex->Last();
       
+#if VDRVERSNUM > 10720
+    if(mark && index >= mark->Position())
+#else
     if(mark && index >= mark->position)
+#endif
     {
       mark=frommarks.Next(mark);
       tomarks.Add(lastiframe);
@@ -552,7 +560,11 @@ void WorkerThread::Cut(string From,string To)
       tomarks.Save();
       if(mark)
       {
+#if VDRVERSNUM > 10720
+        index=mark->Position();
+#else
         index=mark->position;
+#endif
         mark=frommarks.Next(mark);
         currentfilenumber=0;
         cutin=true;

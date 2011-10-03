@@ -66,7 +66,12 @@ void myMenuRecordingInfo::Display(void)
   else
   {
     stringstream text;
-    text << *DateString(recording->start) << ", " << *TimeString(recording->start) << "\n\n";
+#if VDRVERSNUM > 10720
+    time_t start = recording->Start();
+#else
+    time_t start = recording->start;
+#endif
+    text << *DateString(start) << ", " << *TimeString(start) << "\n\n";
 
     if(recording->Info()->Title())
     {
@@ -95,8 +100,15 @@ void myMenuRecordingInfo::Display(void)
     else
       text << tr("Size") << ": " << recmb << " MB\n";
 
-    text << trVDR("Priority") << ": " << recording->priority << "\n";
-    text << trVDR("Lifetime") << ": " << recording->lifetime << "\n";
+#if VDRVERSNUM > 10720
+    int prio = recording->Priority();
+    int lft = recording->Lifetime();
+#else
+    int prio = recording->priority;
+    int lft = recording->lifetime;
+#endif
+    text << trVDR("Priority") << ": " << prio << "\n";
+    text << trVDR("Lifetime") << ": " << lft << "\n";
 
     DisplayMenu()->SetText(text.str().c_str(),false);
     cStatus::MsgOsdTextItem(text.str().c_str());
@@ -192,7 +204,12 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
       // date and time of recording
       struct tm tm_r;
-      struct tm *t=localtime_r(&Recording->start,&tm_r);
+#if VDRVERSNUM > 10720
+      time_t start = Recording->Start();
+#else
+      time_t start = Recording->start;
+#endif
+      struct tm *t=localtime_r(&start,&tm_r);
 
       const char *c = strrchr(filename, '/');
       if (c)

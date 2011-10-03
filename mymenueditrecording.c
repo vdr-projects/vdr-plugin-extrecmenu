@@ -500,8 +500,13 @@ eOSState myMenuMoveRecording::ProcessKey(eKeys Key)
 myMenuRecordingDetails::myMenuRecordingDetails(cRecording *Recording):cOsdMenu(tr("Details"),12)
 {
   recording=Recording;
-  priority=recording->priority;
-  lifetime=recording->lifetime;
+#if VDRVERSNUM > 10720
+  priority = recording->Priority();
+  lifetime = recording->Lifetime();
+#else
+  priority = recording->priority;
+  lifetime = recording->lifetime;
+#endif
 
   Add(new cMenuEditIntItem(trVDR("Priority"),&priority,0,MAXPRIORITY));
   Add(new cMenuEditIntItem(trVDR("Lifetime"),&lifetime,0,MAXLIFETIME));
@@ -514,7 +519,14 @@ eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
   {
     if(Key==kOk)
     {
-      if((priority!=recording->priority)||(lifetime!=recording->lifetime))
+#if VDRVERSNUM > 10720
+      int old_priority = recording->Priority();
+      int old_lifetime = recording->Lifetime();
+#else
+      int old_priority = recording->priority;
+      int old_lifetime = recording->lifetime;
+#endif
+      if((priority!=old_priority)||(lifetime!=old_lifetime))
       {
 #if VDRVERSNUM > 10713
         if(recording->IsPesRecording())
