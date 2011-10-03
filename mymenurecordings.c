@@ -194,8 +194,11 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       struct tm tm_r;
       struct tm *t=localtime_r(&Recording->start,&tm_r);
 
-      idbuffer << t->tm_mday << t->tm_mon << t->tm_year
-               << t->tm_hour << t->tm_min;
+      const char *c = strrchr(filename, '/');
+      if (c)
+        idbuffer << (c + 1);
+      else
+        idbuffer << filename;
 
 
       // display symbol
