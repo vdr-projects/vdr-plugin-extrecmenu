@@ -1297,6 +1297,7 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
 
       switch(Key)
       {
+        case kPlay:
         case kOk: return Play();
         case kRed: return (helpkeys>0 && item && ((item->IsDirectory() && RecordingDirCommands.Count()) || (!item->IsDirectory() && RecordingCommands.Count())))?Commands():Play();
         case kGreen: return Rewind();
