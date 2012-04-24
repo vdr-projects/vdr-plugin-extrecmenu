@@ -78,7 +78,7 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
     lastState = osEnd;
   if(lastState == osEnd && mysetup.ReturnToPlugin)
     fCallPlugin = true;
-  if(Key==kBlue)
+  if(Key==kBlue || Key==kStop)
     fCallPlugin = false;
   return lastState;
 }
