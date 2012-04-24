@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2011-03-19 10:34+0100\n"
-"PO-Revision-Date: 2010-08-07 23:10+0100\n"
+"POT-Creation-Date: 2012-04-24 12:27+0200\n"
+"PO-Revision-Date: 2011-07-09 23:47+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
 "Language: \n"
@@ -59,6 +59,27 @@ msgstr "Impossibile ottenere info sulla partizione"
 
 msgid "Details"
 msgstr "Dettagli"
+
+msgid "Rename/Move failed!"
+msgstr "Ridenominazione/Spostamento fallito!"
+
+msgid "Cutter queue not empty"
+msgstr "Coda tagli non vuota"
+
+msgid "Move recordings in progress"
+msgstr "Spostamento registrazioni in corso"
+
+msgid "Can't start editing process!"
+msgstr "Impossibile avviare il processo di modifica!"
+
+msgid "Recording already in cutter queue!"
+msgstr "Registrazione già presente nella coda tagli!"
+
+msgid "No editing marks defined!"
+msgstr "Nessun marcatore di modifica definito!"
+
+msgid "Added recording to cutter queue"
+msgstr "Aggiunta registrazione alla coda tagli"
 
 msgid "Button$Play"
 msgstr "Riproduci"
@@ -156,10 +177,10 @@ msgid "Show nr. of new recordings of a directory"
 msgstr "Mostra num. nuove reg. directory"
 
 msgid "Maximum number of recordings per directory"
-msgstr ""
+msgstr "Numero massimo di registrazioni per directory"
 
 msgid "Items to show in recording list"
-msgstr ""
+msgstr "Voci da mostrare nell'elenco reg."
 
 msgid "Show alternative to new marker"
 msgstr "Mostra opzioni nuovo marcatore"
@@ -192,88 +213,67 @@ msgid "Use cutter queue"
 msgstr "Utilizza coda tagli"
 
 msgid "--none--"
-msgstr ""
+msgstr "--nessuna--"
 
 msgid "Blank"
-msgstr ""
+msgstr "Vuota"
 
 msgid "Date of Recording"
-msgstr ""
+msgstr "Data registrazione"
 
 msgid "Time of Recording"
-msgstr ""
+msgstr "Ora registrazione"
 
 msgid "Date and Time of Recording"
-msgstr ""
+msgstr "Data e ora registrazione"
 
 msgid "Length of Recording"
-msgstr ""
+msgstr "Durata registrazione"
 
 msgid "Rating of Recording"
-msgstr ""
+msgstr "Valutazione registrazione"
 
 msgid "Content of File"
-msgstr ""
+msgstr "Contenuto file"
 
 msgid "Content of File, then Result of a Command"
-msgstr ""
+msgstr "Contenuto file, poi risultato del comando"
 
 msgid "left"
-msgstr ""
+msgstr "sinistra"
 
 msgid "center"
-msgstr ""
+msgstr "centro"
 
 msgid "right"
-msgstr ""
+msgstr "destra"
 
 msgid "Icon"
-msgstr ""
+msgstr "Icona"
 
 msgid "(fixed to the first position)"
-msgstr ""
+msgstr "(sistemato nella prima posizione)"
 
 msgid "Item"
-msgstr ""
+msgstr "Voce"
 
 msgid "Width"
-msgstr ""
+msgstr "Larghezza"
 
 msgid "Alignment"
-msgstr ""
+msgstr "Allineamento"
 
 msgid "Filename"
-msgstr ""
+msgstr "Nome file"
 
 msgid "Command"
-msgstr ""
+msgstr "Comando"
 
 msgid "Name of the recording"
-msgstr ""
+msgstr "Nome registrazione"
 
 msgid "(fixed to the last position)"
-msgstr ""
-
-msgid "Recording already in cutter queue!"
-msgstr "Registrazione già presente nella coda tagli!"
-
-msgid "No editing marks defined!"
-msgstr "Nessun marcatore di modifica definito!"
-
-msgid "Added recording to cutter queue"
-msgstr "Aggiunta registrazione alla coda tagli"
-
-msgid "Rename/Move failed!"
-msgstr "Rinominazione/Spostamento fallito!"
-
-msgid "Cutter queue not empty"
-msgstr "Coda tagli non vuota"
-
-msgid "Move recordings in progress"
-msgstr "Spostamento registrazioni in corso"
-
-msgid "Can't start editing process!"
-msgstr "Impossibile avviare il processo di modifica!"
+msgstr "(sistemato nell'ultima posizione)"
 
 #~ msgid "Show recording date"
 #~ msgstr "Mostra data registrazione"
