@@ -1,6 +1,15 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2012-04-29: Version 1.2.2
+- [amair] Updated Italian translation (Submitted by Gringo) (Closes #673).
+- [amair] Don't show recordings menu if replay is stopped using kStop (Closes #934).
+- [amair] Accept kPlay to start replay in recordings menu (Closes #936).
+- [amair] Don't use deprecated member access (introduced in VDR 1.7.21).
+- [amair] Changed UniqID() (Fixes #728).
+- [amair] Fix prio/lifetime editing for TS recordings for VDR 1.7.18+.
+- [amair] "Call plugin after playback" option now is used also if a recording has been watch to its end.
+
 2011-04-15: Version 1.2.1
 - [amair] Reducing I/O priority for cut/move thread (if VDR >= 1.7.6 is used).
 - [amair] Fixed counting of hidden recordings if PIN plugin is used (Bug #421).
