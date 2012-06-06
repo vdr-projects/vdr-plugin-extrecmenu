@@ -1031,7 +1031,11 @@ eOSState myMenuRecordings::Play()
           buffer=NULL;
         }
         golastreplayed=true;
+#if VDRVERSNUM >= 10728
+        myReplayControl::SetRecording(recording->FileName());
+#else
         myReplayControl::SetRecording(recording->FileName(),recording->Title());
+#endif
         cControl::Shutdown();
         isyslog("[extrecmenu] starting replay of recording");
         cControl::Launch(new myReplayControl());

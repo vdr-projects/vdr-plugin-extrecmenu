@@ -1,6 +1,9 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2012-xx-xx: Version 1.2.3
+- [amair] Fixed compiling with VDR 1.7.28.
+
 2012-04-29: Version 1.2.2
 - [amair] Updated Italian translation (Submitted by Gringo) (Closes #673).
 - [amair] Don't show recordings menu if replay is stopped using kStop (Closes #934).
