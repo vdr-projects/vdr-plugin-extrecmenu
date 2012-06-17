@@ -19,6 +19,8 @@
 #include "mymenucommands.h"
 #include "tools.h"
 
+#define DISKSPACECHEK     5 // seconds between disk space checks
+
 using namespace std;
 
 // --- myMenuRecordingInfo ----------------------------------------------------
@@ -498,7 +500,8 @@ bool myMenuRecordings::golastreplayed=false;
 bool myMenuRecordings::wasdvd;
 bool myMenuRecordings::washdd;
 dev_t myMenuRecordings::fsid=0;
-int myMenuRecordings::freediskspace=0;
+time_t myMenuRecordings::lastDiskSpaceCheck=0;
+int myMenuRecordings::lastFreeMB=-1;
 
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 {
@@ -588,57 +591,61 @@ myMenuRecordings::~myMenuRecordings()
 
 int myMenuRecordings::FreeMB()
 {
-  if(mysetup.FileSystemFreeMB)
+  if (lastFreeMB<=0||time(NULL)-lastDiskSpaceCheck>DISKSPACECHEK)
   {
-    string path=VideoDirectory;
-    path+="/";
-    char *tmpbase=base?ExchangeChars(strdup(base),true):NULL;
-    if(base)
-      path+=tmpbase;
-
-    struct stat statdir;
-    if(!stat(path.c_str(),&statdir))
+    int freediskspace=0;
+    if(mysetup.FileSystemFreeMB)
     {
-      if(statdir.st_dev!=fsid)
+      string path=VideoDirectory;
+      path+="/";
+      char *tmpbase=base?ExchangeChars(strdup(base),true):NULL;
+      if(tmpbase)
+        path+=tmpbase;
+
+      struct stat statdir;
+      if(!stat(path.c_str(),&statdir))
       {
-        fsid=statdir.st_dev;
-
-        struct statvfs fsstat;
-        if(!statvfs(path.c_str(),&fsstat))
+        if(statdir.st_dev!=fsid)
         {
-          freediskspace=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
+          fsid=statdir.st_dev;
 
-          for(cRecording *rec=DeletedRecordings.First();rec;rec=DeletedRecordings.Next(rec))
+          struct statvfs fsstat;
+          if(!statvfs(path.c_str(),&fsstat))
           {
-            if(!stat(rec->FileName(),&statdir))
+            freediskspace=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
+
+            for(cRecording *rec=DeletedRecordings.First();rec;rec=DeletedRecordings.Next(rec))
             {
-              if(statdir.st_dev==fsid)
-                freediskspace+=DirSizeMB(rec->FileName());
+              if(!stat(rec->FileName(),&statdir))
+              {
+                if(statdir.st_dev==fsid)
+                  freediskspace+=DirSizeMB(rec->FileName());
+              }
             }
           }
-        }
-        else
-        {
-          esyslog("[extrecmenu] error while getting filesystem size - statvfs (%s): %s",path.c_str(),strerror(errno));
-          freediskspace=0;
+          else
+          {
+            esyslog("[extrecmenu] error while getting filesystem size - statvfs (%s): %s",path.c_str(),strerror(errno));
+            freediskspace=0;
+          }
         }
       }
+      else
+      {
+        esyslog("[extrecmenu] error while getting filesystem size - stat (%s): %s",path.c_str(),strerror(errno));
+        freediskspace=0;
+      }
+      free(tmpbase);
     }
     else
     {
-      esyslog("[extrecmenu] error while getting filesystem size - stat (%s): %s",path.c_str(),strerror(errno));
-      freediskspace=0;
+      VideoDiskSpace(&freediskspace);
     }
-    free(tmpbase);
-  }
-  else
-  {
-    int freemb;
-    VideoDiskSpace(&freemb);
-    return freemb;
+    lastFreeMB=freediskspace;
+    lastDiskSpaceCheck=time(NULL);
   }
 
-  return freediskspace;
+  return lastFreeMB;
 }
 
 void myMenuRecordings::Title()

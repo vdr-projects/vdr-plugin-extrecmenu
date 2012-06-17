@@ -36,7 +36,8 @@ class myMenuRecordings:public cOsdMenu
   static bool washdd;
   static bool golastreplayed;
   static dev_t fsid;
-  static int freediskspace;
+  static time_t lastDiskSpaceCheck;
+  static int lastFreeMB;
   int level,helpkeys;
   int recordingsstate;
   char *base;
