@@ -2,6 +2,8 @@ VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
 2012-xx-xx: Version 1.2.3
+- [amair] Reduced calls to get the free disk space.
+- [amair] Use new MBperMinute() function in VDR >=1.7.27.
 - [amair] Fixed compiling with VDR 1.7.28.
 
 2012-04-29: Version 1.2.2
