@@ -644,7 +644,12 @@ int myMenuRecordings::FreeMB()
 void myMenuRecordings::Title()
 {
   int freemb=FreeMB();
+#if VDRVERSNUM >= 10727
+  int MBperMinute = Recordings.MBperMinute();
+  int minutes=int(double(freemb)/(MBperMinute>0?MBperMinute:MB_PER_MINUTE));
+#else
   int minutes=int(double(freemb)/MB_PER_MINUTE);
+#endif
 
   stringstream buffer;
   if(MoveCutterThread->IsMoveListEmpty())
