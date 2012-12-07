@@ -1,3 +1,9 @@
+#ifndef USE_VDR_CUTTER
+#	if VDRVERSNUM >= 10732
+#		define USE_VDR_CUTTER
+#	endif
+#endif
+
 std::string myStrReplace(std::string S,char C1,const char* C2);
 
 class SortListItem:public cListObject
