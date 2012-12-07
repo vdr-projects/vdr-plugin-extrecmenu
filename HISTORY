@@ -2,6 +2,7 @@ VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
 2012-xx-xx: Version 1.2.3
+- [amair] Close replay OSD before starting cutter so that marks are saved to disk (submitted by mini73 @vdr-portal.de).
 - [amair] Always use VDR's cutting feature in VDR >=1.7.32.
 - [amair] Reduced calls to get the free disk space.
 - [amair] Use new MBperMinute() function in VDR >=1.7.27.

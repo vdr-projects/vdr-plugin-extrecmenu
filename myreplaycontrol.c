@@ -48,6 +48,7 @@ eOSState myReplayControl::ProcessKey(eKeys Key)
               Skins.Message(mtError,tr("Recording already in cutter queue!"));
             else
             {
+              Hide(); // save marks
               cMarks _marks;
               #if VDRVERSNUM > 10713
               cRecording Recording(filename);
