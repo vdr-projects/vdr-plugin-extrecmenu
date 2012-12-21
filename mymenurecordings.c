@@ -619,7 +619,13 @@ int myMenuRecordings::FreeMB()
               if(!stat(rec->FileName(),&statdir))
               {
                 if(statdir.st_dev==fsid)
-                  freediskspace+=DirSizeMB(rec->FileName());
+                {
+                  int ds=DirSizeMB(rec->FileName());
+                  if(ds>0)
+                    freediskspace+=DirSizeMB(rec->FileName());
+                  else
+                    esyslog("[extrecmenu] DirSizeMB(%s) failed!", rec->FileName());
+                }
               }
             }
           }
@@ -628,6 +634,10 @@ int myMenuRecordings::FreeMB()
             esyslog("[extrecmenu] error while getting filesystem size - statvfs (%s): %s",path.c_str(),strerror(errno));
             freediskspace=0;
           }
+        }
+        else
+        {
+          freediskspace=lastFreeMB;
         }
       }
       else
@@ -652,7 +662,7 @@ void myMenuRecordings::Title()
 {
   int freemb=FreeMB();
 #if VDRVERSNUM >= 10727
-  int MBperMinute = Recordings.MBperMinute();
+  double MBperMinute = Recordings.MBperMinute();
   int minutes=int(double(freemb)/(MBperMinute>0?MBperMinute:MB_PER_MINUTE));
 #else
   int minutes=int(double(freemb)/MB_PER_MINUTE);
