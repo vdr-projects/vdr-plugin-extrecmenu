@@ -63,6 +63,7 @@ class myMenuRecordings:public cOsdMenu
 #ifdef USE_GRAPHTFT
   virtual const char* MenuKind(){return"MenuExtRecordings";}
 #endif
+  void ForceFreeMbUpdate(){lastDiskSpaceCheck=0;};
 };
 
 // --- myMenuRenameRecording --------------------------------------------------

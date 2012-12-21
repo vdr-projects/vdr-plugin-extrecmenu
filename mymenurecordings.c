@@ -833,6 +833,7 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
   free(lastitemtext);
   delete list;
 
+  ForceFreeMbUpdate();
   Title();
   if(Refresh)
     Display();
@@ -1131,6 +1132,7 @@ eOSState myMenuRecordings::Delete()
           Recordings.DelByName(item->FileName());
           cOsdMenu::Del(Current());
           SetHelpKeys();
+          ForceFreeMbUpdate();
           Display();
           if(!Count())
             return osBack;
