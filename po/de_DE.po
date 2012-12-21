@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2011-01-24 12:19+0100\n"
+"POT-Creation-Date: 2011-06-24 08:43+0200\n"
 "PO-Revision-Date: 2011-01-21 14:17+0100\n"
 "Last-Translator: Carsten Siebholz <sibbi <AT> helmutauer <DOT> de>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
@@ -54,6 +54,27 @@ msgstr "Kann Dateisysteminformationen nicht ermitteln"
 
 msgid "Details"
 msgstr "Details"
+
+msgid "Rename/Move failed!"
+msgstr "Umbenennen/Verschieben fehlgeschlagen!"
+
+msgid "Cutter queue not empty"
+msgstr "Schnitt-Warteschlange nicht leer"
+
+msgid "Move recordings in progress"
+msgstr "Es werden Aufzeichnungen verschoben"
+
+msgid "Can't start editing process!"
+msgstr "Kann Schneidevorgang nicht starten!"
+
+msgid "Recording already in cutter queue!"
+msgstr "Aufzeichnung bereits in Schnitt-Warteschlange"
+
+msgid "No editing marks defined!"
+msgstr "Keine Schnittmarken vorhanden!"
+
+msgid "Added recording to cutter queue"
+msgstr "Aufzeichnung der Schnitt-Warteschlange hinzugefügt"
 
 msgid "Button$Play"
 msgstr "Wiedergabe"
@@ -248,24 +269,3 @@ msgstr "Name der Aufzeichnung"
 
 msgid "(fixed to the last position)"
 msgstr "(fest auf letzter Position)"
-
-msgid "Recording already in cutter queue!"
-msgstr "Aufzeichnung bereits in Schnitt-Warteschlange"
-
-msgid "No editing marks defined!"
-msgstr "Keine Schnittmarken vorhanden!"
-
-msgid "Added recording to cutter queue"
-msgstr "Aufzeichnung der Schnitt-Warteschlange hinzugefügt"
-
-msgid "Rename/Move failed!"
-msgstr "Umbenennen/Verschieben fehlgeschlagen!"
-
-msgid "Cutter queue not empty"
-msgstr "Schnitt-Warteschlange nicht leer"
-
-msgid "Move recordings in progress"
-msgstr "Es werden Aufzeichnungen verschoben"
-
-msgid "Can't start editing process!"
-msgstr "Kann Schneidevorgang nicht starten!"

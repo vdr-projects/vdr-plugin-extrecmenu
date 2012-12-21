@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2011-03-19 10:34+0100\n"
+"POT-Creation-Date: 2011-06-24 08:43+0200\n"
 "PO-Revision-Date: 2011-02-15 21:20+0100\n"
 "Last-Translator: Milan Hrala <hrala.milan@gmail.com>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
@@ -54,6 +54,27 @@ msgstr "Nie je mo¾né získa» informácie o súborovom systéme"
 
 msgid "Details"
 msgstr "Podrobnosti"
+
+msgid "Rename/Move failed!"
+msgstr "Premenovanie/presun zlyhal!"
+
+msgid "Cutter queue not empty"
+msgstr "Strihová fronta nie je prázdna"
+
+msgid "Move recordings in progress"
+msgstr "Prebieha presúvanie nahrávok"
+
+msgid "Can't start editing process!"
+msgstr "nemô¾e spusti» proces úprav!"
+
+msgid "Recording already in cutter queue!"
+msgstr "nahrávka je u¾ v strihovej fronte!"
+
+msgid "No editing marks defined!"
+msgstr "¾iadne znaèky nie sú urèené!"
+
+msgid "Added recording to cutter queue"
+msgstr "Nahrávka pridaná do strihovej fronty"
 
 msgid "Button$Play"
 msgstr "Prehra»"
@@ -248,27 +269,6 @@ msgstr ""
 
 msgid "(fixed to the last position)"
 msgstr ""
-
-msgid "Recording already in cutter queue!"
-msgstr "nahrávka je u¾ v strihovej fronte!"
-
-msgid "No editing marks defined!"
-msgstr "¾iadne znaèky nie sú urèené!"
-
-msgid "Added recording to cutter queue"
-msgstr "Nahrávka pridaná do strihovej fronty"
-
-msgid "Rename/Move failed!"
-msgstr "Premenovanie/presun zlyhal!"
-
-msgid "Cutter queue not empty"
-msgstr "Strihová fronta nie je prázdna"
-
-msgid "Move recordings in progress"
-msgstr "Prebieha presúvanie nahrávok"
-
-msgid "Can't start editing process!"
-msgstr "nemô¾e spusti» proces úprav!"
 
 #~ msgid "Show recording date"
 #~ msgstr "Zobrazi» dátum nahrávky"

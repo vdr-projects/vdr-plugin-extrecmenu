@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2011-03-19 10:34+0100\n"
+"POT-Creation-Date: 2011-06-24 08:43+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Nicolas Huillard <nhuillard@e-dition.fr>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -57,6 +57,27 @@ msgstr "Impossible de déterminer les informations du système de fichiers"
 
 msgid "Details"
 msgstr "Détails"
+
+msgid "Rename/Move failed!"
+msgstr "Renommer/déplacer à échoué!"
+
+msgid "Cutter queue not empty"
+msgstr "Queue d'attente découpe n'est pas vide"
+
+msgid "Move recordings in progress"
+msgstr "Des enregistrements sont en déplacement"
+
+msgid "Can't start editing process!"
+msgstr ""
+
+msgid "Recording already in cutter queue!"
+msgstr "L'enregistrement est déjà dans la queue d'attente découpe!"
+
+msgid "No editing marks defined!"
+msgstr ""
+
+msgid "Added recording to cutter queue"
+msgstr "Enregistrement ajouté à la file d'attente de découpe"
 
 msgid "Button$Play"
 msgstr "Montrer"
@@ -250,27 +271,6 @@ msgid "Name of the recording"
 msgstr ""
 
 msgid "(fixed to the last position)"
-msgstr ""
-
-msgid "Recording already in cutter queue!"
-msgstr "L'enregistrement est déjà dans la queue d'attente découpe!"
-
-msgid "No editing marks defined!"
-msgstr ""
-
-msgid "Added recording to cutter queue"
-msgstr "Enregistrement ajouté à la file d'attente de découpe"
-
-msgid "Rename/Move failed!"
-msgstr "Renommer/déplacer à échoué!"
-
-msgid "Cutter queue not empty"
-msgstr "Queue d'attente découpe n'est pas vide"
-
-msgid "Move recordings in progress"
-msgstr "Des enregistrements sont en déplacement"
-
-msgid "Can't start editing process!"
 msgstr ""
 
 #~ msgid "Show recording date"

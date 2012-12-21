@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2011-03-19 10:34+0100\n"
+"POT-Creation-Date: 2011-06-24 08:43+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Vladimír Bárta <vladimir.barta@k2atmitec.cz>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -54,6 +54,27 @@ msgstr "Nelze získat informace o souborovém systémy"
 
 msgid "Details"
 msgstr "Detaily"
+
+msgid "Rename/Move failed!"
+msgstr "Pøejmenování/pøesun selhal!"
+
+msgid "Cutter queue not empty"
+msgstr "Støihová fronta není prázdná"
+
+msgid "Move recordings in progress"
+msgstr "Probíhá pøesouvání nahrávek"
+
+msgid "Can't start editing process!"
+msgstr ""
+
+msgid "Recording already in cutter queue!"
+msgstr "Nahrávka je ji¾ ve støihové frontì!"
+
+msgid "No editing marks defined!"
+msgstr ""
+
+msgid "Added recording to cutter queue"
+msgstr "Nahrávka pøidána do støihové fronty"
 
 msgid "Button$Play"
 msgstr "Pøehrát"
@@ -247,27 +268,6 @@ msgid "Name of the recording"
 msgstr ""
 
 msgid "(fixed to the last position)"
-msgstr ""
-
-msgid "Recording already in cutter queue!"
-msgstr "Nahrávka je ji¾ ve støihové frontì!"
-
-msgid "No editing marks defined!"
-msgstr ""
-
-msgid "Added recording to cutter queue"
-msgstr "Nahrávka pøidána do støihové fronty"
-
-msgid "Rename/Move failed!"
-msgstr "Pøejmenování/pøesun selhal!"
-
-msgid "Cutter queue not empty"
-msgstr "Støihová fronta není prázdná"
-
-msgid "Move recordings in progress"
-msgstr "Probíhá pøesouvání nahrávek"
-
-msgid "Can't start editing process!"
 msgstr ""
 
 #~ msgid "Show recording date"
