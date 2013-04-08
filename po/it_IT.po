@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2012-04-24 12:27+0200\n"
+"POT-Creation-Date: 2013-04-08 15:06+0200\n"
 "PO-Revision-Date: 2011-07-09 23:47+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
@@ -184,6 +184,9 @@ msgstr "Voci da mostrare nell'elenco reg."
 
 msgid "Show alternative to new marker"
 msgstr "Mostra opzioni nuovo marcatore"
+
+msgid "Set menu category"
+msgstr ""
 
 msgid "Show free disk space for each file system"
 msgstr "Mostra spazio disponibile partizioni"

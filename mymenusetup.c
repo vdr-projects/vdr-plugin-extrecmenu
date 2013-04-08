@@ -62,6 +62,9 @@ mySetup::mySetup()
   mysetup.UseVDRsRecInfoMenu=0;
   mysetup.PatchFont=1;
   mysetup.FileSystemFreeMB=1;
+#if VDRVERSNUM >= 10728
+  mysetup.SetRecordingCat=1;
+#endif
   mysetup.UseCutterQueue=1;
 }
 
@@ -93,16 +96,31 @@ myMenuSetup::myMenuSetup()
   usevdrsrecinfomenu=mysetup.UseVDRsRecInfoMenu;
   patchfont=mysetup.PatchFont;
   filesystemfreemb=mysetup.FileSystemFreeMB;
+#if VDRVERSNUM >= 10728
+  setrecordingcat=mysetup.SetRecordingCat;
+#endif
   usecutterqueue=mysetup.UseCutterQueue;
 
   sortingtypetexts[0]=tr("ascending");
   sortingtypetexts[1]=tr("descending");
 
+  Set();
+}
+
+void myMenuSetup::Set()
+{
+  int currentItem = Current();
+  Clear();
+
   Add(new cMenuEditBoolItem(tr("Show nr. of new recordings of a directory"),&shownewrecs));
   Add(new cMenuEditStraItem(tr("Maximum number of recordings per directory"), &recsperdir, 5, RecsPerDir_texts));
   Add(SubMenuItem(tr("Items to show in recording list"), osUser1)); 
   Add(new cMenuEditBoolItem(tr("Show alternative to new marker"),&patchnew));
-  Add(new cMenuEditBoolItem(tr("Show free disk space for each file system"),&filesystemfreemb));
+#if VDRVERSNUM >= 10728
+  Add(new cMenuEditBoolItem(tr("Set menu category"),&setrecordingcat));
+  if (setrecordingcat == 0)
+#endif
+    Add(new cMenuEditBoolItem(tr("Show free disk space for each file system"),&filesystemfreemb));
   Add(new cMenuEditStraItem(tr("Sorting"),&descendsorting,2,sortingtypetexts));
   Add(new cMenuEditBoolItem(tr("Hide main menu entry"),&hidemainmenuentry));
 #ifdef MAINMENUHOOKSVERSNUM
@@ -113,6 +131,10 @@ myMenuSetup::myMenuSetup()
   Add(new cMenuEditBoolItem(tr("Limit bandwidth for move recordings"),&limitbandwidth));
   Add(new cMenuEditBoolItem(tr("Use VDR's recording info menu"),&usevdrsrecinfomenu));
   Add(new cMenuEditBoolItem(tr("Use cutter queue"),&usecutterqueue));
+
+  SetCurrent(Get(currentItem));
+  Display();
+  SetHelp(NULL, NULL, NULL, NULL);
 }
 
 void myMenuSetup::Store()
@@ -152,11 +174,26 @@ void myMenuSetup::Store()
   SetupStore("UseVDRsRecInfoMenu",mysetup.UseVDRsRecInfoMenu=usevdrsrecinfomenu);
   SetupStore("PatchFont",mysetup.PatchFont=patchfont);
   SetupStore("FileSystemFreeMB",mysetup.FileSystemFreeMB=filesystemfreemb);
+#if VDRVERSNUM >= 10728
+  SetupStore("SetRecordingCat",mysetup.SetRecordingCat=setrecordingcat);
+#endif
   SetupStore("UseCutterQueue",mysetup.UseCutterQueue=usecutterqueue);
 }
 
 eOSState myMenuSetup::ProcessKey(eKeys Key) {
+#if VDRVERSNUM >= 10728
+  int oldSetRecordingCat = setrecordingcat;
+#endif
+
   eOSState state = cMenuSetupPage::ProcessKey(Key);
+
+#if VDRVERSNUM >= 10728
+  if (Key != kNone &&
+      (oldSetRecordingCat != setrecordingcat)
+     ) {
+    Set();
+  }
+#endif
 
   switch (state) {
     case osUser1:
@@ -171,6 +208,11 @@ eOSState myMenuSetup::ProcessKey(eKeys Key) {
 myMenuSetupColumns::myMenuSetupColumns(RecListColumnType *prlcs) : cOsdMenu(tr("Items to show in recording list"), 4) {
   preclistcolumns = prlcs;
 
+#if VDRVERSNUM >= 10728
+  if(mysetup.SetRecordingCat){
+    SetMenuCategory(mcPluginSetup);
+  }
+#endif
   ColumnType_descriptions[0] = tr("--none--");
   ColumnType_descriptions[1] = tr("Blank");
   ColumnType_descriptions[2] = tr("Date of Recording");

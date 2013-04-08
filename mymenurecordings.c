@@ -45,6 +45,11 @@ class myMenuRecordingInfo:public cOsdMenu
 
 myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithButtons):cOsdMenu(trVDR("Recording info"))
 {
+#if VDRVERSNUM >= 10728
+    if (mysetup.SetRecordingCat){
+      SetMenuCategory(mcRecordingInfo);
+    }
+#endif
   recording=Recording;
   withButtons=WithButtons;
   if(withButtons)
@@ -505,6 +510,11 @@ int myMenuRecordings::lastFreeMB=-1;
 
 myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 {
+#if VDRVERSNUM >= 10728
+  if(mysetup.SetRecordingCat){
+    SetMenuCategory(mcRecording);
+  }
+#endif
   int c[MAX_RECLIST_COLUMNS],i=0;
 
   for (i=0; i<MAX_RECLIST_COLUMNS; i++) {
@@ -660,14 +670,6 @@ int myMenuRecordings::FreeMB()
 
 void myMenuRecordings::Title()
 {
-  int freemb=FreeMB();
-#if VDRVERSNUM >= 10727
-  double MBperMinute = Recordings.MBperMinute();
-  int minutes=int(double(freemb)/(MBperMinute>0?MBperMinute:MB_PER_MINUTE));
-#else
-  int minutes=int(double(freemb)/MB_PER_MINUTE);
-#endif
-
   stringstream buffer;
   if(MoveCutterThread->IsMoveListEmpty())
     buffer << Icons::MovingRecording();
@@ -683,11 +685,25 @@ void myMenuRecordings::Title()
   else
     buffer << trVDR("Recordings");
 
-  buffer << " ("
-         << minutes/60 << ":"
-         << setw(2) << setfill('0') << minutes%60 << " "
-         << trVDR("free")
-         << ")";
+#if VDRVERSNUM >= 10728
+  if(mysetup.SetRecordingCat == 0){
+#endif
+    int freemb=FreeMB();
+#if VDRVERSNUM >= 10727
+    double MBperMinute = Recordings.MBperMinute();
+    int minutes=int(double(freemb)/(MBperMinute>0?MBperMinute:MB_PER_MINUTE));
+#else
+    int minutes=int(double(freemb)/MB_PER_MINUTE);
+#endif
+
+    buffer << " ("
+           << minutes/60 << ":"
+           << setw(2) << setfill('0') << minutes%60 << " "
+           << trVDR("free")
+           << ")";
+#if VDRVERSNUM >= 10728
+  }
+#endif
 
   SetTitle(buffer.str().c_str());
 }

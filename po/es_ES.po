@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ExtRecMenu 1.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2010-06-17 20:39+0200\n"
+"POT-Creation-Date: 2013-04-08 15:06+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
 "Last-Translator: Javier Bradineras <jbradi@hotmail.com>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -53,6 +54,27 @@ msgstr "No se puede acceder a la información de la partición"
 
 msgid "Details"
 msgstr "Detalles"
+
+msgid "Rename/Move failed!"
+msgstr "¡Renombrar/Mover ha fallado!"
+
+msgid "Cutter queue not empty"
+msgstr "La cola de recortado no está vacía"
+
+msgid "Move recordings in progress"
+msgstr "Se está moviendo la grabación"
+
+msgid "Can't start editing process!"
+msgstr "¡No se puede iniciar el proceso de edición!"
+
+msgid "Recording already in cutter queue!"
+msgstr "¡La grabación está en la cola de recortado!"
+
+msgid "No editing marks defined!"
+msgstr "No definidas marcas de edición"
+
+msgid "Added recording to cutter queue"
+msgstr "Grabación añadida a la cola de recortado"
 
 msgid "Button$Play"
 msgstr "Reproducir"
@@ -146,12 +168,6 @@ msgstr "Ascendente"
 msgid "descending"
 msgstr "Descendente"
 
-msgid "Show recording date"
-msgstr "Mostrar la fecha de la grabación"
-
-msgid "Show recording rating"
-msgstr "Mostrar clasificación de la grabación"
-
 msgid "Show nr. of new recordings of a directory"
 msgstr "Mostrar el número de nuevas grabaciones"
 
@@ -163,6 +179,9 @@ msgstr "Elementos a mostrar en la lista de grabaciones"
 
 msgid "Show alternative to new marker"
 msgstr "Mostrar alternativas al nuevo marcador"
+
+msgid "Set menu category"
+msgstr ""
 
 msgid "Show free disk space for each file system"
 msgstr "Mostrar espacio libre de particiones"
@@ -190,27 +209,6 @@ msgstr "Usar el menú de información del VDR"
 
 msgid "Use cutter queue"
 msgstr "Usar cola para recortar"
-
-msgid "Recording already in cutter queue!"
-msgstr "¡La grabación está en la cola de recortado!"
-
-msgid "No editing marks defined!"
-msgstr "No definidas marcas de edición"
-
-msgid "Added recording to cutter queue"
-msgstr "Grabación añadida a la cola de recortado"
-
-msgid "Rename/Move failed!"
-msgstr "¡Renombrar/Mover ha fallado!"
-
-msgid "Cutter queue not empty"
-msgstr "La cola de recortado no está vacía"
-
-msgid "Move recordings in progress"
-msgstr "Se está moviendo la grabación"
-
-msgid "Can't start editing process!"
-msgstr "¡No se puede iniciar el proceso de edición!"
 
 msgid "--none--"
 msgstr "--nada--"
@@ -274,3 +272,9 @@ msgstr "Nombre de la grabación"
 
 msgid "(fixed to the last position)"
 msgstr "(fijado en la última posición)"
+
+#~ msgid "Show recording date"
+#~ msgstr "Mostrar la fecha de la grabación"
+
+#~ msgid "Show recording rating"
+#~ msgstr "Mostrar clasificación de la grabación"

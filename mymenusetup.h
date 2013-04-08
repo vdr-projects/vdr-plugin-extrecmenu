@@ -71,6 +71,9 @@ class mySetup
   int UseVDRsRecInfoMenu;
   int PatchFont;
   int FileSystemFreeMB;
+#if VDRVERSNUM >= 10728
+  int SetRecordingCat;
+#endif
   int UseCutterQueue;
 };
 
@@ -93,12 +96,16 @@ class myMenuSetup:public cMenuSetupPage
   int usevdrsrecinfomenu;
   int patchfont;
   int filesystemfreemb;
+#if VDRVERSNUM >= 10728
+  int setrecordingcat;
+#endif
   int usecutterqueue;
  protected:
   virtual void Store();
  public:
   myMenuSetup();
 //  virtual ~myMenuSetup();
+  virtual void Set();
   virtual eOSState ProcessKey(eKeys Key);
 };
 

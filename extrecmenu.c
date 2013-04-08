@@ -20,7 +20,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.2.2";
+static const char *VERSION        = "1.2.3-git";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
@@ -240,6 +240,10 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
     mysetup.PatchFont=atoi(Value);
   else if(!strcasecmp(_Name,"FileSystemFreeMB"))
     mysetup.FileSystemFreeMB=atoi(Value);
+#if VDRVERSNUM >= 10728
+  else if(!strcasecmp(_Name,"SetRecordingCat"))
+    mysetup.SetRecordingCat=atoi(Value);
+#endif
   else if(!strcasecmp(_Name,"UseCutterQueue"))
     mysetup.UseCutterQueue=atoi(Value);
   else
