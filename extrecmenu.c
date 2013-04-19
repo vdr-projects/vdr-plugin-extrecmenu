@@ -254,12 +254,15 @@ bool cPluginExtrecmenu::SetupParse(const char *_Name,const char *Value)
 
 bool cPluginExtrecmenu::Service(const char *Id,void *Data)
 {
-  if(!Data)
+  if(!Id)
     return false;
 
-  cOsdMenu **menu=(cOsdMenu**)Data;
   if(mysetup.ReplaceOrgRecMenu && strcmp(Id,"MainMenuHooksPatch-v1.0::osRecordings")==0)
   {
+    if(!Data)
+      return true;
+
+    cOsdMenu **menu=(cOsdMenu**)Data;
     if(menu)
       *menu=(cOsdMenu*)MainMenuAction();
 
