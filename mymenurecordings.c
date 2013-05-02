@@ -622,7 +622,7 @@ int myMenuRecordings::FreeMB()
           struct statvfs fsstat;
           if(!statvfs(path.c_str(),&fsstat))
           {
-            freediskspace=int((double)fsstat.f_bavail/(1024.0*1024.0/fsstat.f_bsize));
+            freediskspace=int((double)fsstat.f_bavail/(double)(1024.0*1024.0/fsstat.f_bsize));
 
             for(cRecording *rec=DeletedRecordings.First();rec;rec=DeletedRecordings.Next(rec))
             {
@@ -632,7 +632,7 @@ int myMenuRecordings::FreeMB()
                 {
                   int ds=DirSizeMB(rec->FileName());
                   if(ds>0)
-                    freediskspace+=DirSizeMB(rec->FileName());
+                    freediskspace+=ds;
                   else
                     esyslog("[extrecmenu] DirSizeMB(%s) failed!", rec->FileName());
                 }
