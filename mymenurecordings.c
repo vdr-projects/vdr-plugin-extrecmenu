@@ -160,6 +160,9 @@ eOSState myMenuRecordingInfo::ProcessKey(eKeys Key)
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
+#if VDRVERSNUM >= 10733
+  recording=Recording;
+#endif
   totalentries=newentries=0;
   isdvd=false;
   ishdd=false;
@@ -497,6 +500,14 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
   if(buffer)
     SetText(buffer,false);
 }
+
+#if VDRVERSNUM >= 10733
+void myMenuRecordingsItem::SetMenuItem(cSkinDisplayMenu *displaymenu,int index,bool current,bool selectable)
+{
+  if (!(mysetup.SetRecordingCat && displaymenu->SetItemRecording(recording,index,current,selectable,level,totalentries,newentries)))
+    displaymenu->SetItem(Text(),index,current,selectable);
+}
+#endif
 
 // --- myMenuRecordings -------------------------------------------------------
 #define MB_PER_MINUTE 25.75 // this is just an estimate! (taken over from VDR)

@@ -2,6 +2,9 @@
 class myMenuRecordingsItem:public cOsdItem
 {
   private:
+#if VDRVERSNUM >= 10733
+    cRecording *recording;
+#endif
     bool dirismoving;
     bool isdvd;
     bool ishdd;
@@ -17,6 +20,9 @@ class myMenuRecordingsItem:public cOsdItem
     ~myMenuRecordingsItem();
     const char *FileName(){return filename;}
     const char *Name(){return name;}
+#if VDRVERSNUM >= 10733
+    cRecording *Recording(void) { return recording; }
+#endif
     bool IsDirectory(){return name!=NULL;}
     bool IsPesRecording(void) const { return isPesRecording; }
     void IncrementCounter(bool IsNew);
@@ -25,6 +31,9 @@ class myMenuRecordingsItem:public cOsdItem
     void SetDirIsMoving(bool moving){dirismoving=moving;}
     bool GetDirIsMoving(){return dirismoving;}
     const char *UniqID(){return uniqid.length()?uniqid.c_str():"";}
+#if VDRVERSNUM >= 10733
+    virtual void SetMenuItem(cSkinDisplayMenu *DisplayMenu, int Index, bool Current, bool Selectable);
+#endif
 };
 
 // --- myMenuRecordings -------------------------------------------------------
