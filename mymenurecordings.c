@@ -201,8 +201,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
     title=MALLOC(char,s-p+1);
     strn0cpy(title,p,s-p+1);
     name=strdup(title);
-
-    uniqid=name;
   }
   else
   {
@@ -220,13 +218,6 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       time_t start = Recording->start;
 #endif
       struct tm *t=localtime_r(&start,&tm_r);
-
-      const char *c = strrchr(filename, '/');
-      if (c)
-        idbuffer << (c + 1);
-      else
-        idbuffer << filename;
-
 
       // display symbol
       buffer=filename;
@@ -441,16 +432,13 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
       if(i!=string::npos)
       {
         titlebuffer << _s.substr(i+1,_s.length()-i);
-        idbuffer << _s.substr(i+1,_s.length()-i);
       }
       else
       {
         titlebuffer << _s;
-        idbuffer << _s;
       }
 
       title=strdup(titlebuffer.str().c_str());
-      uniqid=idbuffer.str();
     }
     else
     {
@@ -512,7 +500,6 @@ void myMenuRecordingsItem::SetMenuItem(cSkinDisplayMenu *displaymenu,int index,b
 // --- myMenuRecordings -------------------------------------------------------
 #define MB_PER_MINUTE 25.75 // this is just an estimate! (taken over from VDR)
 
-bool myMenuRecordings::golastreplayed=false;
 bool myMenuRecordings::wasdvd;
 bool myMenuRecordings::washdd;
 dev_t myMenuRecordings::fsid=0;
@@ -598,7 +585,7 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 
   Set();
 
-  if(myReplayControl::LastReplayed())
+  if(mysetup.GoLastReplayed && myReplayControl::LastReplayed())
     Open();
 
   Display();
@@ -772,12 +759,12 @@ void myMenuRecordings::SetHelpKeys()
 }
 
 // create the menu list
-void myMenuRecordings::Set(bool Refresh,char *_current)
+void myMenuRecordings::Set(bool Refresh)
 {
-  const char *lastreplayed=_current?_current:myReplayControl::LastReplayed();
+  const char *lastreplayed=myReplayControl::LastReplayed();
 
   cThreadLock RecordingsLock(&Recordings);
-  if(Refresh && !_current)
+  if(Refresh)
   {
     fsid=0;
     myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
@@ -809,7 +796,6 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
      hidepinprotectedrecs=pinplugin->SetupParse("hideProtectedRecordings","1");
 #endif
 
-  char *lastitemtext=NULL;
   myMenuRecordingsItem *lastitem=NULL;
   for(myRecListItem *listitem=list->First();listitem;listitem=list->Next(listitem))
   {
@@ -817,47 +803,59 @@ void myMenuRecordings::Set(bool Refresh,char *_current)
     if(!base||(strstr(recording->Name(),base)==recording->Name()&&recording->Name()[strlen(base)]=='~'))
     {
       myMenuRecordingsItem *recitem=new myMenuRecordingsItem(recording,level);
-      if(*recitem->UniqID() && (!lastitem || strcmp(recitem->UniqID(),lastitemtext)))
+      myMenuRecordingsItem *lastdir=NULL;
+      if(recitem->IsDirectory())
+      {
+        // Sorting may ignore non-alphanumeric characters, so we need to explicitly handle directories in case they only differ in such characters:
+        for(myMenuRecordingsItem *p=lastitem;p;p=dynamic_cast<myMenuRecordingsItem *>(p->Prev()))
+        {
+          if(p->Name()&&strcmp(p->Name(),recitem->Name())==0)
+          {
+            lastdir=p;
+            break;
+          }
+        }
+      }
+      if(*recitem->Text()&&!lastdir)
       {
 #ifdef USE_PINPLUGIN
         if(!(hidepinprotectedrecs && cStatus::MsgReplayProtected(recording,recitem->Name(),base,recitem->IsDirectory(),true)))
-				{
+        {
 #endif
           Add(recitem);
           lastitem=recitem;
-          free(lastitemtext);
-          lastitemtext=strdup(lastitem->UniqID());
+          if(recitem->IsDirectory())
+            lastdir=recitem;
 #ifdef USE_PINPLUGIN
-				}
-				else
-					lastitem=NULL;
+        }
+        else
+          lastitem=NULL;
 #endif
       }
       else
         delete recitem;
 
-      if(lastitem)
+      if(lastitem||lastdir)
       {
-        if(!MoveCutterThread->IsMoving(recording->FileName()))
-          lastitem->SetDirIsMoving(false);
-
-        if(lastitem->IsDirectory())
-          lastitem->IncrementCounter(recording->IsNew());
-        if(lastreplayed && !strcmp(lastreplayed,recording->FileName()))
+        if(lastitem)
         {
-          if(golastreplayed||Refresh)
-          {
-            SetCurrent(lastitem);
-            if(recitem && !recitem->IsDirectory() && !cControl::Control() && !mysetup.GoLastReplayed)
-              golastreplayed=false;
-          }
+          if(!MoveCutterThread->IsMoving(recording->FileName()))
+            lastitem->SetDirIsMoving(false);
+        }
+
+        if(lastreplayed&&strcmp(lastreplayed,recording->FileName())==0)
+        {
+          SetCurrent(lastdir?lastdir:lastitem);
           if(recitem&&!recitem->IsDirectory()&&(recitem->IsDVD()||recitem->IsHDD())&&!cControl::Control())
             cReplayControl::ClearLastReplayed(cReplayControl::LastReplayed());
+        }
+
+        if(lastdir){
+          lastdir->IncrementCounter(recording->IsNew());
         }
       }
     }
   }
-  free(lastitemtext);
   delete list;
 
   ForceFreeMbUpdate();
@@ -1080,7 +1078,6 @@ eOSState myMenuRecordings::Play()
           }
           buffer=NULL;
         }
-        golastreplayed=true;
 #if VDRVERSNUM >= 10728
         myReplayControl::SetRecording(recording->FileName());
 #else

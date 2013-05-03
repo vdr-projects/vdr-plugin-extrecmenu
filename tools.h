@@ -33,7 +33,10 @@ class myRecListItem:public cListObject
   private:
     static bool SortByName;
     char *filename;
+    mutable char *sortBufferName;
+    mutable char *sortBufferTime;
     static char *StripEpisodeName(char *s);
+    char *SortName(void) const;
   public:
     myRecListItem(cRecording *Recording);
     ~myRecListItem();

@@ -195,10 +195,13 @@ myRecListItem::myRecListItem(cRecording *Recording)
 {
   recording=Recording;
   filename=strdup(recording->FileName());
+  sortBufferName = sortBufferTime = NULL;
 }
 
 myRecListItem::~myRecListItem()
 {
+  free(sortBufferName);
+  free(sortBufferTime);
   free(filename);
 }
 
@@ -220,39 +223,45 @@ char *myRecListItem::StripEpisodeName(char *s)
     }
     t++;
   }
-  if(mysetup.DescendSorting)
+  if(s1&&s2)
   {
-    if(SortByName)
-      *s1=1;
-    else
-      *(s2+1)=(char)255;
+    // To have folders sorted before plain recordings, the '/' s1 points to
+    // is replaced by the character '1'. All other slashes will be replaced
+    // by '0' in SortName() (see below), which will result in the desired
+    // sequence:
+    *s1='1';
+    if(!SortByName)
+    {
+      s1++;
+      memmove(s1,s2,t-s2+1);
+    }
   }
-  else
-    *s1=(char)255;
-
-  if(s1 && s2 && !SortByName)
-    memmove(s1+1,s2,t-s2+1);
-
   return s;
+}
+
+char *myRecListItem::SortName(void) const
+{
+  char **sb=SortByName?&sortBufferName:&sortBufferTime;
+  if(!*sb)
+  {
+    char *s=StripEpisodeName(strdup(recording->FileName()+strlen(VideoDirectory)));
+    strreplace(s,'/','0'); // some locales ignore '/' when sorting
+    int l=strxfrm(NULL,s,0)+1;
+    *sb=MALLOC(char,l);
+    strxfrm(*sb,s,l);
+    free(s);
+  }
+  return *sb;
 }
 
 int myRecListItem::Compare(const cListObject &ListObject)const
 {
-  myRecListItem *item=(myRecListItem*)&ListObject;
+  myRecListItem *r=(myRecListItem*)&ListObject;
 
-  char *s1=StripEpisodeName(strdup(filename+strlen(VideoDirectory)));
-  char *s2=StripEpisodeName(strdup(item->filename+strlen(VideoDirectory)));
-
-  int compare;
   if(mysetup.DescendSorting)
-    compare=strcasecmp(s2,s1);
+    return strcasecmp(r->SortName(),SortName());
   else
-    compare=strcasecmp(s1,s2);
-
-  free(s1);
-  free(s2);
-
-  return compare;
+    return strcasecmp(SortName(),r->SortName());
 }
 
 // --- myRecList --------------------------------------------------------------

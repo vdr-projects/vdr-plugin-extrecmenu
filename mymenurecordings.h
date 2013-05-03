@@ -67,7 +67,7 @@ class myMenuRecordings:public cOsdMenu
  public:
   myMenuRecordings(const char *Base=NULL,int Level=0);
   ~myMenuRecordings();
-  void Set(bool Refresh=false,char *current=NULL);
+  void Set(bool Refresh=false);
   virtual eOSState ProcessKey(eKeys Key);
 #ifdef USE_GRAPHTFT
   virtual const char* MenuKind(){return"MenuExtRecordings";}

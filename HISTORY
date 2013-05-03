@@ -2,6 +2,7 @@ VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
 2012-xx-xx: Version 1.2.3
+- [amair] Fix recording list problems with some recording names.
 - [amair] Set menu category in VDR >= 1.7.28 (Closes #1110).
 - [amair] Close replay OSD before starting cutter so that marks are saved to disk (submitted by mini73 @vdr-portal.de).
 - [amair] Always use VDR's cutting feature in VDR >=1.7.32.
