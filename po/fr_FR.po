@@ -5,6 +5,7 @@
 # Olivier Jacques <jacquesolivier@hotmail.com>, 2003
 # Gregoire Favre <greg@magma.unil.ch>, 2003
 # Nicolas Huillard <nhuillard@e-dition.fr>, 2005
+# Karim Afifi <hc912b32@yahoo.fr>, 2013
 #
 msgid ""
 msgstr ""
@@ -12,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: <see README>\n"
 "POT-Creation-Date: 2013-04-08 15:06+0200\n"
 "PO-Revision-Date: 2008-03-15 16:21+0100\n"
-"Last-Translator: Nicolas Huillard <nhuillard@e-dition.fr>\n"
+"Last-Translator: Karim Afifi <hc912b32@yahoo.fr>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -20,16 +21,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "Extended recordings menu"
-msgstr "Menu enregistrement étandu"
+msgstr "Menu enregistrement étendu"
 
 msgid "Rename"
 msgstr "Renommer"
 
 msgid "Invalid filename!"
-msgstr "Nom de fichiers n'est pas valide'"
+msgstr "Nom de fichier non valide!"
 
 msgid "Creating directories failed!"
-msgstr ""
+msgstr "Répertoire non créé!"
 
 msgid "New folder"
 msgstr "Nouveau dossier"
@@ -47,10 +48,10 @@ msgid "[base dir]"
 msgstr "[Dossier racine]"
 
 msgid "Target filesystem filled - try anyway?"
-msgstr "La partition de déstination est pleine - essayer tout de même?"
+msgstr "Partition de destination pleine - Essayer quand même?"
 
 msgid "Moving into own sub-directory not allowed!"
-msgstr "Déplacer dans le sous-dossier propre, n'est pas possible!"
+msgstr "Déplacement non autorisé dans son propre sous-dossier!"
 
 msgid "Can't get filesystem information"
 msgstr "Impossible de déterminer les informations du système de fichiers"
@@ -59,25 +60,25 @@ msgid "Details"
 msgstr "Détails"
 
 msgid "Rename/Move failed!"
-msgstr "Renommer/déplacer à échoué!"
+msgstr "Renommer/déplacer a échoué!"
 
 msgid "Cutter queue not empty"
-msgstr "Queue d'attente découpe n'est pas vide"
+msgstr "Queue d'attente découpe non vide"
 
 msgid "Move recordings in progress"
-msgstr "Des enregistrements sont en déplacement"
+msgstr "Déplacement d'enregistrements en cours"
 
 msgid "Can't start editing process!"
-msgstr ""
+msgstr "Impossible de démarrer l'édition!"
 
 msgid "Recording already in cutter queue!"
-msgstr "L'enregistrement est déjà dans la queue d'attente découpe!"
+msgstr "Enregistrement déjà dans la file de découpe!"
 
 msgid "No editing marks defined!"
-msgstr ""
+msgstr "Pas de marque d'édition définie!"
 
 msgid "Added recording to cutter queue"
-msgstr "Enregistrement ajouté à la file d'attente de découpe"
+msgstr "Enregistrement ajouté à la file de découpe"
 
 msgid "Button$Play"
 msgstr "Montrer"
@@ -89,13 +90,13 @@ msgid "Button$Back"
 msgstr "Retour"
 
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 msgid "Path"
 msgstr "Chemin"
 
 msgid "Channel"
-msgstr ""
+msgstr "Canal"
 
 msgid "Size"
 msgstr "Taille"
@@ -104,7 +105,7 @@ msgid "Error while mounting DVD!"
 msgstr "Erreur lors du montage du DVD!"
 
 msgid "Error while mounting Archive-HDD!"
-msgstr ""
+msgstr "Erreur lors du montage de l'archive HDD!"
 
 msgid "Button$Commands"
 msgstr "Commande"
@@ -120,10 +121,10 @@ msgstr "Info"
 
 #, c-format
 msgid "Please attach Archive-HDD %s"
-msgstr ""
+msgstr "Veuillez attacher Archive-HDD %s"
 
 msgid "Recording not found on Archive-HDD!"
-msgstr ""
+msgstr "Enregistrement non trouvé dans Archive-HDD!"
 
 msgid "Error while linking [0-9]*.vdr!"
 msgstr "Erreur lors de la création des racourcis [0-9]*.vdr!"
@@ -132,32 +133,32 @@ msgid "sudo or mount --bind / umount error (vfat system)"
 msgstr "Erreur sudo ou mount --bind / umount (Systeme VFAT)"
 
 msgid "Script 'hddarchive.sh' not found!"
-msgstr ""
+msgstr "Script 'hddarchive.sh' non trouvé!"
 
 #, c-format
 msgid "Please insert DVD %s"
-msgstr "Mettez le DVD %s dans le lecteur"
+msgstr "Veuiller insérer le DVD %s"
 
 msgid "DVD plugin is not installed!"
-msgstr "Le plugin DVD n'est pas installé!"
+msgstr "Plugin DVD non installé!"
 
 msgid "No DVD in drive!"
 msgstr "Pas de DVD dans le lecteur!"
 
 msgid "Recording not found on DVD!"
-msgstr "Il n'y a pas d'enregistrement sur le DVD!"
+msgstr "Pas d'enregistrement sur le DVD!"
 
 msgid "Script 'dvdarchive.sh' not found!"
-msgstr "Impossible de trouver le script 'dvdarchive.sh'!"
+msgstr "Script 'dvdarchive.sh' non trouvé!"
 
 msgid "Sort by date"
-msgstr "Triage selon date"
+msgstr "Tri par date"
 
 msgid "Sort by name"
-msgstr "Triage selon le nom"
+msgstr "Tri par nom"
 
 msgid "Cancel moving?"
-msgstr "Interrompre le déplacement?"
+msgstr "Annuler le déplacement?"
 
 msgid "Button$Rename"
 msgstr "Renommer"
@@ -166,43 +167,43 @@ msgid "Button$Delete"
 msgstr "Effacer"
 
 msgid "ascending"
-msgstr "montant"
+msgstr "Montant"
 
 msgid "descending"
-msgstr "descendant"
+msgstr "Descendant"
 
 msgid "Show nr. of new recordings of a directory"
 msgstr "Afficher le nombre de nouveaux enregistrements dans les dossiers"
 
 msgid "Maximum number of recordings per directory"
-msgstr ""
+msgstr "Maximum d'enregistrements par répertoire"
 
 msgid "Items to show in recording list"
-msgstr ""
+msgstr "Elements à afficher dans la liste des enregistrements"
 
 msgid "Show alternative to new marker"
-msgstr "Afficher les nouveaux symbols alternatifs"
+msgstr "Afficher les symbols alternatifs"
 
 msgid "Set menu category"
-msgstr ""
+msgstr "Paramétrer la catégorie menu"
 
 msgid "Show free disk space for each file system"
-msgstr "Afficher la place libre de chaque partition"
+msgstr "Afficher l'espace disponible de chaque partition"
 
 msgid "Sorting"
-msgstr "Triage"
+msgstr "Tri"
 
 msgid "Hide main menu entry"
-msgstr "Menu Enregistrement étandu invisible"
+msgstr "Masquer du menu principal"
 
 msgid "Replace original recordings menu"
-msgstr "Remplacer le nenu original Enregistrement"
+msgstr "Remplacer le menu original Enregistrement"
 
 msgid "Jump to last replayed recording"
-msgstr "Retour au dernier enregistrement lu"
+msgstr "Retourner au dernier enregistrement lu"
 
 msgid "Call plugin after playback"
-msgstr "Après la lecture démarer le plugin"
+msgstr "Démarrer le plugin après la lecture"
 
 msgid "Limit bandwidth for move recordings"
 msgstr "Limiter la bande passante lors du déplacement"
@@ -211,79 +212,79 @@ msgid "Use VDR's recording info menu"
 msgstr "Utiliser le menu info enregistrement de VDR"
 
 msgid "Use cutter queue"
-msgstr ""
+msgstr "Utiliser la file d'attente de découpe"
 
 msgid "--none--"
-msgstr ""
+msgstr "--aucun--"
 
 msgid "Blank"
-msgstr ""
+msgstr "Vide"
 
 msgid "Date of Recording"
-msgstr ""
+msgstr "Date de l'enregistrement"
 
 msgid "Time of Recording"
-msgstr ""
+msgstr "Heure de l'enregistrement"
 
 msgid "Date and Time of Recording"
-msgstr ""
+msgstr "Date et heure de l'enregistrement"
 
 msgid "Length of Recording"
-msgstr ""
+msgstr "Durée de l'enregistrement"
 
 msgid "Rating of Recording"
-msgstr ""
+msgstr "Note de l'enregistrement"
 
 msgid "Content of File"
-msgstr ""
+msgstr "Contenu du fichier"
 
 msgid "Content of File, then Result of a Command"
-msgstr ""
+msgstr "Contenu du fichier, puis résultat d'une commande"
 
 msgid "left"
-msgstr ""
+msgstr "Gauche"
 
 msgid "center"
-msgstr ""
+msgstr "Centre"
 
 msgid "right"
-msgstr ""
+msgstr "Droite"
 
 msgid "Icon"
-msgstr ""
+msgstr "Icone"
 
 msgid "(fixed to the first position)"
-msgstr ""
+msgstr "(Fixé sur la première position)"
 
 msgid "Item"
-msgstr ""
+msgstr "Elément"
 
 msgid "Width"
-msgstr ""
+msgstr "Largeur"
 
 msgid "Alignment"
-msgstr ""
+msgstr "Alignement"
 
 msgid "Filename"
-msgstr ""
+msgstr "Nom de fichier"
 
 msgid "Command"
-msgstr ""
+msgstr "Commande"
 
 msgid "Name of the recording"
-msgstr ""
+msgstr "Nom de l'enregistrement"
 
 msgid "(fixed to the last position)"
-msgstr ""
+msgstr "(Fixé sur la dernière position)"
 
 #~ msgid "Show recording date"
-#~ msgstr "Afiicher la date d'enregistrement"
+#~ msgstr "Afficher la date de l'enregistrement"
 
 #~ msgid "Show recording time"
-#~ msgstr "Afficher l'heure d'enregistrement"
+#~ msgstr "Afficher l'heure de l'enregistrement"
 
 #~ msgid "Show recording length"
-#~ msgstr "Afficher la longeur de l'enregistrement"
+#~ msgstr "Afficher la durée de l'enregistrement"
 
 #~ msgid "Patch font"
 #~ msgstr "Patch des police"
