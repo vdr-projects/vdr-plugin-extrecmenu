@@ -58,6 +58,7 @@ mySetup::mySetup()
   mysetup.DescendSorting=0;
   mysetup.GoLastReplayed=0;
   mysetup.ReturnToPlugin=1;
+  mysetup.ReturnToRec=0;
   mysetup.LimitBandwidth=0;
   mysetup.UseVDRsRecInfoMenu=0;
   mysetup.PatchFont=1;

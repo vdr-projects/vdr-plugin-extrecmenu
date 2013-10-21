@@ -22,7 +22,10 @@ myReplayControl::myReplayControl()
 myReplayControl::~myReplayControl()
 {
   if(fCallPlugin)
+  {
+    mysetup.ReturnToRec = true;
     cRemote::CallPlugin("extrecmenu");
+  }
 }
 
 eOSState myReplayControl::ProcessKey(eKeys Key)

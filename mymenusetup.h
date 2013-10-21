@@ -67,6 +67,7 @@ class mySetup
   int DescendSorting;
   int GoLastReplayed;
   int ReturnToPlugin;
+  int ReturnToRec;
   int LimitBandwidth;
   int UseVDRsRecInfoMenu;
   int PatchFont;
