@@ -229,7 +229,7 @@ char *myRecListItem::StripEpisodeName(char *s)
     // is replaced by the character '1'. All other slashes will be replaced
     // by '0' in SortName() (see below), which will result in the desired
     // sequence:
-    *s1='1';
+    *s1=mysetup.DescendSorting ? '0' : '1';
     if(!SortByName)
     {
       s1++;
@@ -245,7 +245,7 @@ char *myRecListItem::SortName(void) const
   if(!*sb)
   {
     char *s=StripEpisodeName(strdup(recording->FileName()+strlen(VideoDirectory)));
-    strreplace(s,'/','0'); // some locales ignore '/' when sorting
+    strreplace(s,'/',mysetup.DescendSorting ? '1' : '0'); // some locales ignore '/' when sorting
     int l=strxfrm(NULL,s,0)+1;
     *sb=MALLOC(char,l);
     strxfrm(*sb,s,l);
