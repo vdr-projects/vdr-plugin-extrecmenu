@@ -174,6 +174,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 #else
   isPesRecording=true;
 #endif
+	int savedlevel=Level;
   // get the level of this recording
   level=0;
   const char *s=Recording->Name();
@@ -446,6 +447,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
         title=strdup("");
     }
   }
+	level=savedlevel;
   SetText(title);
 }
 
