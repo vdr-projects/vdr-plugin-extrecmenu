@@ -152,7 +152,11 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
     {
       if(!strncmp(OldName,item->recording->FileName(),strlen(OldName)))
       {
+#if APIVERSNUM > 20101
+        buf=strdup(OldName+strlen(cVideoDirectory::Name())+1);
+#else
         buf=strdup(OldName+strlen(VideoDirectory)+1);
+#endif
         if(buf)
         {
           buf=ExchangeChars(buf,false);
@@ -244,7 +248,11 @@ char *myRecListItem::SortName(void) const
   char **sb=SortByName?&sortBufferName:&sortBufferTime;
   if(!*sb)
   {
+#if APIVERSNUM > 20101
+    char *s=StripEpisodeName(strdup(recording->FileName()+strlen(cVideoDirectory::Name())));
+#else
     char *s=StripEpisodeName(strdup(recording->FileName()+strlen(VideoDirectory)));
+#endif
     strreplace(s,'/',mysetup.DescendSorting ? '1' : '0'); // some locales ignore '/' when sorting
     int l=strxfrm(NULL,s,0)+1;
     *sb=MALLOC(char,l);
@@ -708,7 +716,11 @@ bool WorkerThread::Move(string From,string To)
 
                   isyslog("[extrecmenu] moving canceled");
 
+#if APIVERSNUM > 20101
+                  cVideoDirectory::RemoveVideoFile(To.c_str());
+#else
                   RemoveVideoFile(To.c_str());
+#endif
 
                   return true;
                 }

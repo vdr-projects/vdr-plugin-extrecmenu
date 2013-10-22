@@ -76,7 +76,11 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 
       if(isdir)
       {
+#if APIVERSNUM > 20101
+        if(-1==asprintf(&oldname,"%s%s%s/%s",cVideoDirectory::Name(),tmppath?"/":"",dirbase?dirbase:"",dirname))
+#else
         if(-1==asprintf(&oldname,"%s%s%s/%s",VideoDirectory,tmppath?"/":"",dirbase?dirbase:"",dirname))
+#endif
           oldname=NULL;
       }
       else
@@ -84,7 +88,11 @@ eOSState myMenuRenameRecording::ProcessKey(eKeys Key)
 
       if(oldname)
       {
+#if APIVERSNUM > 20101
+        if(-1==asprintf(&newname,"%s%s%s/%s%s",cVideoDirectory::Name(),tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/')))
+#else
         if(-1==asprintf(&newname,"%s%s%s/%s%s",VideoDirectory,tmppath?"/":"",tmppath?tmppath:"",tmpname,isdir?"":strrchr(recording->FileName(),'/')))
+#endif
           newname=NULL;
 
         if(newname)
@@ -305,7 +313,11 @@ eOSState myMenuMoveRecording::MoveRec()
 
   if(dirname)
   {
+#if APIVERSNUM > 20101
+    if(-1==asprintf(&oldname,"%s%s%s/%s",cVideoDirectory::Name(),dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname))
+#else
     if(-1==asprintf(&oldname,"%s%s%s/%s",VideoDirectory,dirbase?"/":"",tmpdirbase?tmpdirbase:"",tmpdirname))
+#endif
       oldname=NULL;
   }
   else
@@ -357,7 +369,11 @@ eOSState myMenuMoveRecording::MoveRec()
     if(dir)
       dir=ExchangeChars(dir,true);
 
+#if APIVERSNUM > 20101
+    if(-1==asprintf(&_newname,"%s%s%s%s",cVideoDirectory::Name(),dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/')))
+#else
     if(-1==asprintf(&_newname,"%s%s%s%s",VideoDirectory,dir?"/":"",dir?dir:"",strrchr(dirname?oldname:recording->FileName(),'/')))
+#endif
       _newname=NULL;
 
     if(_newname)
@@ -424,7 +440,11 @@ eOSState myMenuMoveRecording::MoveRec()
                 {
                   if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
                   {
+#if APIVERSNUM > 20101
+                    char *_buf=ExchangeChars(strdup(oldname+strlen(cVideoDirectory::Name())+1),false);
+#else
                     char *_buf=ExchangeChars(strdup(oldname+strlen(VideoDirectory)+1),false);
+#endif
 
                     if(strcmp(rec->Name(),_buf))
                     {

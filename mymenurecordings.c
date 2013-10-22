@@ -607,7 +607,11 @@ int myMenuRecordings::FreeMB()
     int freediskspace=0;
     if(mysetup.FileSystemFreeMB)
     {
+#if APIVERSNUM > 20101
+      string path=cVideoDirectory::Name();
+#else
       string path=VideoDirectory;
+#endif
       path+="/";
       char *tmpbase=base?ExchangeChars(strdup(base),true):NULL;
       if(tmpbase)
@@ -660,7 +664,11 @@ int myMenuRecordings::FreeMB()
     }
     else
     {
+#if APIVERSNUM > 20101
+      cVideoDirectory::VideoDiskSpace(&freediskspace);
+#else
       VideoDiskSpace(&freediskspace);
+#endif
     }
     lastFreeMB=freediskspace;
     lastDiskSpaceCheck=time(NULL);
@@ -786,7 +794,11 @@ void myMenuRecordings::Set(bool Refresh)
   for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
     list->Add(new myRecListItem(recording));
   // sort my recordings list
+#if APIVERSNUM > 20101
+  string path=cVideoDirectory::Name();
+#else
   string path=VideoDirectory;
+#endif
   path+="/";
   if(base)
     path+=base;
@@ -1266,7 +1278,11 @@ eOSState myMenuRecordings::Commands(eKeys Key)
       {
         char *strBase=base?ExchangeChars(strdup(base), true):NULL;
         char *strName=ExchangeChars(strdup(item->Name()), true);
+#if APIVERSNUM > 20101
+        if(-1==asprintf(&parameter,"\"%s/%s/%s\"",cVideoDirectory::Name(),strBase?strBase:"", strName))
+#else
         if(-1==asprintf(&parameter,"\"%s/%s/%s\"",VideoDirectory,strBase?strBase:"", strName))
+#endif
           parameter=NULL;
         free(strBase);
         free(strName);
@@ -1290,7 +1306,11 @@ eOSState myMenuRecordings::Commands(eKeys Key)
 // change sorting
 eOSState myMenuRecordings::ChangeSorting()
 {
+#if APIVERSNUM > 20101
+  string path=cVideoDirectory::Name();
+#else
   string path=VideoDirectory;
+#endif
   path+="/";
   if(base)
     path+=base;
