@@ -587,7 +587,7 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
 
   Set();
 
-  if(mysetup.GoLastReplayed && mysetup.ReturnToRec && myReplayControl::LastReplayed())
+  if((mysetup.GoLastReplayed || mysetup.ReturnToRec) && myReplayControl::LastReplayed())
     Open();
   mysetup.ReturnToRec = false;
 
