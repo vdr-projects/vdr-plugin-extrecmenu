@@ -38,6 +38,7 @@ class myMenuRecordingInfo:public cOsdMenu
     myMenuRecordingInfo(const cRecording *Recording,bool WithButtons = false);
     virtual void Display(void);
     virtual eOSState ProcessKey(eKeys Key);
+    virtual  ~myMenuRecordingInfo(void);
 #ifdef USE_GRAPHTFT
     virtual const char* MenuKind(){return "MenuExtRecording";}
 #endif
@@ -50,7 +51,7 @@ myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithB
       SetMenuCategory(mcRecordingInfo);
     }
 #endif
-  recording=Recording;
+  recording = new cRecording(Recording->FileName());
   withButtons=WithButtons;
   if(withButtons)
     SetHelp(tr("Button$Play"),tr("Button$Rewind"),NULL,tr("Button$Back"));
@@ -157,11 +158,15 @@ eOSState myMenuRecordingInfo::ProcessKey(eKeys Key)
   return state;
 }
 
+myMenuRecordingInfo::~myMenuRecordingInfo(void) {
+    delete recording;
+}
+
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
 #if VDRVERSNUM >= 10733
-  recording=Recording;
+  recording=new cRecording(Recording->FileName());;
 #endif
   totalentries=newentries=0;
   isdvd=false;
@@ -453,6 +458,7 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
 myMenuRecordingsItem::~myMenuRecordingsItem()
 {
+  delete recording;
   free(title);
   free(name);
 }
