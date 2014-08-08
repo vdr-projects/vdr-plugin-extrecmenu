@@ -46,7 +46,7 @@ class myMenuRecordingInfo:public cOsdMenu
 
 myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithButtons):cOsdMenu(trVDR("Recording info"))
 {
-#if VDRVERSNUM >= 10728
+#if VDRVERSNUM >= 10734
     if (mysetup.SetRecordingCat){
       SetMenuCategory(mcRecordingInfo);
     }
