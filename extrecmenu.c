@@ -20,7 +20,7 @@
 
 using namespace std;
 
-static const char *VERSION        = "1.2.3";
+static const char *VERSION        = "1.2.4";
 static const char *DESCRIPTION    = tr("Extended recordings menu");
 static const char *MAINMENUENTRY  = "ExtRecMenu";
 
