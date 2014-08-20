@@ -3,6 +3,7 @@ class myMenuRecordingsItem:public cOsdItem
 {
   private:
 #if VDRVERSNUM >= 10733
+    cRecording *recording_copy;
     cRecording *recording;
 #endif
     bool dirismoving;
@@ -21,7 +22,7 @@ class myMenuRecordingsItem:public cOsdItem
     const char *FileName(){return filename;}
     const char *Name(){return name;}
 #if VDRVERSNUM >= 10733
-    cRecording *Recording(void) { return recording; }
+    inline void rec_copy(void);
 #endif
     bool IsDirectory(){return name!=NULL;}
     bool IsPesRecording(void) const { return isPesRecording; }

@@ -51,7 +51,7 @@ myMenuRecordingInfo::myMenuRecordingInfo(const cRecording *Recording, bool WithB
       SetMenuCategory(mcRecordingInfo);
     }
 #endif
-  recording = new cRecording(Recording->FileName());
+  recording=Recording;
   withButtons=WithButtons;
   if(withButtons)
     SetHelp(tr("Button$Play"),tr("Button$Rewind"),NULL,tr("Button$Back"));
@@ -159,14 +159,14 @@ eOSState myMenuRecordingInfo::ProcessKey(eKeys Key)
 }
 
 myMenuRecordingInfo::~myMenuRecordingInfo(void) {
-    delete recording;
 }
 
 // --- myMenuRecordingsItem ---------------------------------------------------
 myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 {
 #if VDRVERSNUM >= 10733
-  recording=new cRecording(Recording->FileName());;
+  recording=Recording;
+  recording_copy=NULL;
 #endif
   totalentries=newentries=0;
   isdvd=false;
@@ -458,10 +458,22 @@ myMenuRecordingsItem::myMenuRecordingsItem(cRecording *Recording,int Level)
 
 myMenuRecordingsItem::~myMenuRecordingsItem()
 {
-  delete recording;
+#if VDRVERSNUM >= 10733
+  delete recording_copy;
+#endif
   free(title);
   free(name);
 }
+
+#if VDRVERSNUM >= 10733
+void myMenuRecordingsItem::rec_copy(void)
+{
+  if(mysetup.SetRecordingCat)
+    recording_copy=new cRecording(recording->FileName());
+  else
+    recording_copy=NULL;
+}
+#endif
 
 void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 {
@@ -500,7 +512,9 @@ void myMenuRecordingsItem::IncrementCounter(bool IsNew)
 #if VDRVERSNUM >= 10733
 void myMenuRecordingsItem::SetMenuItem(cSkinDisplayMenu *displaymenu,int index,bool current,bool selectable)
 {
-  if (!(mysetup.SetRecordingCat && displaymenu->SetItemRecording(recording,index,current,selectable,level,totalentries,newentries)))
+#if VDRVERSNUM >= 10733
+  if (!(recording_copy && displaymenu->SetItemRecording(recording_copy,index,current,selectable,level,totalentries,newentries)))
+#endif
     displaymenu->SetItem(Text(),index,current,selectable);
 }
 #endif
@@ -843,6 +857,9 @@ void myMenuRecordings::Set(bool Refresh)
         if(!(hidepinprotectedrecs && cStatus::MsgReplayProtected(recording,recitem->Name(),base,recitem->IsDirectory(),true)))
         {
 #endif
+#if VDRVERSNUM >= 10733
+          recitem->rec_copy();
+#endif
           Add(recitem);
           lastitem=recitem;
           if(recitem->IsDirectory())
@@ -854,7 +871,10 @@ void myMenuRecordings::Set(bool Refresh)
 #endif
       }
       else
+      {
         delete recitem;
+        recitem=NULL;
+      }
 
       if(lastitem||lastdir)
       {
