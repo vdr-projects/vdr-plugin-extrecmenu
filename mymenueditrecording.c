@@ -177,7 +177,11 @@ class myMenuMoveRecordingItem:public cOsdItem
   char *title;
  public:
   myMenuMoveRecordingItem(const char *Title,int Level);
+#if VDRVERSNUM >= 20301
+  myMenuMoveRecordingItem(const cRecording *Recording,int Level);
+#else
   myMenuMoveRecordingItem(cRecording *Recording,int Level);
+#endif
   int Level(){return level;}
   void SetLevel(int _Level){level=_Level;}
 };
@@ -189,7 +193,11 @@ myMenuMoveRecordingItem::myMenuMoveRecordingItem(const char *Title,int _Level)
  SetText(title);
 }
 
+#if VDRVERSNUM >= 20301
+myMenuMoveRecordingItem::myMenuMoveRecordingItem(const cRecording *Recording,int _Level)
+#else
 myMenuMoveRecordingItem::myMenuMoveRecordingItem(cRecording *Recording,int _Level)
+#endif
 {
  level=0;
 
@@ -247,12 +255,21 @@ void myMenuMoveRecording::Set()
   if(level==0)
     Add(new myMenuMoveRecordingItem(tr("[base dir]"),0));
 
+#if VDRVERSNUM >= 20301
+	LOCK_RECORDINGS_WRITE
+  Recordings->Sort();
+#else
   cThreadLock RecordingsLock(&Recordings);
   Recordings.Sort();
+#endif
 
   char *lastitemtext=NULL;
   myMenuMoveRecordingItem *lastitem=NULL;
+#if VDRVERSNUM >= 20301
+  for(const cRecording *_recording=Recordings->First();_recording;_recording=Recordings->Next(_recording))
+#else
   for(cRecording *_recording=Recordings.First();_recording;_recording=Recordings.Next(_recording))
+#endif
   {
     if(!base||(strstr(_recording->Name(),base)==_recording->Name()&&_recording->Name()[strlen(base)]=='~'))
     {
@@ -427,8 +444,13 @@ eOSState myMenuMoveRecording::MoveRec()
               Skins.Message(mtError,tr("Moving into own sub-directory not allowed!"));
             else
             {
+#if VDRVERSNUM >= 20301
+							LOCK_RECORDINGS_READ
+              for(const cRecording *rec=Recordings->First();rec;rec=Recordings->Next(rec))
+#else
               cThreadLock RecordingsLock(&Recordings);
               for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
+#endif
               {
                 if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
                   recmb+=DirSizeMB(rec->FileName());
@@ -436,7 +458,11 @@ eOSState myMenuMoveRecording::MoveRec()
 
               if(freemb-recmb > 0  || Interface->Confirm(tr("Target filesystem filled - try anyway?")))
               {
+#if VDRVERSNUM >= 20301
+                for(const cRecording *rec=Recordings->First();rec;rec=Recordings->Next(rec))
+#else
                 for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
+#endif
                 {
                   if(!strncmp(oldname,rec->FileName(),strlen(oldname)))
                   {
@@ -572,8 +598,14 @@ eOSState myMenuRecordingDetails::ProcessKey(eKeys Key)
           if(ModifyInfo(recording,*buffer))
           {
             cString fileName = recording->FileName();
+#if VDRVERSNUM >= 20301
+            LOCK_RECORDINGS_WRITE
+            Recordings->Del(recording);
+            Recordings->AddByName(*fileName);
+#else
             Recordings.Del(recording);
             Recordings.AddByName(*fileName);
+#endif
             state=osBack;
           }
           else

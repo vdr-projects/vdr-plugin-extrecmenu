@@ -1,6 +1,9 @@
 VDR Plugin 'extrecmenu' Revision History
 ----------------------------------------
 
+2015-xx-xx: Version 1.2.5
+- [amair] Compile under VDR 2.3.1.
+
 2014-08-20: Version 1.2.4
 - [amair] Reduced delay when opening the recordings menu if "menu category" feature is used.
 

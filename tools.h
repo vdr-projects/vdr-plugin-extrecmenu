@@ -38,7 +38,11 @@ class myRecListItem:public cListObject
     static char *StripEpisodeName(char *s);
     char *SortName(void) const;
   public:
+#if VDRVERSNUM >= 20301
+    myRecListItem(const cRecording *Recording);
+#else
     myRecListItem(cRecording *Recording);
+#endif
     ~myRecListItem();
     virtual int Compare(const cListObject &ListObject)const;
     cRecording *recording;

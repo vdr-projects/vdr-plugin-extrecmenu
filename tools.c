@@ -116,9 +116,15 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
       return false;
     }
 
+#if VDRVERSNUM >= 20301
+    LOCK_RECORDINGS_WRITE
+    Recordings->DelByName(OldName);
+    Recordings->AddByName(NewName);
+#else
     cThreadLock RecordingsLock(&Recordings);
     Recordings.DelByName(OldName);
     Recordings.AddByName(NewName);
+#endif
 
     // set user command for '-r'-option of VDR
     if(-1!=asprintf(&buf,"%s \"%s\"",Move?"move":"rename",*strescape(OldName,"'\\\"$")))
@@ -144,7 +150,12 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
     buf=NULL;
 
     myRecList *list=new myRecList();
+#if VDRVERSNUM >= 20301
+    LOCK_RECORDINGS_READ
+    for(const cRecording *recording=Recordings->First();recording;recording=Recordings->Next(recording))
+#else
     for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+#endif
       list->Add(new myRecListItem(recording));
 
     myRecListItem *item=list->First();
@@ -195,9 +206,9 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
 // --- myRecListItem ----------------------------------------------------------
 bool myRecListItem::SortByName=false;
 
-myRecListItem::myRecListItem(cRecording *Recording)
+myRecListItem::myRecListItem(const cRecording *Recording)
 {
-  recording=Recording;
+  recording=(cRecording *)Recording;
   filename=strdup(recording->FileName());
   sortBufferName = sortBufferTime = NULL;
 }
@@ -359,7 +370,11 @@ void WorkerThread::Action()
 #endif
       CutterQueue->Del(cutteritem);
 
+#if VDRVERSNUM >= 20301
+	//TODO???
+#else
       Recordings.ChangeState();
+#endif
     }
 
     if((moveitem=MoveBetweenFileSystemsList->First())!=NULL)
@@ -371,7 +386,11 @@ void WorkerThread::Action()
         // error occured -> empty move queue
         MoveBetweenFileSystemsList->Clear();
 
+#if VDRVERSNUM >= 20301
+	//TODO???
+#else
       Recordings.ChangeState();
+#endif
     }
 
     sleep(1);
@@ -659,7 +678,11 @@ void WorkerThread::CancelMove(string Path)
 void WorkerThread::AddToMoveList(string From,string To)
 {
   MoveBetweenFileSystemsList->Add(new MoveListItem(From,To));
+#if VDRVERSNUM >= 20301
+	//TODO???
+#else
   Recordings.ChangeState();
+#endif
 }
 
 bool WorkerThread::Move(string From,string To)
@@ -762,18 +785,30 @@ bool WorkerThread::Move(string From,string To)
     {
       closedir(dir);
 
+#if VDRVERSNUM >= 20301
+			LOCK_RECORDINGS_WRITE
+      cRecording rec(From.c_str());
+      rec.Delete();
+      Recordings->DelByName(From.c_str());
+      Recordings->AddByName(To.c_str());
+#else
       cThreadLock RecordingsLock(&Recordings);
       cRecording rec(From.c_str());
       rec.Delete();
       Recordings.DelByName(From.c_str());
       Recordings.AddByName(To.c_str());
+#endif
 
       string cmdstring="move \"";
       cmdstring+=myStrEscape(From,"'\\\"$");
       cmdstring+="\"";
       cRecordingUserCommand::InvokeCommand(cmdstring.c_str(),To.c_str());
 
+#if VDRVERSNUM >= 20301
+      Recordings->TouchUpdate();
+#else
       Recordings.TouchUpdate();
+#endif
 
       return true;
     }

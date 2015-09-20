@@ -96,9 +96,14 @@ void myMenuRecordingInfo::Display(void)
     else
       text << tr("Name") << ": " << recname << "\n";
 
-    cChannel *chan=Channels.GetByChannelID(((cRecordingInfo*)recording->Info())->ChannelID());
-    if(chan)
-      text << tr("Channel") << ": " << *ChannelString(chan,0) << "\n";
+#if VDRVERSNUM >= 20301
+		LOCK_CHANNELS_READ
+    const cChannel *channel=Channels->GetByChannelID(((cRecordingInfo*)recording->Info())->ChannelID());
+#else
+    cChannel *channel=Channels.GetByChannelID(((cRecordingInfo*)recording->Info())->ChannelID());
+#endif
+    if(channel)
+      text << tr("Channel") << ": " << *ChannelString(channel,0) << "\n";
 
     int recmb=DirSizeMB(recording->FileName());
     if(recmb<0)
@@ -125,7 +130,7 @@ void myMenuRecordingInfo::Display(void)
 
 eOSState myMenuRecordingInfo::ProcessKey(eKeys Key)
 {
-  switch(Key)
+  switch((int)Key)
   {
     case kUp|k_Repeat:
     case kUp:
@@ -562,7 +567,11 @@ myMenuRecordings::myMenuRecordings(const char *Base,int Level):cOsdMenu("")
   helpkeys=-1;
   base=Base?strdup(Base):NULL;
 
+#if VDRVERSNUM >= 20301
+	//TODO???
+#else
   Recordings.StateChanged(recordingsstate);
+#endif
 
   //Display();
 
@@ -649,7 +658,12 @@ int myMenuRecordings::FreeMB()
           {
             freediskspace=int((double)fsstat.f_bavail/(double)(1024.0*1024.0/fsstat.f_bsize));
 
+#if VDRVERSNUM >= 20301
+						LOCK_DELETEDRECORDINGS_READ
+            for(const cRecording *rec=DeletedRecordings->First();rec;rec=DeletedRecordings->Next(rec))
+#else
             for(cRecording *rec=DeletedRecordings.First();rec;rec=DeletedRecordings.Next(rec))
+#endif
             {
               if(!stat(rec->FileName(),&statdir))
               {
@@ -719,7 +733,12 @@ void myMenuRecordings::Title()
 #endif
     int freemb=FreeMB();
 #if VDRVERSNUM >= 10727
+# if VDRVERSNUM >= 20301
+		LOCK_RECORDINGS_READ
+    double MBperMinute = Recordings->MBperMinute();
+# else
     double MBperMinute = Recordings.MBperMinute();
+# endif
     int minutes=int(double(freemb)/(MBperMinute>0?MBperMinute:MB_PER_MINUTE));
 #else
     int minutes=int(double(freemb)/MB_PER_MINUTE);
@@ -794,14 +813,22 @@ void myMenuRecordings::Set(bool Refresh)
 {
   const char *lastreplayed=myReplayControl::LastReplayed();
 
+#if VDRVERSNUM >= 20301
+	LOCK_RECORDINGS_READ
+#else
   cThreadLock RecordingsLock(&Recordings);
+#endif
   if(Refresh)
   {
     fsid=0;
     myMenuRecordingsItem *item=(myMenuRecordingsItem*)Get(Current());
     if(item)
     {
+#if VDRVERSNUM >= 20301
+      const cRecording *recording=Recordings->GetByName(item->FileName());
+#else
       cRecording *recording=Recordings.GetByName(item->FileName());
+#endif
       if(recording)
         lastreplayed=recording->FileName();
     }
@@ -811,7 +838,11 @@ void myMenuRecordings::Set(bool Refresh)
 
   // create my own recordings list from VDR's
   myRecList *list=new myRecList();
+#if VDRVERSNUM >= 20301
+  for(const cRecording *recording=Recordings->First();recording;recording=Recordings->Next(recording))
+#else
   for(cRecording *recording=Recordings.First();recording;recording=Recordings.Next(recording))
+#endif
     list->Add(new myRecListItem(recording));
   // sort my recordings list
 #if APIVERSNUM > 20101
@@ -908,7 +939,12 @@ void myMenuRecordings::Set(bool Refresh)
 // returns the corresponding recording to an item
 cRecording *myMenuRecordings::GetRecording(myMenuRecordingsItem *Item)
 {
+#if VDRVERSNUM >= 20301
+  LOCK_RECORDINGS_READ
+  cRecording *recording=(cRecording *)Recordings->GetByName(Item->FileName());
+#else
   cRecording *recording=Recordings.GetByName(Item->FileName());
+#endif
   if(!recording)
     Skins.Message(mtError,trVDR("Error while accessing recording!"));
   return recording;
@@ -1175,13 +1211,26 @@ eOSState myMenuRecordings::Delete()
           if(timer)
           {
             timer->Skip();
+#if VDRVERSNUM >= 20301
+						LOCK_TIMERS_WRITE
+            cRecordControls::Process(Timers,time(NULL));
+#else
             cRecordControls::Process(time(NULL));
+#endif
             if(timer->IsSingleEvent())
             {
               isyslog("deleting timer %s",*timer->ToDescr());
+#if VDRVERSNUM >= 20301
+              Timers->Del(timer);
+#else
               Timers.Del(timer);
+#endif
             }
+#if VDRVERSNUM >= 20301
+            Timers->SetModified();
+#else
             Timers.SetModified();
+#endif
           }
         }
         else
@@ -1194,7 +1243,12 @@ eOSState myMenuRecordings::Delete()
         {
           cRecordingUserCommand::InvokeCommand("delete",item->FileName());
           myReplayControl::ClearLastReplayed(item->FileName());
+#if VDRVERSNUM >= 20301
+          LOCK_RECORDINGS_WRITE
+          Recordings->DelByName(item->FileName());
+#else
           Recordings.DelByName(item->FileName());
+#endif
           cOsdMenu::Del(Current());
           SetHelpKeys();
           ForceFreeMbUpdate();
@@ -1423,7 +1477,12 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
 
                                 if(Interface->Confirm(tr("Cancel moving?")))
                                 {
+#if VDRVERSNUM >= 20301
+																	LOCK_RECORDINGS_READ
+                                  for(const cRecording *rec=Recordings->First();rec;rec=Recordings->Next(rec))
+#else
                                   for(cRecording *rec=Recordings.First();rec;rec=Recordings.Next(rec))
+#endif
                                   {
                                     if(!strncmp(path.c_str(),rec->Name(),path.length()))
                                       MoveCutterThread->CancelMove(rec->FileName());
@@ -1480,14 +1539,21 @@ eOSState myMenuRecordings::ProcessKey(eKeys Key)
         default: break;
       }
     }
+#if VDRVERSNUM >= 20301
+    //TODO???
+    Set(true);
+#else
     bool stateChanged = Recordings.StateChanged(recordingsstate);
     if(stateChanged || MoveCutterThread->IsCutterQueueEmpty())
       Set(true);
+#endif
 
     if(!Count() && level>0)
       state=osBack;
 
+#if VDRVERSNUM < 20301
     if((!HasSubMenu() && Key!=kNone) || stateChanged)
+#endif
       SetHelpKeys();
   }
   return state;
