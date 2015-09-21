@@ -206,7 +206,11 @@ bool MoveRename(const char *OldName,const char *NewName,cRecording *Recording,bo
 // --- myRecListItem ----------------------------------------------------------
 bool myRecListItem::SortByName=false;
 
+#if VDRVERSNUM >= 20301
 myRecListItem::myRecListItem(const cRecording *Recording)
+#else
+myRecListItem::myRecListItem(cRecording *Recording)
+#endif
 {
   recording=(cRecording *)Recording;
   filename=strdup(recording->FileName());
